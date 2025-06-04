@@ -1,0 +1,8 @@
+# Ignore miscellaneous files
+cscope.*
+*.swp
+*.o*
+#Ignore build directory
+build/
+#Ignore kvm framework
+mem_test/kvm-unit-tests
