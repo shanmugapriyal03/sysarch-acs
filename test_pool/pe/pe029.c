@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018, 2022-2024, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2018, 2022-2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,7 +21,6 @@
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE  + 29)
 #define TEST_RULE  "S_L4PE_03"
-#endif
 #define TEST_DESC  "Check for 16-Bit VMID                 "
 
 static void payload(void)
