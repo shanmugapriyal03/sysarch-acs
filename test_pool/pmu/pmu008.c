@@ -15,13 +15,13 @@
  * limitations under the License.
  **/
 
-#include "val/sbsa/include/sbsa_val_interface.h"
-#include "val/common/include/acs_val.h"
-#include "val/sbsa/include/sbsa_acs_pe.h"
-#include "val/sbsa/include/sbsa_acs_pmu.h"
-#include "val/sbsa/include/sbsa_acs_pcie.h"
-#include "val/sbsa/include/sbsa_acs_mpam.h"
-#include "val/common/include/acs_common.h"
+#include "val/include/val_interface.h"
+#include "val/include/acs_pe.h"
+#include "val/include/acs_pmu.h"
+#include "val/include/acs_pcie.h"
+#include "val/include/acs_mpam.h"
+#include "val/include/acs_val.h"
+#include "val/include/acs_common.h"
 
 #define TEST_NUM  (ACS_PMU_TEST_NUM_BASE + 8)
 #define TEST_RULE "PMU_SYS_5"

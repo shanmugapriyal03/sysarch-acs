@@ -22,7 +22,7 @@
 /*
     To run a specific modules:
       - Give the module base numbers in the g_module_array.
-      - All module base numbers can be found in val/include/bsa_acs_common.h
+      - All module base numbers can be found in val/include/acs_common.h
       - Example - if g_module_array = {0}, only PE tests will be run while skipping other modules
 
     To run a specific tests:

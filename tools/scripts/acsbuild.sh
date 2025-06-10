@@ -25,14 +25,10 @@ fi
 # Get the path of the current shell script. Based on the script path navigate to sysarch-acs path
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
-bsa_path="$(dirname "$(dirname "$script_dir")")"
-echo "sysarch-acs path is: $(realpath "$bsa_path")"
+acs_path="$(dirname "$(dirname "$script_dir")")"
+echo "sysarch-acs path is: $(realpath "$acs_path")"
 
-# Use the default sysarch-acs directory
-sbsa_path="$bsa_path/../ssysarch-acs"
-echo "ssysarch-acs path is: $(realpath "$sbsa_path")"
-
-export BSA_PATH=$(realpath "$bsa_path")
+export ACS_PATH=$(realpath "$acs_path")
 
 NISTStatus=1;
 

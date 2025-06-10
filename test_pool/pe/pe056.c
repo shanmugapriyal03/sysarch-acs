@@ -15,10 +15,9 @@
  * limitations under the License.
  **/
 
-#include "val/common/include/acs_val.h"
-#include "val/common/include/acs_pe.h"
-#include "val/sbsa/include/sbsa_acs_pe.h"
-#include "val/sbsa/include/sbsa_val_interface.h"
+#include "val/include/acs_val.h"
+#include "val/include/acs_pe.h"
+#include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE + 36)
 #define TEST_RULE  "S_L7PE_09"
