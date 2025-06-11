@@ -28,18 +28,16 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
+    /*  ID_AA64MMFR0_EL1.FGT[59:56] == 0b0001 (FEAT_FGT) & 0b0010 (FEAT_FGT2)
+     *  indicate fine grained trap feature */
 
-    /*  ID_AA64MMFR0_EL1.FGT[59:56] = 0b0001 indicate fine grained trap feature */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64MMFR0_EL1), 56, 59);
 
-    if (data == 1)
-        val_set_status(index, RESULT_PASS(TEST_NUM, 01));
-    else
+    if ((data != 1) && (data != 2))
         val_set_status(index, RESULT_FAIL(TEST_NUM, 01));
+    else
+        val_set_status(index, RESULT_PASS(TEST_NUM, 01));
+
 }
 
 uint32_t pe048_entry(uint32_t num_pe)

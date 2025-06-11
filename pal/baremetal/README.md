@@ -4,36 +4,45 @@ The directory baremetal consists of the reference code of the PAL API's specific
 Description of each directory are as follows:
 
 ## Directory Structure
-&emsp; 1. **common**: The implementation common to both BSA and SBSA ACS for all modules are in this directory.\
-&emsp; &emsp; 1.1 **include**: Consists of the include files common to both BSA and SBSA ACS \
-&emsp; &emsp; 1.2. **src**: Source files common to both BSA and SBSA ACS for all modules which do not require user modification.\
+&emsp; 1. **base**: The implementation for all modules are present in this directory.\
+&emsp; &emsp; 1.1 **include**: Consists of the include files \
+&emsp; &emsp; 1.2. **src**: Source files for all modules which do not require user modification.\
 &emsp; &emsp; &emsp; Eg: Info tables parsing, PCIe enumeration code, etc.
 
-&emsp; 2. **bsa**   : The implementation specific to BSA ACS for all modules are in this directory \
-&emsp; 3. **sbsa**  : The implementation specific to SBSA ACS for all modules are in this directory \
-&emsp; 4. **target**: Contains Platform specific code. The details in this folder need to be modified w.r.t the platform
+&emsp; 2. **target**: Contains Platform specific code. The details in this folder need to be modified w.r.t the platform
+&emsp; &emsp; 2.1. **<platformname>**: Info tables parsing, PCIe enumeration code, etc.
+&emsp; &emsp; &emsp; 2.1.1. **pal**: Info tables parsing, PCIe enumeration code, etc.
 
 Contains Platform specific code. The details in this folder need to be modified w.r.t the platform.
 
 ## Build Steps
 
+### Pre-requisite
+Run the command
+- cd sysarch-acs
+- python tools/scripts/generate.py <platformname>
+
+   Eg: python tools/scripts/generate.py RDN2
+
+This command will create a folder RDN2 under the pal/target folder path and the files pal_bsa.c and pal_sbsa.c files within the RDN2/src folder.
+
 1. To compile BSA, perform the following steps \
-&emsp; 1.1 cd bsa-acs \
+&emsp; 1.1 cd sysarch-acs \
 &emsp; 1.2 export CROSS_COMPILE=<path_to_the_toolchain>/bin/aarch64-none-elf- \
 &emsp; 1.3 mkdir build \
 &emsp; 1.4 cd build \
-&emsp; 1.5 cmake ../ -G"Unix Makefiles" -DCROSS_COMPILE=$CROSS_COMPILE -DTARGET="Target platform" \
-&emsp; 1.6 make
+&emsp; 1.5 cmake ../ -G"Unix Makefiles" -DTARGET="Target platform" \
+&emsp; 1.6 make bsa
 
 Note: Reference Cmake file for BSA is present at [CMakeLists.txt](../../CMakeLists.txt).
 
-2. To compile SBSA from BSA, perform the following steps \
-&emsp; 2.1 cd bsa-acs \
+2. To compile SBSA , perform the following steps \
+&emsp; 1.1 cd sysarch-acs \
 &emsp; 2.2 export CROSS_COMPILE=<path_to_the_toolchain>/bin/aarch64-none-elf- \
 &emsp; 2.3 mkdir build \
 &emsp; 2.4 cd build \
-&emsp; 2.5 cmake ../ -G"Unix Makefiles" -DCROSS_COMPILE=$CROSS_COMPILE -DTARGET="Target platform" -DACS=sbsa -DSBSA_DIR=<sbsa-acs_path> \
-&emsp; 2.6 make
+&emsp; 2.5 cmake ../ -G"Unix Makefiles" -DTARGET="Target platform" \
+&emsp; 2.6 make sbsa
 
 *Recommended*: CMake v3.17, GCC v12.2
 ```
