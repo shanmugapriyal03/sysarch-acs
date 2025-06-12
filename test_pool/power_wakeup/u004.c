@@ -51,7 +51,6 @@ isr4()
 {
   uint32_t intid;
 
-
   val_wd_set_ws0(wd_num, 0);
   val_print(ACS_PRINT_INFO, "       Received WS0 interrupt\n", 0);
   g_wd_int_received = 1;

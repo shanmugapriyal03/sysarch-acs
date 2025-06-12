@@ -17,7 +17,6 @@
 
 #include "val/include/acs_val.h"
 #include "val/include/val_interface.h"
-
 #include "val/include/acs_gic.h"
 
 #define TEST_NUM   (ACS_GIC_V2M_TEST_NUM_BASE + 1)

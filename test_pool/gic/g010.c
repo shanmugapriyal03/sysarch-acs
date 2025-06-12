@@ -18,7 +18,6 @@
 #include "val/include/val_interface.h"
 #include "val/include/acs_val.h"
 #include "val/include/acs_common.h"
-
 #include "val/include/acs_pe.h"
 #include "val/include/acs_gic.h"
 #include "val/include/acs_gic_support.h"
@@ -63,6 +62,7 @@ payload()
     val_set_status(index, RESULT_PENDING(TEST_NUM));
     /*Get EL2 physical timer interrupt ID*/
     intid = val_timer_get_info(TIMER_INFO_PHY_EL2_INTID, 0);
+
     /*Check if interrupt is in PPI INTID range*/
     if ((intid < 16 || intid > 31) && (!val_gic_is_valid_eppi(intid))) {
         val_print(ACS_PRINT_DEBUG,

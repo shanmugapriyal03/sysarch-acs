@@ -110,7 +110,6 @@ payload()
         ns_wdg++;
         timeout = val_get_counter_frequency() * 2;
 
-
         int_id       = val_wd_get_info(wd_num, WD_INFO_GSIV);
         val_print(ACS_PRINT_DEBUG, "\n       WS0 Interrupt id  %d        ", int_id);
 

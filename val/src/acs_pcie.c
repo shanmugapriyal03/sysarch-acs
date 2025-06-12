@@ -24,6 +24,7 @@
 #include "sys_arch_src/pcie/pcie.h"
 
 #define WARN_STR_LEN 7
+
 PCIE_INFO_TABLE *g_pcie_info_table;
 pcie_device_bdf_table *g_pcie_bdf_table;
 

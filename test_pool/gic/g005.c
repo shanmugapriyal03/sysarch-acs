@@ -17,10 +17,8 @@
 
 #include "val/include/acs_val.h"
 #include "val/include/acs_common.h"
-
 #include "val/include/acs_gic.h"
 #include "val/include/acs_gic_support.h"
-#include "val/include/acs_gic.h"
 
 #define TEST_NUM   (ACS_GIC_TEST_NUM_BASE + 5)
 #define TEST_RULE  "B_GIC_05"

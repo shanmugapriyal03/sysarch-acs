@@ -21,7 +21,6 @@
 #include "val/include/acs_smmu.h"
 #include "val/include/acs_pcie_enumeration.h"
 #include "val/include/acs_exerciser.h"
-#include "val/include/acs_iovirt.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 11)
 #define TEST_RULE  "ITS_03,ITS_04,ITS_06,ITS_07,ITS_08,ITS_DEV_1,ITS_DEV_5"

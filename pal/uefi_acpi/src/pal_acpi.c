@@ -53,6 +53,7 @@ pal_dump_dtb()
   acs_print(ACS_PRINT_ERR, L" DTB dump not available for platform initialized"
                                 " with ACPI table\n");
 }
+
 /**
   @brief   Checks if System information is passed using Device Tree (DT)
            This api is also used to check if GIC/Interrupt Init ACS Code
@@ -493,7 +494,7 @@ pal_get_pptt_ptr(void)
   for (Idx = 0; Idx < Entry64Num; Idx++) {
     if (*(UINT32 *)(UINTN)(Entry64[Idx]) ==
         EFI_ACPI_6_4_PROCESSOR_PROPERTIES_TOPOLOGY_TABLE_STRUCTURE_SIGNATURE) {
-        return(UINT64)(Entry64[Idx]);
+        return (UINT64)(Entry64[Idx]);
     }
   }
 

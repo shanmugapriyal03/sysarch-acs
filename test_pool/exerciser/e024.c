@@ -21,7 +21,6 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_pe.h"
 #include "val/include/acs_smmu.h"
-#include "val/include/acs_iovirt.h"
 #include "val/include/acs_memory.h"
 #include "val/include/acs_exerciser.h"
 #include "val/include/val_interface.h"

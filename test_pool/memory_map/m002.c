@@ -19,7 +19,6 @@
 #include "val/include/acs_peripherals.h"
 #include "val/include/acs_memory.h"
 #include "val/include/acs_pe.h"
-#include "val/include/acs_memory.h"
 
 #define TEST_NUM   (ACS_MEMORY_MAP_TEST_NUM_BASE + 2)
 #define TEST_RULE  "B_MEM_01"

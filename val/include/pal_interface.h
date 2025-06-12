@@ -95,7 +95,7 @@
 #define MAX_IRQ_CNT      PLATFORM_BM_OVERRIDE_MAX_IRQ_CNT
 
 #else
-#include "../pal/include/platform_override.h"
+#include "../../pal/include/platform_override.h"
   typedef INT8   int8_t;
   typedef INT32  int32_t;
   typedef INT64  int64_t;

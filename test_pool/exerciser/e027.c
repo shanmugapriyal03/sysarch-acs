@@ -24,7 +24,6 @@
 #include "val/include/acs_smmu.h"
 #include "val/include/acs_iovirt.h"
 #include "val/include/acs_memory.h"
-#include "val/include/val_interface.h"
 #include "val/include/acs_exerciser.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 27)

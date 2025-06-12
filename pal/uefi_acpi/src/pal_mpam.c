@@ -25,7 +25,7 @@
 #include "include/pal_mpam.h"
 
 
-#define ADD_PTR(t, p, l) ((t*)((UINT8*)p + l))
+#define ADD_PTR(t, p, l) ((t *)((UINT8 *)p + l))
 
 UINT64 pal_get_mpam_ptr(VOID);
 

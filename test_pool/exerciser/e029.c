@@ -22,7 +22,6 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_ras.h"
 #include "val/include/acs_exerciser.h"
-#include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 29)
 #define TEST_DESC  "RAS ERR record for external abort     "

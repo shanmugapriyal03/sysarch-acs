@@ -1,5 +1,15 @@
 /** @file
  * Copyright (c) 2024-2025, Arm Limited or its affiliates. All rights reserved.
+ * SPDX-License-Identifier : Apache-2.0
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -143,7 +153,7 @@ val_bsa_pe_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= pe017_entry(num_pe);
           status |= pe018_entry(num_pe);
           status |= pe019_entry(num_pe);
-          status |= pe010_entry(num_pe);
+          status |= pe020_entry(num_pe);
           status |= pe021_entry(num_pe);
       }
   }
@@ -767,7 +777,7 @@ val_bsa_smmu_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           view_print_info(HYPERVISOR);
           status |= i005_entry(num_pe);
           if (ver_smmu == 2)
-              status |= i003_entry(num_pe);
+              status |= i006_entry(num_pe);
           status |= i007_entry(num_pe);
       }
   }
@@ -882,6 +892,7 @@ val_bsa_execute_tests(uint32_t *g_sw_view)
 {
 
   uint32_t Status;
+
   /***  Starting PE tests             ***/
   Status = val_bsa_pe_execute_tests(val_pe_get_num(), g_sw_view);
 

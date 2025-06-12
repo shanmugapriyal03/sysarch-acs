@@ -26,7 +26,7 @@
 #include "include/pal_uefi.h"
 
 UINT64 pal_get_pptt_ptr(void);
-#define ADD_PTR(t, p, l) ((t*)((UINT8*)p + l))
+#define ADD_PTR(t, p, l) ((t *)((UINT8 *)p + l))
 #define PPTT_PE_PRIV_RES_OFFSET 0x14
 #define PPTT_STRUCT_OFFSET 0x24
 
@@ -249,7 +249,7 @@ pal_cache_create_info_table(CACHE_INFO_TABLE *CacheTable, PE_INFO_TABLE *PeTable
             temp_pe_struct = ADD_PTR(EFI_ACPI_6_4_PPTT_STRUCTURE_PROCESSOR, PpttHdr,
                                      temp_pe_struct->Parent);
             /* If a group has cache resources parse it */
-            for (j = 0 ; j < temp_pe_struct->NumberOfPrivateResources; j++) {
+            for (j = 0; j < temp_pe_struct->NumberOfPrivateResources; j++) {
               offset = *(ADD_PTR(UINT32, temp_pe_struct, PPTT_PE_PRIV_RES_OFFSET + j*4));
               cache_type_struct =  ADD_PTR(EFI_ACPI_6_4_PPTT_STRUCTURE_CACHE, PpttHdr, offset);
               /* Next level cache type should unified type(0x2 or 0x3) or same as previous type*/
@@ -273,7 +273,7 @@ pal_cache_create_info_table(CACHE_INFO_TABLE *CacheTable, PE_INFO_TABLE *PeTable
             /* If cache entry already found in info table, then it means next level cache(s)
                for that cache is already parsed in past iteration, else parse parent PE group
                of current group */
-            if(status)
+            if (status)
               break;
           }
         }

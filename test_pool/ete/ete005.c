@@ -17,7 +17,6 @@
 
 #include "val/include/acs_val.h"
 #include "val/include/acs_pe.h"
-#include "val/include/acs_pe.h"
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_ETE_TEST_NUM_BASE + 5)

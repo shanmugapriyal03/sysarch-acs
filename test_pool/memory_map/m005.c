@@ -32,46 +32,36 @@ static void payload(void)
     uint64_t peri_count, addr_diff;
     uint64_t peri_addr1, peri_addr2;
     uint32_t fail_cnt = 0;
-    uint32_t test_skip = 1, test_check = 1;
 
     pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-    if (test_check == 1) {
-      peri_count = val_peripheral_get_info(NUM_ALL, 0);
+    peri_count = val_peripheral_get_info(NUM_ALL, 0);
 
     /* check whether all peripheral base addresses are 64KB apart from each other */
-      for (peri_index = 0 ; peri_index < peri_count; peri_index++) {
-          for (peri_index1 = peri_index + 1; peri_index1 < peri_count; peri_index1++) {
+    for (peri_index = 0 ; peri_index < peri_count; peri_index++) {
+        for (peri_index1 = peri_index + 1; peri_index1 < peri_count; peri_index1++) {
 
-              peri_addr1 = val_peripheral_get_info(ANY_BASE0, peri_index);
-              peri_addr2 = val_peripheral_get_info(ANY_BASE0, peri_index1);
-              val_print(ACS_PRINT_INFO, "\n   addr of Peripheral 1 is  %llx", peri_addr1);
-              val_print(ACS_PRINT_INFO, "\n   addr of Peripheral 2 is  %llx", peri_addr2);
+            peri_addr1 = val_peripheral_get_info(ANY_BASE0, peri_index);
+            peri_addr2 = val_peripheral_get_info(ANY_BASE0, peri_index1);
+            val_print(ACS_PRINT_INFO, "\n   addr of Peripheral 1 is  %llx", peri_addr1);
+            val_print(ACS_PRINT_INFO, "\n   addr of Peripheral 2 is  %llx", peri_addr2);
 
-             if ((peri_addr1 == 0) || (peri_addr2 == 0))
-                 continue;
+           if ((peri_addr1 == 0) || (peri_addr2 == 0))
+                continue;
 
-              test_skip = 0;
-              addr_diff = (peri_addr1 > peri_addr2) ?
-                           peri_addr1 - peri_addr2 : peri_addr2 - peri_addr1;
+            addr_diff = (peri_addr1 > peri_addr2) ?
+                         peri_addr1 - peri_addr2 : peri_addr2 - peri_addr1;
 
-              if (addr_diff < MEM_SIZE_64KB) {
-                  val_print(ACS_PRINT_ERR,
+            if (addr_diff < MEM_SIZE_64KB) {
+                val_print(ACS_PRINT_ERR,
                          "\n  Peripheral base addresses isn't atleast 64Kb apart %llx", addr_diff);
-                  fail_cnt++;
-              }
-          }
-      }
+                fail_cnt++;
+            }
+        }
     }
 
     if (fail_cnt)
     {
         val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 01));
-        return;
-    }
-    else if (test_skip)
-    {
-        val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
         return;
     }
 

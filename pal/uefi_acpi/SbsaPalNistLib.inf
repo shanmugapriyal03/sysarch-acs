@@ -45,6 +45,7 @@
   src/pal_pptt.c
   src/pal_pmu.c
   src/pal_pcc.c
+  src/pal_nist.c
 
 [Packages]
   ArmPkg/ArmPkg.dec

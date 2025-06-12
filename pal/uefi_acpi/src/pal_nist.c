@@ -1,7 +1,7 @@
 /** @file
- * Copyright (c) 2016-2018,2020-2021, 2024-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2024-2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
- *
+
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,19 +15,18 @@
  * limitations under the License.
 **/
 
-#ifndef __ACS_WD_H
-#define __ACS_WD_H
+#include <stdlib.h>
 
-#define  WD_IIDR_OFFSET          0xFCC
-#define  WD_CS_OFFSET            0x0
-#define  WD_OR_OFFSET            0x8
-#define  WD_OR_UPPER_WORD_OFFSET 0x0C
+/**
+  @brief   This API generates a 32 bit random number.
+  @param   rng_buffer    - Pointer to store the random data
 
-#define  WD_CSR_RSRV_SHIFT       3
-#define  WD_OR_RSRV_SHIFT        16
+  @return  success/failure
+**/
+UINT32
+pal_nist_generate_rng(UINT32 *rng_buffer)
+{
+  *rng_buffer = rand();
+  return 0;
 
-uint32_t w001_entry(uint32_t num_pe);
-uint32_t w002_entry(uint32_t num_pe);
-uint32_t w003_entry(uint32_t num_pe);
-
-#endif // __ACS_WD_H
+}

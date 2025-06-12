@@ -26,12 +26,9 @@
 #include "val/include/acs_val.h"
 #include "val/include/acs_memory.h"
 #include "val/include/acs_exerciser.h"
-
 #include "val/include/acs_smmu.h"
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_pcie_enumeration.h"
-#include "val/include/acs_pcie.h"
-#include "val/include/acs_memory.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 8)
 #define TEST_RULE  "PCI_IC_12, PCI_IC_14, RE_ORD_4, IE_ORD_4"

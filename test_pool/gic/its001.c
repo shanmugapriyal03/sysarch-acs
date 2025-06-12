@@ -15,7 +15,6 @@
  **/
 #include "val/include/acs_val.h"
 #include "val/include/acs_iovirt.h"
-#include "val/include/acs_iovirt.h"
 
 #define TEST_NUM   (ACS_GIC_ITS_TEST_NUM_BASE + 1)
 #define TEST_RULE  "ITS_01"

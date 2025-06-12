@@ -75,6 +75,7 @@ payload()
 
     /*Get EL2 virtual timer interrupt ID*/
     intid = val_timer_get_info(TIMER_INFO_VIR_EL2_INTID, 0);
+
     /*Check if interrupt is in PPI INTID range*/
     if ((intid < 16 || intid > 31) && (!val_gic_is_valid_eppi(intid))) {
         val_print(ACS_PRINT_DEBUG,

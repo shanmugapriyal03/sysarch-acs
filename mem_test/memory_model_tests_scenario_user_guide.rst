@@ -340,7 +340,7 @@ inside bsa-acs repository and infra required to build them into BSA ACS EFI appl
 
 ::
 
-    📂 bsa-acs
+    📂 sysarch-acs
     ├── .
     ├── 📂 uefi_app
     │  ├── Mem.inf

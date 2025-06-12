@@ -569,6 +569,13 @@ command_init ()
     g_pcie_cache_present = FALSE;
   }
 
+  // Options with Flags
+  if (ShellCommandLineGetFlag (ParamPackage, L"-nist")) {
+    g_execute_nist = TRUE;
+  } else {
+    g_execute_nist = FALSE;
+  }
+
   if (ShellCommandLineGetFlag (ParamPackage, L"-el1physkip")) {
     g_el1physkip = TRUE;
   }
@@ -636,6 +643,11 @@ execute_tests()
 
   FlushImage();
   val_sbsa_execute_tests(g_sbsa_level);
+
+  /***         Starting NIST tests                   ***/
+  if (g_execute_nist == TRUE) {
+    Status |= val_sbsa_nist_execute_tests(g_sbsa_level, val_pe_get_num());
+  }
 
   /* Initialise exception vector, so any unexpected exception gets handled by default
      BSA exception handler */

@@ -316,10 +316,8 @@ val_pe_install_esr(uint32_t exception_type, void (*esr)(uint64_t, void *))
       return ACS_STATUS_ERR;
   }
 #ifndef TARGET_LINUX
-#if !defined(SBSA) && !defined(DRTM)
   if (pal_target_is_dt())
       return val_acs_install_esr(exception_type, esr);
-#endif
   if (pal_target_is_bm())
       return val_acs_install_esr(exception_type, esr);
   else
@@ -388,7 +386,6 @@ val_pe_default_esr(uint64_t interrupt_type, void *context)
     val_print(ACS_PRINT_WARN, "\n        Unexpected exception of type %d occurred", interrupt_type);
 
 #ifndef TARGET_LINUX
-#if !defined(SBSA) && !defined(DRTM)
     if (pal_target_is_dt()) {
       val_print(ACS_PRINT_WARN, "\n        FAR reported = 0x%llx", bsa_gic_get_far());
       val_print(ACS_PRINT_WARN, "\n        ESR reported = 0x%llx", bsa_gic_get_esr());
@@ -396,7 +393,6 @@ val_pe_default_esr(uint64_t interrupt_type, void *context)
       val_pe_update_elr(context, g_exception_ret_addr);
       return;
     }
-#endif
     if (pal_target_is_bm()) {
       val_print(ACS_PRINT_WARN, "\n        FAR reported = 0x%llx", bsa_gic_get_far());
       val_print(ACS_PRINT_WARN, "\n        ESR reported = 0x%llx", bsa_gic_get_esr());

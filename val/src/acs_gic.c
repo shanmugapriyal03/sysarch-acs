@@ -71,10 +71,8 @@ val_gic_create_info_table(uint64_t *gic_info_table)
       return ACS_STATUS_ERR;
   }
 
-#if !defined(SBSA) && !defined(DRTM)
   if (pal_target_is_dt())
       val_gic_init();
-#endif
   if (pal_target_is_bm())
       val_gic_init();
 

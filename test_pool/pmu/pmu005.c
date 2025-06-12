@@ -42,6 +42,7 @@ static void payload(void)
     uint64_t mc_prox_domain;
     uint64_t prox_base_addr, addr_len;
     uint32_t status1, status2;
+    uint32_t cs_com = 0;
     void *src_buf = 0;
     void *dest_buf = 0;
 
@@ -54,8 +55,24 @@ static void payload(void)
     val_print(ACS_PRINT_DEBUG, "\n       PMU NODES = %d", node_count);
 
     if (node_count == 0) {
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 01));
-        val_print(ACS_PRINT_ERR, "\n       No PMU nodes found", 0);
+        val_set_status(index, RESULT_SKIP(TEST_NUM, 02));
+        val_print(ACS_PRINT_TEST, "\n       No PMU nodes found in APMT table", 0);
+        val_print(ACS_PRINT_TEST, "\n       The test must be considered fail"
+                                   " if system has CoreSight PMU", 0);
+        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
+                                   "in the SBSA specification", 0);
+        return;
+    }
+
+    /* The test uses PMU CoreSight arch register map, skip if pmu node is not cs */
+    for (node_index = 0; node_index < node_count; node_index++) {
+        cs_com |= val_pmu_get_info(PMU_NODE_CS_COM, node_index);
+    }
+    if (cs_com != 0x1) {
+        val_set_status(index, RESULT_SKIP(TEST_NUM, 03));
+        val_print(ACS_PRINT_TEST, "\n       No CoreSight PMU nodes found", 0);
+        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
+                                   "in the SBSA specification", 0);
         return;
     }
 

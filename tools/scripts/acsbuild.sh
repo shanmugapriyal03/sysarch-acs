@@ -30,6 +30,12 @@ echo "sysarch-acs path is: $(realpath "$acs_path")"
 
 export ACS_PATH=$(realpath "$acs_path")
 
+if [ "$#" -ne 1 ]; then
+    echo "Usage: source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh <acs_type>"
+    echo "where acs_type is unified, bsa, bsa_dt, sbsa, nist, mpam, drtm, mem_test"
+    return 1;
+fi
+
 NISTStatus=1;
 
 function build_with_NIST()
@@ -38,7 +44,7 @@ function build_with_NIST()
         wget https://csrc.nist.gov/CSRC/media/Projects/Random-Bit-Generation/documents/sts-2_1_2.zip
         status=$?
         if [ $status -ne 0 ]; then
-            echo "wget failed for NIST. Building sbsa without NIST"
+            echo "wget failed for NIST."
             return $status
         fi
     fi
@@ -47,7 +53,7 @@ function build_with_NIST()
         /usr/bin/unzip sts-2_1_2.zip -d ShellPkg/Application/sysarch-acs/test_pool/nist_sts/.
 	status=$?
         if [ $status -ne 0 ]; then
-            echo "unzip failed for NIST. Building sbsa without NIST"
+            echo "unzip failed for NIST."
             return $status
         fi
     fi
@@ -57,7 +63,7 @@ function build_with_NIST()
         patch -p1 < ../../../patches/nist_sbsa_sts.diff
         status=$?
 	if [ $status -ne 0 ]; then
-            echo "patch failed for NIST. Building sbsa without NIST"
+            echo "patch failed for NIST."
             return $status
         fi
     fi
@@ -66,7 +72,7 @@ function build_with_NIST()
     build -a AARCH64 -t GCC49 -p ShellPkg/ShellPkg.dsc -m ShellPkg/Application/sysarch-acs/apps/uefi/SbsaNist.inf -D ENABLE_NIST -D SBSA
     status=$?
     if [ $status -ne 0 ]; then
-        echo "Build failed for NIST. Building sbsa without NIST"
+        echo "Build failed for NIST."
         return $status
     fi
 
@@ -110,4 +116,7 @@ if [ "$1" == "mpam" ]; then
     return 0;
 fi
 
+if [ "$1" == "unified" ]; then
     build -a AARCH64 -t GCC49 -p ShellPkg/ShellPkg.dsc -m ShellPkg/Application/sysarch-acs/apps/uefi/Unified.inf
+    return 0;
+fi

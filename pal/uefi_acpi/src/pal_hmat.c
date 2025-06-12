@@ -22,9 +22,9 @@
 
 #include "include/pal_uefi.h"
 
-#define ADD_PTR(t, p, l) ((t*)((UINT8*)p + l))
+#define ADD_PTR(t, p, l) ((t *)((UINT8 *)p + l))
 
-UINT64 pal_get_hmat_ptr(void);
+UINT64 pal_get_hmat_ptr(VOID);
 
 /**
   @brief  This function checks whether an entry already present for
