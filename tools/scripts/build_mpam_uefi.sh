@@ -1,5 +1,5 @@
 ## @file
-#  Copyright (c) 2024-2025, Arm Limited or its affiliates. All rights reserved.
+#  Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
 #  SPDX-License-Identifier : Apache-2.0
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,10 +37,14 @@ then
     mkdir output
 fi
 
-echo "Building DRTM ACS for UEFI"
+echo "Building MPAM ACS for UEFI"
 if [ ! -d edk2 ]
 then
-    git clone --recursive --branch edk2-stable202402 https://github.com/tianocore/edk2.git
+    git clone https://github.com/tianocore/edk2.git
+    pushd edk2
+    git checkout 836942fbadb629050b866a8052e6af755bcdf623
+    git submodule update --init --recursive
+    popd
     git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 fi
 cd ${WORK_DIR}/edk2
@@ -54,10 +58,10 @@ export GCC49_AARCH64_PREFIX=${WORK_DIR}/arm-gnu-toolchain-13.2.Rel1-x86_64-aarch
 export PACKAGES_PATH=${WORK_DIR}/edk2/edk2-libc
 
 source edksetup.sh
-git apply ShellPkg/Application/sysarch-acs/patches/edk2_drtm.patch
-source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh drtm
-cp Build/Shell/DEBUG_GCC49/AARCH64/Drtm.efi ${WORK_DIR}/output
+git apply ShellPkg/Application/sysarch-acs/patches/edk2_mpam.patch
+source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh mpam
+cp Build/Shell/DEBUG_GCC49/AARCH64/Mpam.efi ${WORK_DIR}/output
 
 cd ${HOME_DIR}
 
-echo "Drtm EFI Application is available here : ${WORK_DIR}/output/Drtm.efi"
+echo "Mpam EFI Application is available here : ${WORK_DIR}/output/Mpam.efi"

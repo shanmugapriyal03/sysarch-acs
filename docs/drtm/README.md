@@ -8,21 +8,21 @@ For more information, download the [DRTM Architecture for Arm](https://developer
 
 ## Release details
  - Code Quality: Alpha
- - The tests are written for version 1.0 of the DRTM Architecture for Arm.
+ - The tests are written for version 1.1 of the DRTM Architecture for Arm.
  - For more details on tests implemented in this release, Please refer [DRTM Test Scenario Document](docs/arm_drtm_architecture_compliance_test_scenario.pdf).
 
 ## Downloading DRTM ACS
 
-DRTM ACS code is present in a sub-directory in bsa-acs repository.
+DRTM ACS code is present in the sysarch-acs repository.
 
-$ git clone ssh://ap-gerrit-1.ap01.arm.com:29418/avk/syscomp_bsa <br/>
-$ cd syscomp_bsa <br/>
+$ git clone https://github.com/ARM-software/sysarch-acs.git <br/>
+$ cd sysarch-acs <br/>
 
 ## Building DRTM ACS
 ### UEFI application
 #### Prerequisites
 
-ACS build requires that the following requirements are met, Please skip this if you are using [DRTM Application Build Script](scripts/build_drtm_uefi.sh).
+ACS build requires that the following requirements are met, Please skip this if you are using [DRTM Application Build Script](../tools/scripts/build_drtm_uefi.sh).
 
 - Any mainstream Linux based OS distribution.
 - git clone EDK2 tree.
@@ -32,12 +32,12 @@ ACS build requires that the following requirements are met, Please skip this if 
 
 #### Build Steps
 
-$ cd /path/to/syscomp_bsa/<br/>
-$ source drtm/scripts/build_drtm_uefi.sh
+$ cd /path/to/sysarch-acs/<br/>
+$ source tools/scripts/build_drtm_uefi.sh
 
 #### Build Output
 
-The following output file is created in /path/to/syscomp_bsa/workspace/output/:
+The following output file is created in /path/to/sysarch-acs/workspace/output/:
 
 - Drtm.efi
 
@@ -64,9 +64,9 @@ On a system where a USB port is available and functional, perform the following 
 On an emulation environment with secondary storage, perform the following steps:
 
 1. Create an image file which contains the 'Drtm.efi' file. For Example: <br/>
-$ mkfs.vfat -C -n HD0 hda.img 31457280 <br/>
+$ mkfs.vfat -C -n HD0 hda.img 2097152 <br/>
 $ sudo mount hda.img /mnt/drtm <br/>
-$ cd /path/to/syscomp_bsa/workspace/output/ <br/>
+$ cd /path/to/sysarch-acs/workspace/output/ <br/>
 $ sudo cp Drtm.efi /mnt/drtm/ <br/>
 $ sudo umount /mnt/drtm
 2. Load the image file to the secondary storage using a backdoor. The steps followed to load the image file are Emulation environment specific and beyond the scope of this document.
@@ -121,4 +121,4 @@ DRTM ACS is distributed under Apache v2.0 License.
 
 --------------
 
-*Copyright (c) 2024, Arm Limited and Contributors. All rights reserved.*
+*Copyright (c) 2024-2025, Arm Limited and Contributors. All rights reserved.*
