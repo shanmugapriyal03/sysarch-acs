@@ -1,0 +1,359 @@
+{
+  "common": [
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_get_pe_count",
+      "parameters": []
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "*pal_get_phy_mpidr_list_base",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pe_install_esr",
+      "parameters": ["uint32_t ExceptionType", "void (*esr)(uint64_t, void *)"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_pe_update_elr",
+      "parameters": ["void *context", "uint64_t offset"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_pe_get_esr",
+      "parameters": ["void *context"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_pe_get_far",
+      "parameters": ["void *context"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_psci_get_conduit",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_gic_install_isr",
+      "parameters": ["uint32_t int_id", "void (*isr)()"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_gic_end_of_interrupt",
+      "parameters": ["uint32_t int_id"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_gic_request_irq",
+      "parameters": ["uint32_t IrqNum", "uint32_t MappedIrqNum", "void *Isr"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_gic_free_irq",
+      "parameters": ["uint32_t IrqNum", "uint32_t MappedIrqNum"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_mmu_add_mmap",
+      "parameters": []
+    },
+    {
+      "return_type": "void",
+      "function_name": "*pal_mmu_get_mmap_list",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_mmu_get_mapping_count",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_smmu_create_pasid_entry",
+      "parameters": ["uint64_t SmmuBase", "uint32_t PasId"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_smmu_disable",
+      "parameters": ["uint64_t SmmuBase"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_smmu_pa2iova",
+      "parameters": ["uint64_t SmmuBase", "uint64_t Pa"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_smmu_check_device_iova",
+      "parameters": ["void *port", "uint64_t dma_addr"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_smmu_device_start_monitor_iova",
+      "parameters": ["void *port"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_smmu_device_stop_monitor_iova",
+      "parameters": ["void *port"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_p2p_support",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_device_driver_present",
+      "parameters": ["uint32_t seg", "uint32_t bus", "uint32_t dev", "uint32_t fn"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_get_msi_vectors",
+      "parameters": ["uint32_t Seg", "uint32_t Bus", "uint32_t Dev", "uint32_t Fn", "PERIPHERAL_VECTOR_LIST **MVector"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_get_rp_transaction_frwd_support",
+      "parameters": ["uint32_t seg", "uint32_t bus", "uint32_t dev", "uint32_t fn"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_is_onchip_peripheral",
+      "parameters": ["uint32_t bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_mem_get_offset",
+      "parameters": ["uint32_t bdf", "PCIE_MEM_TYPE_INFO_e mem_type"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_is_bdf_exerciser",
+      "parameters": ["uint32_t bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_set_param",
+      "parameters": ["EXERCISER_PARAM_TYPE Type", "uint64_t Value1", "uint64_t Value2", "uint32_t Bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_get_param",
+      "parameters": ["EXERCISER_PARAM_TYPE Type", "uint64_t *Value1", "uint64_t *Value2", "uint32_t Bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_start_dma_direction",
+      "parameters": ["uint64_t Base", "EXERCISER_DMA_ATTR Direction"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_get_state",
+      "parameters": ["EXERCISER_STATE *State", "uint32_t Bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_set_state",
+      "parameters": ["EXERCISER_STATE State", "uint64_t *Value", "uint32_t Instance"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_get_data",
+      "parameters": ["EXERCISER_DATA_TYPE Type" , "exerciser_data_t *Data" , "uint32_t Bdf", "uint64_t Ecam"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_ops",
+      "parameters": ["EXERCISER_OPS Ops", "uint64_t Param", "uint32_t Bdf"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_memory_ioremap",
+      "parameters": ["void *ptr", "uint32_t size", "uint32_t attr"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_memory_unmap",
+      "parameters": ["void *ptr"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_peripheral_uart_setup",
+      "parameters": []
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_print",
+      "parameters": ["char *string", "uint64_t data"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_mem_virt_to_phys",
+      "parameters": ["void *Va"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_mem_phys_to_virt",
+      "parameters": ["uint64_t Pa"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_time_delay_ms",
+      "parameters": ["uint64_t MicroSeconds"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_mem_page_size",
+      "parameters": []
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_mem_alloc_pages",
+      "parameters": ["uint32_t NumPages"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_mem_free_pages",
+      "parameters": ["void *PageBase", "uint32_t NumPages"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_aligned_alloc",
+      "parameters": ["uint32_t alignment", "uint32_t size"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_mem_free_aligned",
+      "parameters": ["void *Buffer"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_mem_alloc_at_address",
+      "parameters": ["uint64_t mem_base", "uint64_t Size"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_mem_free_at_address",
+      "parameters": ["uint64_t mem_base", "uint64_t Size"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "mem_alloc",
+      "parameters": ["size_t alignment", "size_t size"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "mem_free",
+      "parameters": ["void *ptr"]
+    }
+  ],
+  "bsa": [
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_dma_mem_alloc",
+      "parameters": ["void **buffer", "uint32_t length", "void *dev", "uint32_t flag"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_dma_mem_free",
+      "parameters": ["void *buffer", "uint64_t mem_dma", "unsigned int length", "void *port", "unsigned int flags"]
+    },
+    {
+      "return_type": "unsigned int",
+      "function_name": "pal_dma_start_from_device",
+      "parameters": ["void *dma_target_buf", "unsigned int length", "void *host", "void *dev"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_dma_scsi_get_dma_addr",
+      "parameters": ["void *port", "void *dma_addr", "unsigned int *dma_len"]
+    },
+    {
+      "return_type": "int",
+      "function_name": "pal_dma_mem_get_attrs",
+      "parameters": ["void *buf", "uint32_t *attr", "uint32_t *sh"]
+    },
+    {
+      "return_type": "void *",
+      "function_name": "pal_mem_alloc_cacheable",
+      "parameters": ["uint32_t Bdf", "uint32_t Size", "void **Pa"]
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_mem_free_cacheable",
+      "parameters": ["uint32_t Bdf", "uint32_t Size", "void *Va", "void *Pa"]
+    }
+  ],
+  "sbsa": [
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_smmu_is_etr_behind_catu",
+      "parameters": ["char *etr_path"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pcie_dsm_ste_tags",
+      "parameters": []
+    },
+    {
+      "return_type": "void",
+      "function_name": "pal_exerciser_disable_rp_pio_register",
+      "parameters": ["uint32_t bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_check_poison_data_forwarding_support",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_get_pcie_ras_compliant_err_node",
+      "parameters": ["uint32_t bdf", "uint32_t rp_bdf"]
+    },
+    {
+      "return_type": "uint64_t",
+      "function_name": "pal_exerciser_get_ras_status",
+      "parameters": ["uint32_t ras_node", "uint32_t bdf", "uint32_t rp_bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_exerciser_set_bar_response",
+      "parameters": ["uint32_t bdf"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pmu_check_monitor_count_value",
+      "parameters": ["uint64_t interface_acpiid", "uint32_t count_value", "uint32_t eventid"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_generate_traffic",
+      "parameters": ["uint64_t interface_acpiid", "uint32_t pmu_node_index", "uint32_t mon_index", "uint32_t eventid"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_pmu_get_multi_traffic_support_interface",
+      "parameters": ["uint64_t *interface_acpiid", "uint32_t *num_traffic_type_support"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_ras_check_plat_poison_support",
+      "parameters": []
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_ras_setup_error",
+      "parameters": ["RAS_ERR_IN_t in_param", "RAS_ERR_OUT_t *out_param"]
+    },
+    {
+      "return_type": "uint32_t",
+      "function_name": "pal_ras_inject_error",
+      "parameters": ["RAS_ERR_IN_t in_param", "RAS_ERR_OUT_t *out_param"]
+    }
+  ]
+}
+
