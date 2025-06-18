@@ -777,6 +777,7 @@ val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe)
       status |= mpam005_entry(num_pe);
       status |= mpam006_entry(num_pe);
       status |= mpam007_entry(num_pe);
+      status |= mpam009_entry(num_pe);
   }
   val_print_test_end(status, "MPAM");
 
