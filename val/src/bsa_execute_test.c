@@ -582,6 +582,7 @@ val_bsa_peripheral_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= d002_entry(num_pe);
           status |= d003_entry(num_pe);
           status |= d005_entry(num_pe);
+          status |= d006_entry(num_pe);
 #endif
 #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
           status |= d004_entry(num_pe);

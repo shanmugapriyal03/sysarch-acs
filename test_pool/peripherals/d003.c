@@ -27,6 +27,7 @@
 #define TEST_RULE_BSA  "B_PER_05"
 #define TEST_RULE_SBSA "S_L3PR_01"
 #define TEST_DESC  "Check Arm BSA UART register offsets   "
+
 #define TEST_NUM1  (ACS_PER_TEST_NUM_BASE + 6)
 #define TEST_RULE1 "B_PER_06, B_PER_07"
 #define TEST_DESC1 "Check Arm GENERIC UART Interrupt      "
@@ -132,7 +133,7 @@ validate_register_access(uint32_t offset, uint32_t width)
 
 static
 void
-payload()
+payload_check_arm_bsa_uart_reg_offsets()
 {
 
   uint32_t count = val_peripheral_get_info(NUM_UART, 0);
@@ -183,7 +184,7 @@ exception_taken:
 
 static
 void
-payload1()
+payload_check_arm_generic_uart_interrupt()
 {
   uint32_t count = val_peripheral_get_info(NUM_UART, 0);
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
@@ -268,14 +269,12 @@ payload1()
 uint32_t
 d003_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
 
-  num_pe = 1;  //This test is run on single processor
-
+  num_pe = 1;  /* This test is run on single processor */
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_payload(TEST_NUM, num_pe, payload_check_arm_bsa_uart_reg_offsets, 0);
 
   /* get the result from all PE and check for failure */
   if (g_build_sbsa)
@@ -284,16 +283,21 @@ d003_entry(uint32_t num_pe)
       status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE_BSA);
 
   val_report_status(0, ACS_END(TEST_NUM), NULL);
+  return status;
+}
 
-  if (!status) {
-      status = val_initialize_test(TEST_NUM1, TEST_DESC1, val_pe_get_num());
-      if (status != ACS_STATUS_SKIP)
-          val_run_test_payload(TEST_NUM1, num_pe, payload1, 0);
+uint32_t
+d006_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
 
-      /* get the result from all PE and check for failure */
-      status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
-      val_report_status(0, ACS_END(TEST_NUM1), NULL);
-  }
+  num_pe = 1;  /* This test is run on single processor */
+  status = val_initialize_test(TEST_NUM1, TEST_DESC1, val_pe_get_num());
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_payload(TEST_NUM1, num_pe, payload_check_arm_generic_uart_interrupt, 0);
 
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+  val_report_status(0, ACS_END(TEST_NUM1), NULL);
   return status;
 }
