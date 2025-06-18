@@ -484,6 +484,7 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= i010_entry(num_pe);
       status |= i011_entry(num_pe);
       status |= i012_entry(num_pe);
+      status |= i026_entry(num_pe);
   }
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
@@ -496,13 +497,16 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= i019_entry(num_pe);
   }
 
-if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
+  if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
      status |= i021_entry(num_pe);
      status |= i022_entry(num_pe);
+     status |= i027_entry(num_pe);
   }
 
-if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
+  if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8)) {
      status |= i024_entry(num_pe);
+     status |= i028_entry(num_pe);
+  }
 #endif  // TARGET_LINUX
 
 #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)

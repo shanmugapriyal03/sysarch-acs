@@ -22,7 +22,7 @@
 #include "val/include/acs_smmu.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 12)
-#define TEST_RULE  "B_SMMU_11, B_SMMU_22, S_L5SM_03"
+#define TEST_RULE  "B_SMMU_11, S_L5SM_03"
 #define TEST_DESC  "Check SMMU for MPAM support           "
 
 static
