@@ -70,4 +70,5 @@ uint32_t d002_entry(uint32_t num_pe);
 uint32_t d003_entry(uint32_t num_pe);
 uint32_t d004_entry(uint32_t num_pe);
 uint32_t d005_entry(uint32_t num_pe);
+uint32_t d007_entry(uint32_t num_pe);
 #endif // __ACS_PERIPHERAL_H__
