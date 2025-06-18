@@ -646,6 +646,8 @@ val_bsa_memory_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #endif
 #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
           status |= m004_entry(num_pe);
+          status |= m006_entry(num_pe);
+          status |= m007_entry(num_pe);
 #endif
       }
   }
