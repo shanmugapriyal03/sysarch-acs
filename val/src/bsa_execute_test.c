@@ -163,6 +163,7 @@ val_bsa_pe_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(PLATFORM_SECURITY);
          status |= pe022_entry(num_pe);
+         status |= pe063_entry(num_pe);
       }
   }
 
