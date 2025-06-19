@@ -120,6 +120,7 @@ typedef enum {
     TEST_PASS,
     TEST_FAIL,
     TEST_SKIP,
+    TEST_STATUS_UNKNOWN
 } test_status_t;
 
 uint8_t
