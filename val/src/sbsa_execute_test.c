@@ -553,8 +553,10 @@ val_sbsa_memory_execute_tests(uint32_t level, uint32_t num_pe)
   val_print_test_start("Memory");
   g_curr_module = 1 << MEM_MAP_MODULE;
 
-  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
+  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3)) {
       status = m005_entry(num_pe);
+      status |= m008_entry(num_pe);
+  }
 
   val_print_test_end(status, "Memory");
 
