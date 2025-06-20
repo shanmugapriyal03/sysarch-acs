@@ -19,7 +19,7 @@
 [Defines]
   INF_VERSION                    = 0x00010005
   BASE_NAME                      = UnifiedPalLib
-  FILE_GUID                      = 7f2093fb-2e69-46eb-af52-ba1df42f6195
+  FILE_GUID                      = 1c1e3192-7dc7-4413-b6d7-d58bf37e1231
   MODULE_TYPE                    = UEFI_APPLICATION
   VERSION_STRING                 = 1.0
   LIBRARY_CLASS                  = UnifiedPalLib|UEFI_APPLICATION UEFI_DRIVER
