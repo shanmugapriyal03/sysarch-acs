@@ -114,6 +114,12 @@ typedef enum {
 #define IS_TEST_SKIP(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_SKIP_VAL)
 #define IS_TEST_FAIL_SKIP(value) ((IS_TEST_FAIL(value)) || (IS_TEST_SKIP(value)))
 
+typedef struct {
+    uint32_t test_num;  /* ACS test number */
+    char *desc;         /* ACS test description */
+    char *rule;         /* Rule covered by the test */
+} test_config_t;
+
 uint8_t
 val_mmio_read8(addr_t addr);
 
@@ -149,6 +155,9 @@ val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid);
 
 void
 val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), uint64_t test_input);
+
+void
+val_run_test_configurable_payload(void *arg, void (*payload)(void *));
 
 void
 val_data_cache_ops_by_va(addr_t addr, uint32_t type);

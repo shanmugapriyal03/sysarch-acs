@@ -557,6 +557,28 @@ val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), 
 }
 
 /**
+  @brief  This API Executes the payload function on primary PE with test specific argument as input
+          1. Caller       - Application layer
+
+  @param arg        Argument passed to the payload
+  @param payload    Function pointer of the test entry function
+
+  @return        None
+ **/
+void
+val_run_test_configurable_payload(void *arg, void (*payload)(void *))
+{
+
+  /* TODO:  Consolidate this API with val_run_test_payload to create a unified interface that
+            supports configurable payload execution for both single and multi-PE scenarios */
+
+  /* This payload runs on primary PE */
+  payload(arg);
+
+  return;
+}
+
+/**
   @brief  Prints the status of the completed test
           1. Caller       - Test Suite
           2. Prerequisite - val_set_status
