@@ -307,7 +307,7 @@ jobs:
       - name: Download Linux ACS
         run: |
               cd ..
-              wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/sysarch-acs/acs-drv/files/build.sh
+              wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/master/acs-drv/files/build.sh
               chmod +x build.sh
               ls
 
