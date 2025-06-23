@@ -21,8 +21,8 @@
 #include "p057_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 57)
-#define TEST_DESC  "Check Power management/status rule    "
-#define TEST_RULE  "RE_REG_2, IE_REG_5"
+#define TEST_DESC  "Check Power Mgmt Cap/Ctrl/Status - iEP"
+#define TEST_RULE  "IE_REG_5"
 
 static
 void

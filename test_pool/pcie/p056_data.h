@@ -18,8 +18,8 @@
 #include "val/include/acs_pcie.h"
 
 /**
-* The test table covers bit-field entries for power management capabilities
-* register belonging to capability id 01h (PCI power management capability
+* The test table covers bit-field entries for power management capabilities, control
+* and status registers belonging to capability id 01h (PCI power management capability
 * structure)
 **/
 
@@ -27,31 +27,63 @@ pcie_cfgreg_bitfield_entry bf_info_table56[] = {
 
     // Bit-field entry 1: Power Management Capabilities Register, bit[19] PME Clock
     {
-       PCIE_CAP,                                // Part of PCIe capability register
-       0x01,                                    // Capability id
-       0,                                       // Not applicable
-       0,                                       // Offset from capability id base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       19,                                      // Start bit position
-       19,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is READ_ONLY
-       "PME Clock value mismatch",              // PME Clock invalid configured value
-       "PME Clock attribute mismatch"           // PME Clock invalid attribute
+        PCIE_CAP,                                // Part of PCIe capability register
+        0x01,                                    // Capability id
+        0,                                       // Not applicable
+        0,                                       // Offset from capability id base
+        (RCEC | RCiEP),                          // Applicable to all PCIe Functions
+        19,                                      // Start bit position
+        19,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is READ_ONLY
+        "PME Clock value mismatch",              // PME Clock invalid configured value
+        "PME Clock attribute mismatch"           // PME Clock invalid attribute
     },
 
     // Bit-field entry 2: Power Management Capabilities Register, bit[22:24] Aux Current
     {
-       PCIE_CAP,                                // Part of PCIe capability register
-       0x01,                                    // Capability id
-       0,                                       // Not applicable
-       0,                                       // Offset from capability id base
-       (RCiEP | RCEC | iEP_EP | iEP_RP),        // Applicable to onchip peripherals
-       22,                                      // Start bit position
-       24,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is READ_ONLY
-       "Aux Current value mismatch",            // Aux Current invalid configured value
-       "Aux Current attribute mismatch"         // Aux Current invalid attribute
+        PCIE_CAP,                                // Part of PCIe capability register
+        0x01,                                    // Capability id
+        0,                                       // Not applicable
+        0,                                       // Offset from capability id base
+        (RCiEP | RCEC),                          // Applicable to onchip peripherals
+        22,                                      // Start bit position
+        24,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is READ_ONLY
+        "Aux Current value mismatch",            // Aux Current invalid configured value
+        "Aux Current attribute mismatch"         // Aux Current invalid attribute
+    },
+
+    // Bit-field entry 3: Power Management Capabilities/Status Register, bit[9:12] Data Select
+    // WARNING
+    {
+        PCIE_CAP,                                // Part of PCIe capability register
+        0x01,                                    // Capability id
+        0,                                       // Not applicable
+        0x04,                                    // Offset from capability id base
+        (RCiEP | RCEC),                          // Applicable to onchip peripherals
+        9,                                       // Start bit position
+        12,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is READ_ONLY
+        "WARNING Data Select value mismatch",    // Data Select invalid configured value
+        "WARNING Data Select attribute mismatch" // Data Select invalid attribute
+    },
+
+    // Bit-field entry 4: Power Management Capabilities/Status Register, bit[13:14] Data Scale
+    // WARNING
+    {
+        PCIE_CAP,                                // Part of PCIe capability register
+        0x01,                                    // Capability id
+        0,                                       // Not applicable
+        0x04,                                    // Offset from capability id base
+        (RCiEP | RCEC),                          // Applicable to onchip peripherals
+        13,                                      // Start bit position
+        14,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is READ_ONLY
+        "WARNING Data Scale value mismatch",     // Data Scale invalid configured value
+        "WARNING Data Scale attribute mismatch"  // Data Scale invalid attribute
     },
 };

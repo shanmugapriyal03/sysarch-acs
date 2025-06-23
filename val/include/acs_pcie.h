@@ -251,7 +251,6 @@ uint32_t p051_entry(uint32_t num_pe);
 uint32_t p052_entry(uint32_t num_pe);
 uint32_t p053_entry(uint32_t num_pe);
 uint32_t p054_entry(uint32_t num_pe);
-uint32_t p055_entry(uint32_t num_pe);
 uint32_t p056_entry(uint32_t num_pe);
 uint32_t p057_entry(uint32_t num_pe);
 uint32_t p058_entry(uint32_t num_pe);

@@ -21,9 +21,10 @@
 #include "p052_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 52)
-#define TEST_DESC  "Check Device capabilities reg rule    "
-#define TEST_RULE  "RE_REG_3, RE_REC_1, IE_REG_2, IE_REG_4"
+#define TEST_DESC  "Check Dev Cap & Ctrl Reg rule - RCiEP "
+#define TEST_RULE  "RE_REG_3"
 
+/* This test covers bit-field entries for registers of RCiEP type devices*/
 static
 void
 payload(void)

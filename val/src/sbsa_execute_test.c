@@ -383,7 +383,6 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p052_entry(num_pe);
       status |= p053_entry(num_pe);
       status |= p054_entry(num_pe);
-      status |= p055_entry(num_pe);
       status |= p056_entry(num_pe);
       status |= p057_entry(num_pe);
       status |= p058_entry(num_pe);
