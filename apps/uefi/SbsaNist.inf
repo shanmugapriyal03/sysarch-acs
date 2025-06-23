@@ -110,8 +110,6 @@
   ../../test_pool/pcie/p056.c
   ../../test_pool/pcie/p057.c
   ../../test_pool/pcie/p058.c
-  ../../test_pool/pcie/p059.c
-  ../../test_pool/pcie/p060.c
   ../../test_pool/pcie/p061.c
   ../../test_pool/pcie/p062.c
   ../../test_pool/pcie/p063.c

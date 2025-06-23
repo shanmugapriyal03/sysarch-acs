@@ -2345,3 +2345,46 @@ val_is_transaction_pending_set(uint32_t bdf)
 
   return 0;
 }
+
+/**
+  @brief  Returns the value of Capabilities pointer regsiter in Type 0/1 header of PCIe device
+
+  @param  bdf - Bus/Dev/Function of the PCIe device
+  @return None
+
+**/
+uint32_t val_pcie_get_cap_ptr(uint32_t bdf)
+{
+
+  uint32_t cap_ptr;
+  uint32_t reg_value;
+
+  /* Read 32-bits from Capabilities pointer register offset */
+  val_pcie_read_cfg(bdf, TYPE01_CPR, &reg_value);
+
+  /* Extract Capabilities Pointer register value */
+  cap_ptr = (reg_value >> TYPE01_CPR_SHIFT) & TYPE01_CPR_MASK;
+
+  return cap_ptr;
+}
+
+/**
+  @brief  Returns the value of BIST regsiter in Type 0/1 header of PCIe device
+
+  @param  bdf - Bus/Dev/Function of the PCIe device
+  @return None
+
+**/
+uint32_t val_pcie_get_bist(uint32_t bdf)
+{
+
+  uint32_t reg_value;
+
+  /* Read 32-bits from Capabilities pointer register offset */
+  val_pcie_read_cfg(bdf, TYPE01_CLSR, &reg_value);
+
+  /* Extract BIST register value */
+  reg_value = VAL_EXTRACT_BITS(reg_value, BIST_REG_START, BIST_REG_END);
+
+  return reg_value;
+}

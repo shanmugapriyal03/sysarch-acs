@@ -192,6 +192,8 @@ uint32_t val_pcie_is_cache_present(uint32_t bdf);
 uint32_t val_pcie_link_cap_support(uint32_t bdf);
 uint32_t val_pcie_scan_bridge_devices_and_check_memtype(uint32_t bdf);
 uint32_t val_pcie_get_atomicop_requester_capable(uint32_t bdf);
+uint32_t val_pcie_get_cap_ptr(uint32_t bdf);
+uint32_t val_pcie_get_bist(uint32_t bdf);
 
 uint32_t p001_entry(uint32_t num_pe);
 uint32_t p002_entry(uint32_t num_pe);
