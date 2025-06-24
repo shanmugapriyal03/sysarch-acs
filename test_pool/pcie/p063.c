@@ -21,9 +21,17 @@
 #include "val/include/acs_pe.h"
 #include "val/include/acs_memory.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 63)
-#define TEST_DESC  "Check Function level reset rule       "
-#define TEST_RULE  "RE_RST_1, IE_RST_1, PCI_SM_02"
+static const
+test_config_t test_entries[] = {
+    { ACS_PCIE_TEST_NUM_BASE + 63, "Check Function level reset: RCiEP     ", "RE_RST_1"},
+    { ACS_PCIE_TEST_NUM_BASE + 40, "Check Function level reset: iEP_EP    ", "IE_RST_1"},
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t test_num;
+    uint32_t dev_type;
+} test_data_t;
 
 static
 uint32_t is_flr_failed(uint32_t bdf)
@@ -54,7 +62,7 @@ uint32_t is_flr_failed(uint32_t bdf)
 
 static
 void
-payload(void)
+payload(void *arg)
 {
 
   uint32_t bdf;
@@ -66,7 +74,7 @@ payload(void)
   uint32_t flr_cap;
   uint32_t base_cc;
   uint32_t test_fails;
-  uint32_t test_skip = 1;
+  bool     test_skip = 1;
   uint32_t idx;
   uint32_t timeout;
   uint32_t status;
@@ -74,6 +82,7 @@ payload(void)
   addr_t config_space_addr;
   void *func_config_space;
   pcie_device_bdf_table *bdf_tbl_ptr;
+  test_data_t *test_data = (test_data_t *)arg;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
   bdf_tbl_ptr = val_pcie_bdf_table_ptr();
@@ -100,8 +109,8 @@ payload(void)
           continue;
       }
 
-      /* Check entry is  RCiEP or iEP endpoint or normal EP */
-      if ((dp_type == RCiEP) || (dp_type == iEP_EP))
+      /* Check entry is  RCiEP or iEP endpoint */
+      if (dp_type == test_data->dev_type)
       {
           /* Read FLR capability bit value */
           val_pcie_find_capability(bdf, PCIE_CAP, CID_PCIECS, &cap_base);
@@ -120,7 +129,7 @@ payload(void)
           if (func_config_space == NULL)
           {
               val_print(ACS_PRINT_ERR, "\n       Memory allocation fail", 0);
-              val_set_status(pe_index, RESULT_FAIL(TEST_NUM, test_fails));
+              val_set_status(pe_index, RESULT_FAIL(test_data->test_num, test_fails));
               return;
           }
 
@@ -145,7 +154,7 @@ payload(void)
           {
               val_print(ACS_PRINT_ERR, "\n       Failed to time delay for BDF 0x%x ", bdf);
               val_memory_free_aligned(func_config_space);
-              val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 01));
+              val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 01));
               return;
           }
 
@@ -201,31 +210,49 @@ payload(void)
 
   if (test_skip == 1) {
       val_print(ACS_PRINT_DEBUG,
-               "\n       No RCiEP/iEP_EP with FLR Cap found. Skipping test", 0);
-      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+        "\n       No target device type with FLR Cap found. Skipping test", 0);
+      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
   }
   else if (test_fails)
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, test_fails));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, test_fails));
   else
-      val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_PASS(test_data->test_num, 01));
 }
 
 uint32_t
 p063_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RCiEP};
 
   num_pe = 1;  //This test is run on single processor
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
   /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+  return status;
+}
 
+uint32_t
+p040_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_EP};
+
+  num_pe = 1;  //This test is run on single processor
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
   return status;
 }
