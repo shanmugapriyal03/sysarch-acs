@@ -374,6 +374,8 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
     }
 
 #ifndef TARGET_LINUX
+      status |= p015_entry(num_pe);
+      status |= p016_entry(num_pe); /* Depends on p015; run it prior to this test */
       status |= p027_entry(num_pe);
       status |= p028_entry(num_pe);
       status |= p034_entry(num_pe);
