@@ -51,11 +51,6 @@ pal_timer_platform_override(TIMER_INFO_TABLE *TimerTable)
       TimerTable->gt_info[0].gsiv[0] = PLATFORM_OVERRIDE_PLATFORM_TIMER_GSIV;
   }
 
-  //GTDT does not have this information yet.
-  if (PLATFORM_OVERRIDE_EL2_VIR_TIMER_GSIV) {
-      TimerTable->header.el2_virt_timer_gsiv = PLATFORM_OVERRIDE_EL2_VIR_TIMER_GSIV;
-  }
-
 }
 
 /**
@@ -149,12 +144,8 @@ pal_timer_create_info_table(TIMER_INFO_TABLE *TimerTable)
       virtualpl2 = &(gGtdtHdr->PlatformTimerOffset);
       TimerTable->header.el2_virt_timer_gsiv = *(++virtualpl2);
       TimerTable->header.el2_virt_timer_flag = *(++virtualpl2);
-      if (TimerTable->header.el2_virt_timer_gsiv == 0) {
+      if (TimerTable->header.el2_virt_timer_gsiv == 0)
          acs_print(ACS_PRINT_DEBUG, L"  GTDT don't have el2 virt timer info\n");
-         acs_print(ACS_PRINT_DEBUG, L"  using bsa recommended value 28\n");
-         TimerTable->header.el2_virt_timer_gsiv = PLATFORM_OVERRIDE_EL2_VIR_TIMER_GSIV;
-      }
-
   }
   else
       pal_timer_platform_override(TimerTable);
