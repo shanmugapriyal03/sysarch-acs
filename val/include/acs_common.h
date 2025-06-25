@@ -149,6 +149,10 @@ val_initialize_test(uint32_t test_num, char8_t * desc, uint32_t num_pe);
 uint32_t
 val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid);
 
+uint32_t
+val_check_for_prerequisite(uint32_t prereq_status, const test_config_t *prereq_config,
+                                                   const test_config_t *curr_config);
+
 void
 val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), uint64_t test_input);
 

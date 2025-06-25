@@ -776,3 +776,34 @@ val_dump_dtb(void)
   pal_dump_dtb();
 }
 
+/**
+  @brief  Checks whether a prerequisite test has passed before executing the current test.
+
+  @param  prereq_status  Status of the pre-requisite test
+  @param  prereq_config  Pre-requisite test configuration
+  @param  curr_config    Current test configuration
+
+  @return Zero on successful pre-req. Else return 1.
+**/
+uint32_t
+val_check_for_prerequisite(uint32_t prereq_status, const test_config_t *prereq_config,
+                                                   const test_config_t *curr_config)
+{
+    if (prereq_status != (uint32_t)ACS_STATUS_PASS) {
+        /* Logs test number and description for SKIP/FAIL scenarios.
+        For PASS cases, this is handled by val_initialize_test(). */
+        val_print(ACS_PRINT_ERR, "%4d : ", curr_config->test_num);
+        val_print(ACS_PRINT_ERR, curr_config->desc, 0);
+
+        /* Report the test START */
+        val_report_status(0, ACS_START(curr_config->test_num), NULL);
+
+        /* Do not execute the current test if the prerequisite rule results in FAIL or SKIP */
+        val_print(ACS_PRINT_ERR, "\n       Pre-requisite rule ", 0);
+        val_print(ACS_PRINT_ERR, prereq_config->rule, 0);
+        val_print(ACS_PRINT_ERR, " did not pass. Skipping the test", 0);
+        return 1;
+    }
+
+    return 0;
+}
