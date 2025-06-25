@@ -429,6 +429,7 @@ pal_timer_create_info_table_dt(TIMER_INFO_TABLE *TimerTable)
   int i = 0, frame_number  = 0;
   int addr_cell, size_cell, index = 0;
   int interrupt_cell;
+  int num_interrupts;
 
   if (TimerTable == NULL)
       return;
@@ -448,11 +449,11 @@ pal_timer_create_info_table_dt(TIMER_INFO_TABLE *TimerTable)
   TimerTable->header.ns_el1_timer_gsiv   = 0;
   TimerTable->header.virtual_timer_gsiv  = 0;
   TimerTable->header.el2_timer_gsiv      = 0;
-  TimerTable->header.el2_virt_timer_gsiv = 0;  /* NA in DT*/
+  TimerTable->header.el2_virt_timer_gsiv = 0;
   TimerTable->header.s_el1_timer_flag    = 0;
   TimerTable->header.ns_el1_timer_flag   = 0;
   TimerTable->header.el2_timer_flag      = 0;
-  TimerTable->header.el2_virt_timer_flag = 0;  /* NA in DT*/
+  TimerTable->header.el2_virt_timer_flag = 0;
   TimerTable->header.virtual_timer_flag  = 0;
 
   /* Search for system timer , either V8 or V7 available*/
@@ -479,38 +480,97 @@ pal_timer_create_info_table_dt(TIMER_INFO_TABLE *TimerTable)
       acs_print(ACS_PRINT_ERR, L"  PROPERTY interrupts offset %x, Error %d\n", offset, prop_len);
       return;
   }
+  else {
+      acs_print(ACS_PRINT_DEBUG, L"  PROPERTY Interrupts Size %d\n", prop_len);
+      num_interrupts = prop_len/(interrupt_cell * 4);
+      acs_print(ACS_PRINT_DEBUG, L"  No of interrupts defined in Property %d\n", num_interrupts);
+  }
 
   if (interrupt_cell >= 3) { /* Interrupt type available*/
-      if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
-        TimerTable->header.s_el1_timer_gsiv   = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
-      index++; /* Skip interrupt flag*/
-      if (interrupt_cell == 4)
-         index++; /* Skip CPU affinity*/
-      if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
-        TimerTable->header.ns_el1_timer_gsiv  = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
-      index++; /* Skip interrupt flag*/
-      if (interrupt_cell == 4)
-         index++; /* Skip CPU affinity*/
-      if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
-        TimerTable->header.virtual_timer_gsiv = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
-      index++; /* Skip interrupt flag*/
-      if (interrupt_cell == 4)
-         index++; /* Skip CPU affinity*/
-      if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
-        TimerTable->header.el2_timer_gsiv     = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
-      index++; /* Skip interrupt flag*/
-      if (interrupt_cell == 4)
-         index++; /* Skip CPU affinity*/
+
+      if (num_interrupts >= 1) {
+          if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
+              TimerTable->header.s_el1_timer_gsiv = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
+          else {
+              acs_print(ACS_PRINT_WARN, L"  Secure EL1 Phy Timer interrupt Type is not PPI\n");
+              index++;
+          }
+          index++; /* Skip interrupt flag*/
+          if (interrupt_cell == 4)
+              index++; /* Skip CPU affinity*/
+      }
+
+      if (num_interrupts >= 2) {
+          if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
+              TimerTable->header.ns_el1_timer_gsiv = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
+          else {
+              acs_print(ACS_PRINT_WARN, L"  EL1 NS phy timer interrupt Type is not PPI\n");
+              index++;
+          }
+          index++; /* Skip interrupt flag*/
+          if (interrupt_cell == 4)
+             index++; /* Skip CPU affinity*/
+      }
+
+      if (num_interrupts >= 3) {
+          if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
+              TimerTable->header.virtual_timer_gsiv  = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
+          else {
+              acs_print(ACS_PRINT_WARN, L"  Virtual timer interrupt Type is not PPI\n");
+              index++;
+          }
+          index++; /* Skip interrupt flag*/
+          if (interrupt_cell == 4)
+              index++; /* Skip CPU affinity*/
+      }
+
+      if (num_interrupts >= 4) {
+          if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
+              TimerTable->header.el2_timer_gsiv      = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
+          else {
+              acs_print(ACS_PRINT_WARN, L"  EL2 NS phy timer interrupt Type is not PPI\n");
+              index++;
+          }
+          index++; /* Skip interrupt flag*/
+          if (interrupt_cell == 4)
+              index++; /* Skip CPU affinity*/
+      }
+
+      if (num_interrupts >= 5) {
+          if (fdt32_to_cpu(Pintr[index++]) == GIC_PPI)
+              TimerTable->header.el2_virt_timer_gsiv = fdt32_to_cpu(Pintr[index++]) + PPI_OFFSET;
+          else {
+              acs_print(ACS_PRINT_WARN, L"  EL2 Virtual timer interrupt Type is not PPI\n");
+              index++;
+          }
+          index++; /* Skip interrupt flag*/
+          if (interrupt_cell == 4)
+              index++; /* Skip CPU affinity*/
+      }
   }
   else {
-      TimerTable->header.s_el1_timer_gsiv   = fdt32_to_cpu(Pintr[index++]);
-      index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
-      TimerTable->header.ns_el1_timer_gsiv  = fdt32_to_cpu(Pintr[index++]);
-      index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
-      TimerTable->header.virtual_timer_gsiv = fdt32_to_cpu(Pintr[index++]);
-      index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
-      TimerTable->header.el2_timer_gsiv     = fdt32_to_cpu(Pintr[index++]);
+      if (num_interrupts >= 1) {
+          TimerTable->header.s_el1_timer_gsiv    = fdt32_to_cpu(Pintr[index++]);
+          index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
+      }
+      if (num_interrupts >= 2) {
+          TimerTable->header.ns_el1_timer_gsiv   = fdt32_to_cpu(Pintr[index++]);
+          index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
+      }
+      if (num_interrupts >= 3) {
+          TimerTable->header.virtual_timer_gsiv  = fdt32_to_cpu(Pintr[index++]);
+          index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
+      }
+      if (num_interrupts >= 4) {
+          TimerTable->header.el2_timer_gsiv      = fdt32_to_cpu(Pintr[index++]);
+          index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
+      }
+      if (num_interrupts >= 5) {
+          TimerTable->header.el2_virt_timer_gsiv = fdt32_to_cpu(Pintr[index++]);
+          index += (interrupt_cell - 1); /* Skip interrupt flag, if available*/
+      }
   }
+
   /* Get Always on property of timer node*/
   Palways_on = (UINT32 *)fdt_getprop_namelen((void *)dt_ptr, offset, "always-on", 9, &prop_len);
   if (Palways_on != NULL) {
@@ -518,9 +578,10 @@ pal_timer_create_info_table_dt(TIMER_INFO_TABLE *TimerTable)
       TimerTable->header.ns_el1_timer_flag   = TIMER_FLAG_ALWAYS_ON;
       TimerTable->header.el2_timer_flag      = TIMER_FLAG_ALWAYS_ON;
       TimerTable->header.virtual_timer_flag  = TIMER_FLAG_ALWAYS_ON;
+      TimerTable->header.el2_virt_timer_flag = TIMER_FLAG_ALWAYS_ON;
   }
   else
-    acs_print(ACS_PRINT_DEBUG, L"  PROPERTY always-on not found\n");
+      acs_print(ACS_PRINT_DEBUG, L"  PROPERTY always-on not found\n");
 
   /* Search for mem mapped timers*/
   for (i = 0; i < sizeof(memtimer_dt_arr)/MEMTIMER_COMPATIBLE_STR_LEN ; i++) {
