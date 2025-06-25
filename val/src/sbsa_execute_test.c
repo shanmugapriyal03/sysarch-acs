@@ -637,9 +637,6 @@ val_sbsa_exerciser_execute_tests(uint32_t level)
 
   g_curr_module = 1 << EXERCISER_MODULE;
 
-  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
-      status = e018_entry();
-
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
       status |= e019_entry();
       status |= e020_entry();

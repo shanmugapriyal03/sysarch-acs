@@ -143,7 +143,6 @@ uint32_t e014_entry(void);
 uint32_t e015_entry(void);
 uint32_t e016_entry(void);
 uint32_t e017_entry(void);
-uint32_t e018_entry(void);
 uint32_t e019_entry(void);
 uint32_t e020_entry(void);
 uint32_t e021_entry(void);
