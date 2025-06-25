@@ -156,5 +156,6 @@ uint32_t e028_entry(void);
 uint32_t e029_entry(void);
 uint32_t e030_entry(void);
 uint32_t e031_entry(void);
+uint32_t e032_entry(void);
 
 #endif

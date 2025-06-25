@@ -659,6 +659,7 @@ val_sbsa_exerciser_execute_tests(uint32_t level)
       status |= e028_entry();
       status |= e029_entry();
       status |= e030_entry();
+      status |= e032_entry();
   }
 
   val_print_test_end(status, "Exerciser");
