@@ -55,7 +55,7 @@ uint32_t val_pmu_configure_monitor(uint32_t node_index, PMU_EVENT_TYPE_e event_t
 void     val_pmu_enable_monitor(uint32_t node_index, uint32_t mon_inst);
 void     val_pmu_disable_monitor(uint32_t node_index, uint32_t mon_inst);
 uint64_t val_pmu_read_count(uint32_t node_index, uint32_t mon_inst);
-uint32_t val_pmu_get_node_index(uint64_t prox_domain);
+uint32_t val_pmu_get_node_index(uint64_t prox_domain, PMU_NODE_INFO_TYPE node_type);
 uint32_t val_pmu_implements_pmscr(uint32_t node_index);
 uint32_t val_pmu_is_secure(uint32_t node_index);
 uint32_t val_pmu_get_multi_traffic_support_interface(uint64_t *interface_acpiid,
@@ -66,6 +66,7 @@ uint32_t val_generate_traffic(uint64_t interface_acpiid, uint32_t pmu_node_index
 uint32_t val_pmu_check_monitor_count_value(uint64_t interface_acpiid, uint32_t count_value,
                                                                           uint32_t eventid);
 void     val_pmu_set_node_coresight_complaint(uint32_t flag, uint32_t node_index);
+test_status_t is_coresight_pmu_present(void);
 
 uint32_t pmu001_entry(uint32_t num_pe);
 uint32_t pmu002_entry(uint32_t num_pe);
@@ -75,5 +76,7 @@ uint32_t pmu005_entry(uint32_t num_pe);
 uint32_t pmu006_entry(uint32_t num_pe);
 uint32_t pmu007_entry(uint32_t num_pe);
 uint32_t pmu009_entry(uint32_t num_pe);
+uint32_t pmu010_entry(uint32_t num_pe);
+uint32_t pmu011_entry(uint32_t num_pe);
 
 #endif /*__ACS_PMU_H__ */

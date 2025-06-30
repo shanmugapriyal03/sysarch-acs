@@ -735,6 +735,8 @@ val_sbsa_pmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= pmu006_entry(num_pe);
       status |= pmu007_entry(num_pe);
       status |= pmu009_entry(num_pe);
+      status |= pmu010_entry(num_pe);
+      status |= pmu011_entry(num_pe);
   }
   val_print_test_end(status, "PMU");
 
