@@ -76,6 +76,7 @@
   src/sbsa_execute_test.c
   src/mpam_execute_test.c
   src/drtm_execute_test.c
+  src/pc_bsa_execute_test.c
 
 [Packages]
   MdePkg/MdePkg.dec

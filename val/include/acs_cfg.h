@@ -29,6 +29,8 @@ extern uint32_t g_bsa_level;
 extern uint32_t g_bsa_only_level;
 extern uint32_t g_sbsa_level;
 extern uint32_t g_sbsa_only_level;
+extern uint32_t g_pcbsa_level;
+extern uint32_t g_pcbsa_only_level;
 extern uint64_t g_stack_pointer;
 extern uint64_t g_exception_ret_addr;
 extern uint64_t g_ret_addr;

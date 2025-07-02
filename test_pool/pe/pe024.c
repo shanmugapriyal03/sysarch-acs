@@ -19,7 +19,11 @@
 #include "val/include/acs_pe.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE  +  24)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PE_02"
+#else
 #define TEST_RULE  "S_L3PE_02"
+#endif
 #define TEST_DESC  "Check for 16-bit ASID support         "
 
 static

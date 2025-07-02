@@ -20,7 +20,11 @@
 #include "val/include/acs_smmu.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 8)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1SM_02, P_L1SM_03"
+#else
 #define TEST_RULE  "S_L4SM_01, S_L4SM_02"
+#endif
 #define TEST_DESC  "Check SMMU Compatibility              "
 
 static

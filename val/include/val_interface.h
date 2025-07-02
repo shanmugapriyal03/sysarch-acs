@@ -581,6 +581,14 @@ uint32_t val_sbsa_nist_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_bsa_execute_tests(uint32_t *g_sw_view);
 uint32_t val_sbsa_execute_tests(uint32_t g_sbsa_level);
 
+/* PC-BSA Related API's */
+uint32_t val_pcbsa_execute_tests(uint32_t g_pcbsa_level);
+uint32_t val_pcbsa_pe_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_gic_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe);
+
 /* PCC related APIs */
 void val_pcc_create_info_table(uint64_t *pcc_info_table);
 void *val_pcc_cmd_response(uint32_t subspace_id, uint32_t command, void *data, uint32_t data_size);
