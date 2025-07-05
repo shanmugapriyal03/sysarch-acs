@@ -141,6 +141,7 @@
   ../../test_pool/exerciser/e015.c
   ../../test_pool/exerciser/e016.c
   ../../test_pool/exerciser/e017.c
+  ../../test_pool/exerciser/e033.c
 
   ../../test_pool/pe/pe023.c
   ../../test_pool/pe/pe024.c
