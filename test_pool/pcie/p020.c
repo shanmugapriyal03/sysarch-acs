@@ -20,7 +20,7 @@
 #include "p020_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 20)
-#define TEST_RULE  "PCI_IN_05, PCI_IN_19"
+#define TEST_RULE  "PCI_IN_05"
 #define TEST_DESC  "Type 0/1 common config rule           "
 
 static
