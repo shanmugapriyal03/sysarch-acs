@@ -644,6 +644,7 @@ val_sbsa_exerciser_execute_tests(uint32_t level)
       status |= e020_entry();
       status |= e021_entry();
       status |= e031_entry();
+      status |= e034_entry();
   }
 
   if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
