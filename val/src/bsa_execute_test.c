@@ -868,7 +868,6 @@ val_bsa_exerciser_execute_tests(uint32_t *g_sw_view)
          status |= e004_entry();
          status |= e006_entry();
          status |= e007_entry();
-         status |= e008_entry();
          status |= e010_entry();
 
          if (!pal_target_is_dt()) {
