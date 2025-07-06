@@ -522,6 +522,7 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= p020_entry(num_pe);
           status |= p021_entry(num_pe);
           status |= p022_entry(num_pe);
+          status |= p023_entry(num_pe);
           status |= p024_entry(num_pe);
           status |= p025_entry(num_pe);
           status |= p026_entry(num_pe);

@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018, 2021, 2023-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+
 #include "val/include/acs_val.h"
 #include "val/include/acs_pe.h"
 #include "val/include/acs_pcie.h"
@@ -21,9 +22,9 @@
 #include "val/include/acs_memory.h"
 #include "val/include/val_interface.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 6)
-#define TEST_RULE  "PCI_LI_01"
-#define TEST_DESC  "Check Legacy Intrrupt is SPI          "
+#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 23)
+#define TEST_RULE  "PCI_LI_03"
+#define TEST_DESC  "Check Legacy Intr SPI level sensitive "
 
 static
 void
@@ -39,6 +40,7 @@ payload(void)
   uint32_t intr_pin, intr_line;
   PERIPHERAL_IRQ_MAP *intr_map;
   pcie_device_bdf_table *bdf_tbl_ptr;
+  INTR_TRIGGER_INFO_TYPE_e trigger_type;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
 
@@ -104,8 +106,26 @@ payload(void)
       }
       else {
           val_print(ACS_PRINT_ERR, "\n Int id %d is not SPI", intr_line);
-          val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 3));
+          val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 4));
           return;
+      }
+
+      /* Read GICD_ICFGR/ICFGR-E register to Check for Level/Edge Sensitive. */
+      if (intr_line >= 32 && intr_line <= 1019)
+          status = val_gic_get_intr_trigger_type(intr_line, &trigger_type);
+      else
+          status = val_gic_get_espi_intr_trigger_type(intr_line, &trigger_type);
+
+      if (status) {
+        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 4));
+        return;
+      }
+
+      if (trigger_type != INTR_TRIGGER_INFO_LEVEL_HIGH) {
+        val_print(ACS_PRINT_ERR,
+            "\n       Legacy interrupt programmed with incorrect trigger type", 0);
+        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 5));
+        return;
       }
   }
 
@@ -118,7 +138,7 @@ payload(void)
 }
 
 uint32_t
-p006_entry(uint32_t num_pe)
+p023_entry(uint32_t num_pe)
 {
 
   uint32_t status = ACS_STATUS_FAIL;
