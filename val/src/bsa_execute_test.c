@@ -866,7 +866,6 @@ val_bsa_exerciser_execute_tests(uint32_t *g_sw_view)
          status |= e002_entry();
          status |= e003_entry();
          status |= e004_entry();
-         status |= e005_entry();
          status |= e006_entry();
          status |= e007_entry();
          status |= e008_entry();

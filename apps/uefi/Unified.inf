@@ -128,7 +128,6 @@
   ../../test_pool/exerciser/e002.c
   ../../test_pool/exerciser/e003.c
   ../../test_pool/exerciser/e004.c
-  ../../test_pool/exerciser/e005.c
   ../../test_pool/exerciser/e006.c
   ../../test_pool/exerciser/e007.c
   ../../test_pool/exerciser/e008.c
@@ -266,6 +265,7 @@
   ../../test_pool/exerciser/e028.c
   ../../test_pool/exerciser/e029.c
   ../../test_pool/exerciser/e030.c
+  ../../test_pool/exerciser/e036.c
   ../../test_pool/pmu/pmu001.c
   ../../test_pool/pmu/pmu002.c
   ../../test_pool/pmu/pmu003.c

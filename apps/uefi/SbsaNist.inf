@@ -158,6 +158,7 @@
   ../../test_pool/exerciser/e028.c
   ../../test_pool/exerciser/e029.c
   ../../test_pool/exerciser/e030.c
+  ../../test_pool/exerciser/e036.c
   ../../test_pool/pmu/pmu001.c
   ../../test_pool/pmu/pmu002.c
   ../../test_pool/pmu/pmu003.c

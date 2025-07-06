@@ -123,6 +123,7 @@ e027.c
 e028.c
 e029.c
 e030.c
+e036.c
 pmu001.c
 pmu002.c
 pmu003.c

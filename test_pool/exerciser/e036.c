@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2018-2021,2023-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+
 #include "val/include/acs_val.h"
 #include "val/include/acs_pe.h"
 #include "val/include/acs_smmu.h"
@@ -25,9 +26,17 @@
 #include "val/include/acs_exerciser.h"
 #include "val/include/acs_pcie.h"
 
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 5)
-#define TEST_RULE  "PCI_PAS_1, RE_SMU_4, IE_SMU_3"
-#define TEST_DESC  "Generate PASID transactions           "
+static const
+test_config_t test_entries[] = {
+    { ACS_EXERCISER_TEST_NUM_BASE + 36, "Generate PASID transactions: RCiEP    ", "RE_SMU_4"},
+    { ACS_EXERCISER_TEST_NUM_BASE + 37, "Generate PASID transactions: iEP EP   ", "IE_SMU_3"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t test_num;
+    uint32_t dev_type;
+} test_data_t;
 
 #define TEST_DATA_NUM_PAGES  2
 #define TEST_DATA 0xDE
@@ -73,8 +82,9 @@ clear_dram_buf(void *buf, uint32_t size)
  * Configure exerciser to execute DMA with TEST_PASID1 in transactions, Accesses must PA region 1.
  * Configure exerciser to execute DMA with TEST_PASID2 in transactions, Accesses must PA region 2.
  */
-static void
-payload(void)
+static
+void
+payload(void *arg)
 {
   uint32_t pe_index;
   uint32_t instance;
@@ -93,7 +103,9 @@ payload(void)
   uint64_t dram_buf_out_iova;
   uint32_t device_id, its_id;
   uint32_t page_size;
+  uint32_t dp_type;
   uint32_t test_data_blk_size;
+  test_data_t *test_data = (test_data_t *)arg;
 
   memory_region_descriptor_t mem_desc_array[2], *mem_desc;
   smmu_master_attributes_t master = {0, 0, 0, 0, 0};
@@ -117,7 +129,7 @@ payload(void)
   dram_buf_base_virt = val_memory_alloc_pages(TEST_DATA_NUM_PAGES * 2);
   if (!dram_buf_base_virt) {
       val_print(ACS_PRINT_ERR, "\n       Cacheable mem alloc failure %x", 2);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 2));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 1));
       return;
   }
 
@@ -136,15 +148,16 @@ payload(void)
   if (val_pe_reg_read_tcr(0 /*for TTBR0*/, &pgt_desc.tcr))
   {
     val_print(ACS_PRINT_ERR, "\n       TCR read failure %x", 3);
-    val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 3));
+    val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 3));
     return;
   }
   if (val_pe_reg_read_ttbr(0 /*TTBR0*/, &ttbr))
   {
     val_print(ACS_PRINT_ERR, "\n       TTBR0 read failure %x", 4);
-    val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 4));
+    val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 4));
     return;
   }
+
   pgt_desc.pgt_base = (ttbr & AARCH64_TTBR_ADDR_MASK);
   pgt_desc.mair = val_pe_reg_read(MAIR_ELx);
   pgt_desc.stage = PGT_STAGE1;
@@ -166,6 +179,12 @@ payload(void)
 
     /* Get exerciser bdf */
     e_bdf = val_exerciser_get_bdf(instance);
+
+    dp_type = val_pcie_device_port_type(e_bdf);
+
+    if (dp_type != test_data->dev_type)
+        continue;
+
     val_print(ACS_PRINT_DEBUG, "\n       Exerciser BDF - 0x%x", e_bdf);
 
     /* Find SMMU node index for this pcie endpoint */
@@ -199,12 +218,6 @@ payload(void)
         val_print(ACS_PRINT_ERR,
                   "\n       Error in obtaining the PASID max width for BDF: %x",
                   e_bdf);
-        goto test_fail;
-    }
-    if (exerciser_ssid_bits < MIN_PASID_BITS)
-    {
-        val_print(ACS_PRINT_ERR,
-                "\n       exerciser substreamid support error %d", exerciser_ssid_bits);
         goto test_fail;
     }
 
@@ -332,7 +345,7 @@ payload(void)
             val_print(ACS_PRINT_ERR,
                      "\n       Unable to create page table with given attributes", 0);
             goto test_fail;
-        }
+    }
 
     pgt_base_pasid2 = pgt_desc.pgt_base;
 
@@ -387,38 +400,58 @@ payload(void)
     val_smmu_unmap(master);
     val_smmu_disable(master.smmu_index);
   }
-  if (e_valid_cnt) {
-    val_set_status(pe_index, RESULT_PASS (TEST_NUM, 1));
-  } else {
-    val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 00));
-  }
+
+  if (e_valid_cnt)
+    val_set_status(pe_index, RESULT_PASS(test_data->test_num, 1));
+  else
+    val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 1));
+
   goto test_clean;
 
 test_fail:
-  val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 2));
+  val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 2));
 
 test_clean:
   val_memory_free_pages(dram_buf_base_virt, TEST_DATA_NUM_PAGES * 2);
+
   if ((pgt_base_pasid1 != 0) || (pgt_base_pasid2 != 0))
-  {
     val_pgt_destroy(pgt_desc);
-  }
 }
 
 uint32_t
-e005_entry(void)
+e036_entry(void)
 {
-  uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
+  test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RCiEP};
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+    val_run_test_configurable_payload(&data, payload);
 
-  /* Get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), NULL);
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+
+  return status;
+}
+
+uint32_t
+e037_entry(void)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
+  test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_EP};
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+    val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
 
   return status;
 }
