@@ -18,8 +18,8 @@
 #include "val/include/acs_pcie.h"
 
 #define TEST_NUM   (ACS_GIC_ITS_TEST_NUM_BASE + 4)
-#define TEST_RULE  "ITS_DEV_7,ITS_DEV_8"
-#define TEST_DESC  "Check Device's ReqID-DeviceID-StreamID"
+#define TEST_RULE  "ITS_DEV_7"
+#define TEST_DESC  "Check Device's SID/RID/DID behind SMMU"
 
 static
 void
@@ -34,9 +34,8 @@ payload()
   uint32_t smmu_id;
   uint32_t seg_num = 0;
   uint32_t cap_base;
-  uint32_t test_skip = 1;
+  bool     test_skip = 1;
   uint32_t test_fail = 0;
-  uint32_t streamid_check = 1;
   uint32_t curr_grp_did_cons, curr_grp_sid_cons;
   uint32_t curr_grp_its_id = -1;
   uint32_t curr_smmu_id = -1;
@@ -54,84 +53,64 @@ payload()
   /* Check for all the function present in bdf table */
   for (tbl_index = 0; tbl_index < bdf_tbl_ptr->num_entries; tbl_index++)
   {
-    bdf = bdf_tbl_ptr->device[tbl_index].bdf;
+      bdf = bdf_tbl_ptr->device[tbl_index].bdf;
 
-    /* If MSI or MSI-X not supported, Skip current device */
-    if ((val_pcie_find_capability(bdf, PCIE_CAP, CID_MSI, &cap_base) == PCIE_CAP_NOT_FOUND) &&
-        (val_pcie_find_capability(bdf, PCIE_CAP, CID_MSIX, &cap_base) == PCIE_CAP_NOT_FOUND))
+      /* If MSI or MSI-X not supported, Skip current device */
+      if ((val_pcie_find_capability(bdf, PCIE_CAP, CID_MSI, &cap_base) == PCIE_CAP_NOT_FOUND) &&
+          (val_pcie_find_capability(bdf, PCIE_CAP, CID_MSIX, &cap_base) == PCIE_CAP_NOT_FOUND))
+        continue;
+
+      /* If MSI Supported then Check for Valid DeviceID */
+      req_id = PCIE_CREATE_BDF_PACKED(bdf);
+      seg_num = PCIE_EXTRACT_BDF_SEG(bdf);
+
+      status = val_iovirt_get_device_info(PCIE_CREATE_BDF_PACKED(bdf),
+                                          seg_num, &device_id,
+                                          &stream_id, &its_id);
+      if (status) {
+          val_print(ACS_PRINT_DEBUG, "\n       Could not get device info for BDF : 0x%x", bdf);
+          val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 1));
+          return;
+      }
+
+      smmu_id = val_iovirt_get_rc_smmu_index(seg_num, PCIE_CREATE_BDF_PACKED(bdf));
+      if (smmu_id == ACS_INVALID_INDEX) {
+          val_print(ACS_PRINT_INFO,
+              "\n       Skipping StreamID Association check, Bdf : 0x%llx Not Behind an SMMU", bdf);
+          continue;
+      }
+
+      /* If test runs for atleast an endpoint */
+      test_skip = 0;
+
+      /* Store the Current group SID Constant offset & Dev ID Constant offset using first device */
+      if ((its_id != curr_grp_its_id) || (smmu_id != curr_smmu_id) || (seg_num != curr_seg_num)) {
+        curr_grp_its_id = its_id;
+        curr_smmu_id = smmu_id;
+        curr_seg_num = seg_num;
+
+      /* Device behind SMMU */
+      curr_grp_sid_cons = stream_id - req_id;
+      curr_grp_did_cons = device_id - stream_id;
+      }
+
       continue;
+  }
 
-    /* If MSI Supported then Check for Valid DeviceID */
-    req_id = PCIE_CREATE_BDF_PACKED(bdf);
-    seg_num = PCIE_EXTRACT_BDF_SEG(bdf);
+  val_print(ACS_PRINT_DEBUG,
+                  "\n       Checking ReqID-StreamID-DeviceID Association, Bdf : %x", bdf);
+  /* Check for stream_id & device_id */
+  if (curr_grp_sid_cons != (stream_id - req_id)) {
+      /* StreamID Constant Base Failure */
+      val_print(ACS_PRINT_ERR, "\n       ReqID-StreamID Association Fail for Bdf : %x", bdf);
+      test_fail++;
+  }
 
-    status = val_iovirt_get_device_info(PCIE_CREATE_BDF_PACKED(bdf),
-                                        seg_num, &device_id,
-                                        &stream_id, &its_id);
-    if (status) {
-        val_print(ACS_PRINT_DEBUG, "\n       Could not get device info for BDF : 0x%x", bdf);
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 1));
-        return;
-    }
-
-    smmu_id = val_iovirt_get_rc_smmu_index(seg_num, PCIE_CREATE_BDF_PACKED(bdf));
-    if (smmu_id == ACS_INVALID_INDEX) {
-        val_print(ACS_PRINT_INFO,
-            "\n       Skipping StreamID Association check, Bdf : 0x%llx Not Behind an SMMU", bdf);
-        streamid_check = 0;
-    } else {
-        streamid_check = 1;
-    }
-
-    /* If test runs for atleast an endpoint */
-    test_skip = 0;
-
-    /* Store the Current group SID Constant offset & Dev ID Constant offset using first device */
-    if ((its_id != curr_grp_its_id) || (smmu_id != curr_smmu_id) || (seg_num != curr_seg_num)) {
-      curr_grp_its_id = its_id;
-      curr_smmu_id = smmu_id;
-      curr_seg_num = seg_num;
-
-      /* streamid_check is 0 when Root Complex is not behind an SMMU */
-      if (streamid_check != 0) {
-        /* Device behind SMMU */
-        curr_grp_sid_cons = stream_id - req_id;
-        curr_grp_did_cons = device_id - stream_id;
-      } else {
-        /* No SMMU, stream_id check not needed */
-        curr_grp_sid_cons = 0;
-        curr_grp_did_cons = device_id - req_id;
-      }
-      continue;
-    }
-
-    if (streamid_check == 0) {
-      val_print(ACS_PRINT_DEBUG,
-                "\n       Checking ReqID-DeviceID Association, Bdf : 0x%llx", bdf);
-      /* No SMMU, Check only for device_id */
-      if (curr_grp_did_cons != (device_id - req_id)) {
-        /* DeviceID Constant Base Failure */
-        val_print(ACS_PRINT_ERR,
-                  "\n       ReqID-DeviceID Association Fail for Bdf : %x", bdf);
-        test_fail++;
-      }
-    } else {
-      val_print(ACS_PRINT_DEBUG,
-                "\n       Checking ReqID-StreamID-DeviceID Association, Bdf : %x", bdf);
-      /* Check for stream_id & device_id */
-      if (curr_grp_sid_cons != (stream_id - req_id)) {
-        /* StreamID Constant Base Failure */
-        val_print(ACS_PRINT_ERR, "\n       ReqID-StreamID Association Fail for Bdf : %x", bdf);
-        test_fail++;
-      }
-
-      if (curr_grp_did_cons != (device_id - stream_id)) {
-        /* DeviceID Constant Base Failure */
-        val_print(ACS_PRINT_ERR,
-                  "\n       StreamID-DeviceID Association Fail for Bdf : %x", bdf);
-        test_fail++;
-      }
-    }
+  if (curr_grp_did_cons != (device_id - stream_id)) {
+      /* DeviceID Constant Base Failure */
+      val_print(ACS_PRINT_ERR,
+                    "\n       StreamID-DeviceID Association Fail for Bdf : %x", bdf);
+      test_fail++;
   }
 
   if (test_skip == 1)

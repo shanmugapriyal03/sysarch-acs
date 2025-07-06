@@ -288,6 +288,7 @@ its_test:
           status |= its002_entry(num_pe);
           status |= its003_entry(num_pe);
           status |= its004_entry(num_pe);
+          status |= its005_entry(num_pe);
       }
       view_print_info(MODULE_END);
   }

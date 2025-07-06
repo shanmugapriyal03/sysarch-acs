@@ -74,6 +74,7 @@
   ../../test_pool/gic/its002.c
   ../../test_pool/gic/its003.c
   ../../test_pool/gic/its004.c
+  ../../test_pool/gic/its005.c
   ../../test_pool/timer/t001.c
   ../../test_pool/timer/t002.c
   ../../test_pool/timer/t003.c
