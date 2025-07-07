@@ -57,6 +57,8 @@
 #define BIT29 (1 << 29)
 #endif
 
+#define SIZE_4KB   0x00001000
+
 typedef char char8_t;
 
 /* GENERIC VAL APIs */
@@ -230,6 +232,13 @@ uint64_t val_get_counter_frequency(void);
 
 
 /* PCIE VAL APIs */
+
+/* pcie_bdf_list_t is generic structure to carry list of device BDFs */
+typedef struct {
+  uint32_t count;
+  uint32_t dev_bdfs[];
+} pcie_bdf_list_t;
+
 void     val_pcie_enumerate(void);
 void     val_pcie_create_info_table(uint64_t *pcie_info_table);
 void     *val_pcie_bdf_table_ptr(void);
@@ -276,6 +285,7 @@ void val_pcie_clear_sig_target_abort(uint32_t bdf);
 void val_pcie_enable_ordering(uint32_t bdf);
 void val_pcie_disable_ordering(uint32_t bdf);
 uint32_t val_pcie_dsm_ste_tags(void);
+pcie_bdf_list_t *val_pcie_get_pcie_peripheral_bdf_list(void);
 
 
 /* IO-VIRT APIs */

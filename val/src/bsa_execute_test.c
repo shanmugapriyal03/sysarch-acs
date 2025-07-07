@@ -163,6 +163,7 @@ val_bsa_pe_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(PLATFORM_SECURITY);
          status |= pe022_entry(num_pe);
+         status |= pe063_entry(num_pe);
       }
   }
 
@@ -342,6 +343,7 @@ val_bsa_timer_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= t003_entry(num_pe);
           status |= t004_entry(num_pe);
           status |= t005_entry(num_pe);
+          status |= t007_entry(num_pe);
       }
   }
 
@@ -583,6 +585,7 @@ val_bsa_peripheral_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #endif
 #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
           status |= d004_entry(num_pe);
+          status |= d007_entry(num_pe);
 #endif
       }
   }
@@ -644,6 +647,8 @@ val_bsa_memory_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #endif
 #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
           status |= m004_entry(num_pe);
+          status |= m006_entry(num_pe);
+          status |= m007_entry(num_pe);
 #endif
       }
   }

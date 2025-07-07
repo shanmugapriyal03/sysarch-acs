@@ -19,7 +19,7 @@
 #include "val/include/acs_peripherals.h"
 #include "val/include/acs_pcie.h"
 
-#define TEST_NUM   (ACS_PER_TEST_NUM_BASE + 6)
+#define TEST_NUM   (ACS_PER_TEST_NUM_BASE + 5)
 #define TEST_RULE_BSA  "B_PER_05"
 #define TEST_RULE_SBSA  "S_L3PR_01"
 #define TEST_DESC  "16550 compatible UART                 "

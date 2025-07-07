@@ -57,5 +57,7 @@ uint32_t m002_entry(uint32_t num_pe);
 uint32_t m003_entry(uint32_t num_pe);
 uint32_t m004_entry(uint32_t num_pe);
 uint32_t m005_entry(uint32_t num_pe);
+uint32_t m006_entry(uint32_t num_pe);
+uint32_t m007_entry(uint32_t num_pe);
 
 #endif // __ACS_MEMORY_H__
