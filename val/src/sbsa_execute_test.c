@@ -122,6 +122,7 @@ val_sbsa_pe_execute_tests(uint32_t level, uint32_t num_pe)
       status |= pe060_entry(num_pe);
       status |= pe061_entry(num_pe);
       status |= pe062_entry(num_pe);
+      status |= pe064_entry(num_pe);
    }
 
   val_print_test_end(status, "PE");
