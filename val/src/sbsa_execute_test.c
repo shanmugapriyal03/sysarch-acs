@@ -480,6 +480,7 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 #ifndef TARGET_LINUX
   if (((level > 3) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 4)) {
       status = i008_entry(num_pe);
+      status |= i025_entry(num_pe);
 
       if (status != ACS_STATUS_PASS) {
          val_print(ACS_PRINT_WARN, "\n     SMMU Compatibility Check Failed, ", 0);
