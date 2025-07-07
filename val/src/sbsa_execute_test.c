@@ -772,6 +772,7 @@ val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe)
  if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
       /* run tests which don't check MPAM MSCs */
       status = mpam001_entry(num_pe);
+      status = mpam008_entry(num_pe);
 
       msc_node_cnt = val_mpam_get_msc_count();
       if (msc_node_cnt == 0) {

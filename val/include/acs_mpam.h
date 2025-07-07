@@ -147,5 +147,6 @@ uint32_t mpam003_entry(uint32_t num_pe);
 uint32_t mpam005_entry(uint32_t num_pe);
 uint32_t mpam006_entry(uint32_t num_pe);
 uint32_t mpam007_entry(uint32_t num_pe);
+uint32_t mpam008_entry(uint32_t num_pe);
 
 #endif /*__ACS_MPAM_H__ */
