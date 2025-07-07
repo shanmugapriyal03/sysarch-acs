@@ -19,7 +19,7 @@
 #include "p022_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 22)
-#define TEST_RULE  "PCI_IN_05, PCI_IN_19"
+#define TEST_RULE  "PCI_IN_05"
 #define TEST_DESC  "Check Type 1 config header rules      "
 
 static
