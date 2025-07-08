@@ -426,6 +426,7 @@ uint32_t
 val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 {
   uint32_t status, i;
+  uint32_t skip_status = 0;
   uint32_t num_ecam = 0;
 
   if (!(g_bsa_level >= 1 || g_bsa_only_level == 1))
@@ -440,7 +441,15 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 
   /* Check if there are any tests to be executed in current module with user override options*/
   status = val_check_skip_module(ACS_PCIE_TEST_NUM_BASE);
-  if (status) {
+  if (status)
+      skip_status++;
+
+  status = val_check_skip_module(ACS_PCIE_EXT_TEST_NUM_BASE);
+  if (status)
+      skip_status++;
+
+  /* Skip the module only if no tests from PCIe module and extended PCIe module are run */
+  if (skip_status > 1) {
       val_print(ACS_PRINT_INFO, "\n       USER Override - Skipping all PCIe tests\n", 0);
       return ACS_STATUS_SKIP;
   }
