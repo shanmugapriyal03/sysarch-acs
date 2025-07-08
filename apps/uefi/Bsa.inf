@@ -140,6 +140,7 @@
   ../../test_pool/exerciser/e016.c
   ../../test_pool/exerciser/e017.c
   ../../test_pool/exerciser/e033.c
+  ../../test_pool/exerciser/e035.c
 
 [Packages]
   StdLib/StdLib.dec
