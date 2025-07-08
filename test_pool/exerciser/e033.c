@@ -1,7 +1,6 @@
 /** @file
- * Copyright (c) 2016-2018, 2021, 2023-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
-
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+
 #include "val/include/acs_val.h"
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_gic.h"
@@ -24,9 +24,9 @@
 #include "val/include/acs_exerciser.h"
 #include "val/sys_arch_src/gic/its/acs_gic_its.h"
 
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 4)
-#define TEST_RULE  "ITS_DEV_6"
-#define TEST_DESC  "Write to ITS GITS_TRANSLATER          "
+#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 33)
+#define TEST_RULE  "PCI_MSI_2"
+#define TEST_DESC  "MSI(-X) triggers intr with unique ID  "
 
 static uint32_t irq_pending;
 static uint32_t lpi_int_id = 0x204C;
@@ -38,7 +38,6 @@ intr_handler(void)
 {
   /* Clear the interrupt pending state */
   irq_pending = 0;
-
   val_print(ACS_PRINT_INFO, "\n       Received MSI interrupt %x       ", lpi_int_id + instance);
   val_gic_end_of_interrupt(lpi_int_id + instance);
   return;
@@ -48,7 +47,6 @@ static
 void
 payload (void)
 {
-
   uint32_t index;
   uint32_t e_bdf = 0;
   uint32_t timeout;
@@ -58,7 +56,6 @@ payload (void)
   uint32_t test_skip = 1;
   uint32_t msi_index = 0;
   uint32_t msi_cap_offset = 0;
-
   uint32_t device_id = 0;
   uint32_t stream_id = 0;
   uint32_t its_id = 0;
@@ -138,23 +135,25 @@ payload (void)
         return;
     }
 
-    /* Trigger the interrupt by writing to GITS_TRANSLATER from PE */
-    val_mmio_write(its_base + GITS_TRANSLATER, (lpi_int_id - ARM_LPI_MINID) + instance);
+    /* Trigger the interrupt for this Exerciser instance */
+    val_exerciser_ops(GENERATE_MSI, msi_index, instance);
 
     /* PE busy polls to check the completion of interrupt service routine */
-    timeout = TIMEOUT_MEDIUM;
+    timeout = TIMEOUT_LARGE;
     while ((--timeout > 0) && irq_pending)
         {};
 
-    /* Interrupt must not be generated */
-    if (irq_pending == 0) {
+    if (timeout == 0) {
         val_print(ACS_PRINT_ERR,
-            "\n       Interrupt triggered from PE for bdf : 0x%x, ", e_bdf);
+            "\n       Interrupt trigger failed for : 0x%x, ", lpi_int_id + instance);
+        val_print(ACS_PRINT_ERR,
+            "BDF : 0x%x   ", e_bdf);
         val_set_status(index, RESULT_FAIL(TEST_NUM, 5));
         val_gic_free_msi(e_bdf, device_id, its_id, lpi_int_id + instance, msi_index);
         return;
     }
 
+    /* Clear Interrupt and Mappings */
     val_gic_free_msi(e_bdf, device_id, its_id, lpi_int_id + instance, msi_index);
   }
 
@@ -169,21 +168,19 @@ payload (void)
 }
 
 uint32_t
-e004_entry(void)
+e033_entry(void)
 {
-
+  uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
-
-  uint32_t num_pe = 1;  //This test is run on single processor
 
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
       val_run_test_payload(TEST_NUM, num_pe, payload, 0);
 
-  /* get the result from all PE and check for failure */
+  /* Get the result from all PE and check for failure */
   status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
 
-  val_report_status(0, ACS_END(TEST_NUM), NULL);
+  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
 
   return status;
 }
