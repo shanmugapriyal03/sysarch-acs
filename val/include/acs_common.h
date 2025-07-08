@@ -115,6 +115,12 @@ typedef struct {
     char *desc;         /* ACS test description */
     char *rule;         /* Rule covered by the test */
 } test_config_t;
+/* Test status enum defs */
+typedef enum {
+    TEST_PASS,
+    TEST_FAIL,
+    TEST_SKIP,
+} test_status_t;
 
 uint8_t
 val_mmio_read8(addr_t addr);

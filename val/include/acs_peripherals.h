@@ -62,8 +62,11 @@
 #define USB_TYPE_OHCI             0x1
 #define USB_TYPE_EHCI             0x2
 #define USB_TYPE_XHCI             0x3
-
 #define SATA_TYPE_AHCI            0x1
+
+/* PCIE Programming interface IDs based on PCI Code and ID Assignment spec */
+#define PCIE_PROGIF_EHCI 0x20
+#define PCIE_PROGIF_XHCI 0x30
 
 uint32_t d001_entry(uint32_t num_pe);
 uint32_t d002_entry(uint32_t num_pe);
@@ -72,4 +75,6 @@ uint32_t d004_entry(uint32_t num_pe);
 uint32_t d005_entry(uint32_t num_pe);
 uint32_t d006_entry(uint32_t num_pe);
 uint32_t d007_entry(uint32_t num_pe);
+uint32_t d008_entry(uint32_t num_pe);
+
 #endif // __ACS_PERIPHERAL_H__
