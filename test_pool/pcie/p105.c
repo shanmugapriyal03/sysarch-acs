@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018,2021,2024-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,10 +21,9 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/val_interface.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 95)
-#define TEST_RULE  "PCI_MM_05"
-#define TEST_DESC  "PCIe & PE common physical memory view "
-
+#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 105)
+#define TEST_RULE  "PCI_MM_07"
+#define TEST_DESC  "No extra address translation          "
 
 /* For all DMA masters populated in the Info table, which are behind an SMMU,
    verify there are no additional translations before address is given to SMMU */
@@ -36,7 +35,7 @@ payload(void)
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t target_dev_index;
   addr_t   dma_addr = 0;
-  uint32_t dma_len = 0;
+  void *buffer;
   uint32_t status;
   uint32_t iommu_flag = 0;
 
@@ -48,21 +47,25 @@ payload(void)
       return;
   }
 
+  /* Check if IOMMU ops is properly integrated for this device by making the standard OS
+     DMA API call and verifying the DMA address is part of the IOVA translation table */
   while (target_dev_index)
   {
-      target_dev_index--; //index is zero based
-
-      /* Check there were no additional translations between Device and SMMU */
+      target_dev_index--;
       if (val_dma_get_info(DMA_HOST_IOMMU_ATTACHED, target_dev_index)) {
           iommu_flag++;
-          val_dma_device_get_dma_addr(target_dev_index, &dma_addr, &dma_len);
+          /* Allocate DMA-able memory region in DDR */
+          dma_addr = val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT);
           status = val_smmu_ops(SMMU_CHECK_DEVICE_IOVA, &target_dev_index, &dma_addr);
           if (status) {
-              val_print(ACS_PRINT_ERR, "\n       The DMA address %lx used by device ", dma_addr);
+              val_print(ACS_PRINT_ERR, "\n       The DMA addr allocated to device %d ",
+                        target_dev_index);
               val_print(ACS_PRINT_ERR, "\n       is not present in the SMMU IOVA table\n", 0);
               val_set_status(index, RESULT_FAIL(TEST_NUM, target_dev_index));
               return;
           }
+          /* Free the allocated memory here */
+          val_dma_mem_free(buffer, dma_addr, 512, target_dev_index, DMA_COHERENT);
       }
   }
 
@@ -70,11 +73,12 @@ payload(void)
       val_set_status(index, RESULT_PASS(TEST_NUM, 1));
   else
       val_set_status(index, RESULT_SKIP(TEST_NUM, 2));
+
 }
 
 
 uint32_t
-p095_entry(uint32_t num_pe)
+p105_entry(uint32_t num_pe)
 {
 
   uint32_t status = ACS_STATUS_FAIL;

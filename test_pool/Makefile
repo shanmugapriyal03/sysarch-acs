@@ -32,6 +32,7 @@ ifeq ($(ACS), bsa)
                      $(TEST_POOL)/pcie/p095.o \
                      $(TEST_POOL)/pcie/p096.o \
                      $(TEST_POOL)/pcie/p097.o \
+                     $(TEST_POOL)/pcie/p105.o \
                      $(TEST_POOL)/peripherals/d004.o \
                      $(TEST_POOL)/memory_map/m004.o
 else

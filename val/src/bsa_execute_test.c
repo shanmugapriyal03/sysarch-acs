@@ -504,6 +504,7 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= p095_entry(num_pe);
           status |= p096_entry(num_pe);
           status |= p097_entry(num_pe);
+          status |= p105_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
           status |= p002_entry(num_pe);
