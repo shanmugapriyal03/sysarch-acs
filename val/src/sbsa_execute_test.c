@@ -376,7 +376,8 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
     #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
-      status |= p045_entry(num_pe);
+      status |= p103_entry(num_pe);
+      status |= p104_entry(num_pe);
     #endif
 
     if (g_pcie_integrated_devices == 0) {
