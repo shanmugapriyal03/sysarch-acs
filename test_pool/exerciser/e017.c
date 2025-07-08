@@ -23,9 +23,17 @@
 #include "val/include/acs_memory.h"
 #include "val/include/acs_exerciser.h"
 
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 17)
-#define TEST_DESC  "Check BME functionality of RP         "
-#define TEST_RULE  "IE_REG_3, PCI_IN_05"
+static const
+test_config_t test_entries[] = {
+    { ACS_EXERCISER_TEST_NUM_BASE + 17, "Check BME functionality of RP         ", "PCI_IN_05"},
+    { ACS_EXERCISER_TEST_NUM_BASE + 34, "Check BME functionality of iEP RP     ", "IE_REG_3"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t test_num;
+    uint32_t dev_type;
+} test_data_t;
 
 #define TEST_DATA_NUM_PAGES  1
 
@@ -50,7 +58,7 @@ esr(uint64_t interrupt_type, void *context)
 
 static
 void
-payload(void)
+payload(void *arg)
 {
 
   uint32_t pe_index;
@@ -63,10 +71,13 @@ payload(void)
   uint32_t dma_len;
   uint32_t status;
   uint32_t reg_value;
+  bool     test_skip = 1;
   void *dram_buf_virt;
   void *dram_buf_phys;
   void *dram_buf_iova;
   uint32_t page_size = val_memory_page_size();
+  uint32_t dp_type;
+  test_data_t *test_data = (test_data_t *)arg;
 
   fail_cnt = 0;
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
@@ -78,7 +89,7 @@ payload(void)
   if (status)
   {
       val_print(ACS_PRINT_ERR, "\n       Failed in installing the exception handler", 0);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 01));
       return;
   }
 
@@ -91,7 +102,7 @@ payload(void)
   {
       val_print(ACS_PRINT_ERR,
             "\n       Unable to allocate memory for buffer of %x pages", TEST_DATA_NUM_PAGES);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 02));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 02));
       return;
   }
 
@@ -122,10 +133,17 @@ payload(void)
        * When this bit is 0b, Memory Requests received at a Root Port
        * must be handled as Unsupported Requests (UR).
        */
-      if (!val_pcie_get_rootport(e_bdf, &erp_bdf))
-          val_pcie_disable_bme(erp_bdf);
+      if (!val_pcie_get_rootport(e_bdf, &erp_bdf)) {
+          dp_type = val_pcie_device_port_type(erp_bdf);
+          if (dp_type == test_data->dev_type)
+              val_pcie_disable_bme(erp_bdf);
+          else
+              continue;
+      }
       else
           continue;
+
+      test_skip = 0;
 
       /* Disable error reporting of Exerciser upstream Root Port */
       val_pcie_disable_eru(erp_bdf);
@@ -187,10 +205,12 @@ exception_return:
   /* Return the buffer to the heap manager */
   val_memory_free_pages(dram_buf_virt, TEST_DATA_NUM_PAGES);
 
-  if (fail_cnt)
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, fail_cnt));
+  if (test_skip)
+  val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
+  else if (fail_cnt)
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, fail_cnt));
   else
-      val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_PASS(test_data->test_num, 01));
 
   return;
 
@@ -202,14 +222,36 @@ e017_entry(void)
   uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RP};
+
+  status = val_initialize_test(data.test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
   /* Get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  status = val_check_for_error(data.test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), NULL);
+  val_report_status(0, ACS_END(data.test_num), test_entries[0].rule);
+
+  return status;
+}
+
+uint32_t
+e034_entry(void)
+{
+  uint32_t num_pe = 1;
+  uint32_t status = ACS_STATUS_FAIL;
+
+  test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_RP};
+
+  status = val_initialize_test(data.test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* Get the result from all PE and check for failure */
+  status = val_check_for_error(data.test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(data.test_num), test_entries[1].rule);
 
   return status;
 }
