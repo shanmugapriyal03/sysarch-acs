@@ -922,6 +922,7 @@ val_sbsa_ete_execute_tests(uint32_t level, uint32_t num_pe)
       } else {
           ete_status |= ete002_entry(num_pe);
           ete_status |= ete003_entry(num_pe);
+          ete_status |= ete009_entry(num_pe);
           ete_status |= ete004_entry(num_pe);
       }
       trbe_status = ete005_entry(num_pe);

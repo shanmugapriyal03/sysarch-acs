@@ -98,5 +98,6 @@ uint32_t ete005_entry(uint32_t num_pe);
 uint32_t ete006_entry(uint32_t num_pe);
 uint32_t ete007_entry(uint32_t num_pe);
 uint32_t ete008_entry(uint32_t num_pe);
+uint32_t ete009_entry(uint32_t num_pe);
 
 #endif // __ACS_ETE_H
