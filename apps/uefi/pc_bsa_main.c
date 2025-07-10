@@ -41,13 +41,15 @@ UINT64  g_stack_pointer;
 UINT64  g_exception_ret_addr;
 UINT64  g_ret_addr;
 UINT32  g_print_mmio;
+UINT32  g_wakeup_timeout;
 UINT32  g_curr_module = 0;
 UINT32  g_enable_module;
 UINT32  *g_execute_tests;
 UINT32  g_num_tests = 0;
 UINT32  *g_execute_modules;
 UINT32  g_num_modules = 0;
-
+UINT32  g_build_pcbsa = 0;
+UINT32  g_build_sbsa = 0;
 /* VE systems run acs at EL1 and in some systems crash is observed during access
    of EL1 phy and virt timer, Below command line option is added only for debug
    purpose to complete PC BSA run on these systems */
@@ -147,6 +149,18 @@ createPeripheralInfoTable(
   val_memory_create_info_table(MemoryInfoTable);
 }
 
+
+VOID
+createWatchdogInfoTable(
+)
+{
+  UINT64 *WdInfoTable;
+
+  WdInfoTable = val_aligned_alloc(SIZE_4K, WD_INFO_TBL_SZ);
+
+  val_wd_create_info_table(WdInfoTable);
+}
+
 VOID
 freeBsaAcsMem()
 {
@@ -154,6 +168,7 @@ freeBsaAcsMem()
   val_pe_free_info_table();
   val_gic_free_info_table();
   val_timer_free_info_table();
+  val_wd_free_info_table();
   val_pcie_free_info_table();
   val_iovirt_free_info_table();
   val_peripheral_free_info_table();
@@ -165,7 +180,7 @@ HelpMsg (
   VOID
   )
 {
-  Print (L"\nUsage: PC_Bsa.efi [-v <n>] | [-l <n>] | [-only] | [-f <filename>] | "
+  Print (L"\nUsage: PC_Bsa.efi [-v <n>] | [-l <n>] | [-only] | [-fr] | [-f <filename>] | "
            "[-skip <n>] | [-t <n>] | [-m <n>]\n"
          "Options:\n"
          "-v      Verbosity of the prints\n"
@@ -176,6 +191,8 @@ HelpMsg (
          "              E.g., To enable mmio prints for PE and GIC pass -v 201\n"
          "-l      Level of compliance to be tested for\n"
          "-only   To only run tests belonging to a specific level of compliance\n"
+         "        -l (level) or -fr option needs to be specified for using this flag\n"
+         "-fr     Should be passed without level option to run future requirement tests\n"
          "-mmio   Pass this flag to enable pal_mmio_read/write prints, use with -v 1\n"
          "-f      Name of the log file to record the test results in\n"
          "-skip   Test(s) to be skipped\n"
@@ -184,6 +201,8 @@ HelpMsg (
          "        To skip a particular test within a module, use the exact testcase number\n"
          "-t      If Test ID(s) set, will only run the specified test(s), all others will be skipped.\n"
          "-m      If Module ID(s) set, will only run the specified module(s), all others will be skipped.\n"
+         "-timeout  Set timeout multiple for wakeup tests\n"
+         "        1 - min value  5 - max value\n"
          "-el1physkip Skips EL1 register checks\n"
   );
 }
@@ -192,10 +211,12 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-v", TypeValue},         // -v    # Verbosity of the Prints. 1 shows all prints, 5 shows Errors
   {L"-l", TypeValue},         // -l    # Level of compliance to be tested for.
   {L"-only", TypeValue},      // -only # To only run tests for a Specific level of compliance.
+  {L"-fr", TypeValue},    // -fr   # To run BSA ACS till BSA Future Requirement tests
   {L"-f", TypeValue},         // -f    # Name of the log file to record the test results in.
   {L"-skip", TypeValue},      // -skip # test(s) to skip execution
   {L"-t", TypeValue},         // -t    # Test to be run
   {L"-m", TypeValue},         // -m    # Module to be run
+  {L"-timeout", TypeValue},   // -timeout # Set timeout multiple for wakeup tests
   {L"-help", TypeFlag},       // -help # help : info about commands
   {L"-h", TypeFlag},          // -h    # help : info about commands
   {L"-mmio", TypeFlag},       // -mmio # Enable pal_mmio prints
@@ -263,6 +284,7 @@ command_init ()
   if (CmdLineArg == NULL) {
     g_pcbsa_level = G_PCBSA_LEVEL;
     if (ShellCommandLineGetFlag (ParamPackage, L"-fr")) {
+      g_build_pcbsa = 1;
       g_pcbsa_level = PCBSA_MAX_LEVEL_SUPPORTED + 1;
       if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
         g_pcbsa_only_level = g_pcbsa_level;
@@ -283,6 +305,17 @@ command_init ()
         g_pcbsa_only_level = g_pcbsa_level;
     }
   }
+
+  // Options with Values
+  CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-timeout");
+  if (CmdLineArg == NULL) {
+    g_wakeup_timeout = 1;
+  } else {
+    g_wakeup_timeout = StrDecimalToUintn(CmdLineArg);
+    Print(L"Wakeup timeout multiple %d.\n", g_wakeup_timeout);
+    if (g_wakeup_timeout > 5)
+        g_wakeup_timeout = 5;
+    }
 
   // Options with Values
   CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-v");
@@ -460,6 +493,7 @@ execute_tests()
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
 
   createTimerInfoTable();
+  createWatchdogInfoTable();
   createPcieVirtInfoTable();
   createPeripheralInfoTable();
 

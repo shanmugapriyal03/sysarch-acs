@@ -588,6 +588,7 @@ uint32_t val_pcbsa_gic_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe);
 
 /* PCC related APIs */
 void val_pcc_create_info_table(uint64_t *pcc_info_table);

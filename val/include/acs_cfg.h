@@ -39,6 +39,7 @@ extern uint32_t g_num_tests;
 extern uint32_t *g_execute_modules;
 extern uint32_t g_num_modules;
 extern uint32_t g_build_sbsa;
+extern uint32_t g_build_pcbsa;
 extern uint32_t g_curr_module;
 extern uint32_t g_el1physkip;
 extern uint32_t g_sys_last_lvl_cache;

@@ -43,6 +43,7 @@ uint32_t  *g_skip_test_num;
 uint32_t  *g_execute_tests;
 uint32_t  *g_execute_modules;
 uint32_t  g_build_sbsa = 0;
+uint32_t  g_build_pcbsa = 0;
 uint32_t  g_its_init = 0;
 
 extern uint32_t g_skip_array[];

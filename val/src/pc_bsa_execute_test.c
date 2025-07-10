@@ -24,6 +24,7 @@
 #include "include/acs_memory.h"
 #include "include/acs_gic.h"
 #include "include/acs_timer.h"
+#include "include/acs_wd.h"
 
 extern uint32_t pcie_bdf_table_list_flag;
 
@@ -40,6 +41,10 @@ uint32_t
 val_pcbsa_pe_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
+
 
   for (i = 0; i < g_num_skip; i++) {
       if (g_skip_test_num[i] == ACS_PE_TEST_NUM_BASE) {
@@ -89,6 +94,9 @@ val_pcbsa_gic_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i, module_skip;
 
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
+
   for (i = 0; i < g_num_skip; i++) {
       if (g_skip_test_num[i] == ACS_GIC_TEST_NUM_BASE) {
           val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all GIC tests\n", 0);
@@ -136,6 +144,9 @@ uint32_t
 val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
 
   for (i = 0; i < g_num_skip; i++) {
       if (g_skip_test_num[i] == ACS_SMMU_TEST_NUM_BASE) {
@@ -185,6 +196,9 @@ val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
 
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
+
   for (i = 0 ; i < g_num_skip ; i++) {
       if (g_skip_test_num[i] == ACS_MEMORY_MAP_TEST_NUM_BASE) {
           val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all memory tests\n", 0);
@@ -224,6 +238,9 @@ val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
   uint32_t ecam_status = ACS_STATUS_PASS;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
 
   for (i = 0; i < g_num_skip; i++) {
       if (g_skip_test_num[i] == ACS_PCIE_TEST_NUM_BASE) {
@@ -267,6 +284,50 @@ val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
 }
 
+/**
+  @brief   This API executes all the Watchdog tests sequentially
+           1. Caller       -  Application layer.
+           2. Prerequisite -  val_wd_create_info_table
+  @param   level  - level of compliance being tested for.
+  @param   num_pe - the number of PE to run these tests on.
+  @return  Consolidated status of all the tests run.
+**/
+uint32_t
+val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_PASS, i;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)))
+      return ACS_STATUS_SKIP;
+
+  for (i = 0; i < g_num_skip; i++) {
+      if (g_skip_test_num[i] == ACS_WD_TEST_NUM_BASE) {
+          val_print(ACS_PRINT_INFO, "      USER Override - Skipping all Watchdog tests\n", 0);
+          return ACS_STATUS_SKIP;
+      }
+  }
+
+  /* Check if there are any tests to be executed in current module with user override options*/
+  status = val_check_skip_module(ACS_WD_TEST_NUM_BASE);
+  if (status) {
+      val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all Watchdog tests\n", 0);
+      return ACS_STATUS_SKIP;
+  }
+
+  val_print_test_start("Watchdog");
+  g_curr_module = 1 << WD_MODULE;
+
+  if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)) {
+      status |= w001_entry(num_pe);
+      status |= w002_entry(num_pe);
+  }
+
+  val_print_test_end(status, "Watchdog");
+
+  return status;
+}
+
+
 uint32_t
 val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
 {
@@ -274,7 +335,8 @@ val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
   uint32_t Status;
  /***         Starting PE tests                     ***/
   Status = val_pcbsa_pe_execute_tests(g_pcbsa_level, val_pe_get_num());
-  /***         Starting Memory tests                   ***/
+
+  /***         Starting Memory tests                ***/
   Status |= val_pcbsa_memory_execute_tests(g_pcbsa_level, val_pe_get_num());
 
   /***         Starting GIC tests                    ***/
@@ -285,6 +347,10 @@ val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
 
   /***         Starting PCIe tests                   ***/
   Status |= val_pcbsa_pcie_execute_tests(g_pcbsa_level, val_pe_get_num());
+
+  /***         Starting Watchdog tests               ***/
+  Status |= val_pcbsa_wd_execute_tests(g_pcbsa_level, val_pe_get_num());
+
 
   return Status;
 
