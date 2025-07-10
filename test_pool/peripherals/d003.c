@@ -29,7 +29,7 @@
 #define TEST_DESC  "Check UART type Arm Generic or 16550  "
 
 #define TEST_NUM1  (ACS_PER_TEST_NUM_BASE + 6)
-#define TEST_RULE1 "B_PER_06, B_PER_07"
+#define TEST_RULE1 "B_PER_06"
 #define TEST_DESC1 "Check Arm GENERIC UART Interrupt      "
 
 static uint64_t l_uart_base;

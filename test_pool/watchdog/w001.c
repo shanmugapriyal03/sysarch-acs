@@ -19,7 +19,7 @@
 #include "val/include/acs_wd.h"
 
 #define TEST_NUM   (ACS_WD_TEST_NUM_BASE + 1)
-#define TEST_RULE  "B_WD_01, B_WD_02, S_L3WD_01"
+#define TEST_RULE  "B_WD_01, S_L3WD_01"
 #define TEST_DESC  "Non Secure Watchdog Access            "
 
 static
