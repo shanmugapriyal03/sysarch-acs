@@ -247,6 +247,16 @@ typedef enum {
     NORMAL_WT = 0x5
 } ARM_NORMAL_MEM;
 
+typedef enum {
+    ENTRY_TYPE_CPUIF = 0x1000,
+    ENTRY_TYPE_GICD,
+    ENTRY_TYPE_GICC_GICRD,
+    ENTRY_TYPE_GICR_GICRD,
+    ENTRY_TYPE_GICITS,
+    ENTRY_TYPE_GIC_MSI_FRAME,
+    ENTRY_TYPE_GICH
+} GIC_INFO_TYPE_e;
+
 typedef struct {
     uint64_t phy_addr;
     uint64_t virt_addr;
