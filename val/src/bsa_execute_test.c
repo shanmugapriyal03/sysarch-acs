@@ -783,6 +783,7 @@ val_bsa_smmu_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(HYPERVISOR);
           status |= i005_entry(num_pe);
+          status |= i029_entry(num_pe);
           if (ver_smmu == 2)
               status |= i006_entry(num_pe);
           status |= i007_entry(num_pe);

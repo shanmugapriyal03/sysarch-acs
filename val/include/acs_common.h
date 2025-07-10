@@ -73,6 +73,7 @@ typedef enum {
 #define TEST_FAIL_VAL    0x8
 #define TEST_SKIP_VAL    0x9
 #define TEST_PENDING_VAL 0xA
+#define TEST_WARN_VAL    0xB
 
 #define CPU_NUM_BIT  32
 #define CPU_NUM_MASK 0xFFFFFFFF
@@ -102,6 +103,9 @@ typedef enum {
 #define RESULT_PENDING(test_num) (((TEST_PENDING_VAL) << STATE_BIT) | \
                         ((test_num) << TEST_NUM_BIT))
 
+#define RESULT_WARN(test_num, status) (((TEST_WARN_VAL) << STATE_BIT) | \
+                        ((test_num) << TEST_NUM_BIT) | (status))
+
 #define TEST_STATUS(test_num, status, checkpoint) (((status) << STATE_BIT) | \
                         ((test_num) << TEST_NUM_BIT) | (checkpoint))
 
@@ -112,6 +116,7 @@ typedef enum {
 #define IS_TEST_FAIL(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_FAIL_VAL)
 #define IS_TEST_SKIP(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_SKIP_VAL)
 #define IS_TEST_FAIL_SKIP(value) ((IS_TEST_FAIL(value)) || (IS_TEST_SKIP(value)))
+#define IS_TEST_WARN(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_WARN_VAL)
 
 typedef struct {
     uint32_t test_num;  /* ACS test number */
@@ -123,6 +128,7 @@ typedef enum {
     TEST_PASS = TEST_PASS_VAL,
     TEST_FAIL = TEST_FAIL_VAL,
     TEST_SKIP = TEST_SKIP_VAL,
+    TEST_WARN = TEST_WARN_VAL,
     TEST_STATUS_UNKNOWN
 } test_status_t;
 
