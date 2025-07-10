@@ -102,6 +102,9 @@ typedef enum {
 #define RESULT_PENDING(test_num) (((TEST_PENDING_VAL) << STATE_BIT) | \
                         ((test_num) << TEST_NUM_BIT))
 
+#define TEST_STATUS(test_num, status, checkpoint) (((status) << STATE_BIT) | \
+                        ((test_num) << TEST_NUM_BIT) | (checkpoint))
+
 #define IS_TEST_START(value)     (((value >> STATE_BIT) & (STATE_MASK)) == TEST_START_VAL)
 #define IS_TEST_END(value)       (((value >> STATE_BIT) & (STATE_MASK)) == TEST_END_VAL)
 #define IS_RESULT_PENDING(value) (((value >> STATE_BIT) & (STATE_MASK)) == TEST_PENDING_VAL)
@@ -117,9 +120,9 @@ typedef struct {
 } test_config_t;
 /* Test status enum defs */
 typedef enum {
-    TEST_PASS,
-    TEST_FAIL,
-    TEST_SKIP,
+    TEST_PASS = TEST_PASS_VAL,
+    TEST_FAIL = TEST_FAIL_VAL,
+    TEST_SKIP = TEST_SKIP_VAL,
     TEST_STATUS_UNKNOWN
 } test_status_t;
 

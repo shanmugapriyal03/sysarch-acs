@@ -15,180 +15,204 @@
  * limitations under the License.
  **/
 
-#include "val/include/acs_val.h"
-#include "val/include/acs_common.h"
-#include "val/include/val_interface.h"
-#include "val/include/acs_pmu.h"
-#include "val/include/acs_memory.h"
-#include "val/include/acs_mpam.h"
+ #include "val/include/acs_val.h"
+ #include "val/include/acs_pe.h"
+ #include "val/include/acs_common.h"
+ #include "val/include/acs_pmu.h"
+ #include "val/include/acs_memory.h"
+ #include "val/include/acs_mpam.h"
+ #include "val/include/val_interface.h"
+ #include "val/include/acs_pcie.h"
 
-#define TEST_NUM  (ACS_PMU_TEST_NUM_BASE + 5)
-#define TEST_RULE "PMU_MEM_1, PMU_SYS_1, PMU_SYS_2"
-#define TEST_DESC "Check memory latency monitors          "
+ #define BW_MON_COUNT 6
+ #define LAT_MON_COUNT 4
 
-#define BUFFER_SIZE 4194304 /* 4 Megabytes*/
+ #define TEST_NUM  (ACS_PMU_TEST_NUM_BASE + 7)
+ #define TEST_RULE "PMU_BM_1"
+ #define TEST_DESC "Check for memory bandwidth monitors   "
 
-static void payload(void)
+ #define TEST_NUM1  (ACS_PMU_TEST_NUM_BASE + 10)
+ #define TEST_RULE1 "PMU_MEM_1"
+ #define TEST_DESC1 "Check for memory latency monitors     "
+
+ #define TEST_NUM2  (ACS_PMU_TEST_NUM_BASE + 11)
+ #define TEST_RULE2 "PMU_BM_2"
+ #define TEST_DESC2 "Check for PCIe bandwidth monitors     "
+
+/* List of PMU events which can be used to monitor bandwidth */
+static PMU_EVENT_TYPE_e bandwidth_mon_event_list[BW_MON_COUNT] = {
+    PMU_EVENT_IB_TOTAL_BW,   /* Inbound total bandwidth */
+    PMU_EVENT_OB_TOTAL_BW,   /* Outbound total bandwidth */
+    PMU_EVENT_IB_READ_BW,    /* Inbound read bandwidth */
+    PMU_EVENT_IB_WRITE_BW,   /* Inbound write bandwidth */
+    PMU_EVENT_OB_READ_BW,    /* Outbound read bandwidth */
+    PMU_EVENT_OB_WRITE_BW,   /* Outbound write bandwidth */
+};
+
+/* List of PMU events which can be used to measure average read latency */
+static PMU_EVENT_TYPE_e read_latency_mon_event_list[LAT_MON_COUNT] = {
+    PMU_EVENT_IB_OPEN_TXN,        /* Inbound open transactions   */
+    PMU_EVENT_IB_TOTAL_TXN,       /* Inbound total transactions  */
+    PMU_EVENT_OB_OPEN_TXN,        /* Outbound open transactions  */
+    PMU_EVENT_OB_TOTAL_TXN,       /* Outbound total transactions */
+};
+
+/* Define test data structure to be used to pass payload with parameters */
+typedef struct {
+    PMU_EVENT_TYPE_e *event_list;
+    uint32_t num_events;
+    uint32_t interface_type;
+    uint32_t test_num;
+} test_data_t;
+
+/* This functions checks if counters collectively supports event list passed as parameter */
+test_status_t check_event_support(PMU_EVENT_TYPE_e *event_list, uint32_t num_events,
+                                  uint64_t node_primary_instance, PMU_NODE_INFO_TYPE node_type)
 {
-    uint64_t data = 0;
-    uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-    uint32_t fail_cnt = 0;
-    uint32_t node_count;
+    uint32_t counter, event_idx;
+    uint32_t num_counters = 0;
+    uint8_t event_supported[num_events];
     uint32_t node_index;
-    uint64_t num_open_txn;
-    uint64_t num_total_txn;
-    uint64_t mem_range_index;
-    uint64_t num_mem_range;
-    uint64_t mc_prox_domain;
-    uint64_t prox_base_addr, addr_len;
-    uint32_t status1, status2;
-    uint32_t cs_com = 0;
-    void *src_buf = 0;
-    void *dest_buf = 0;
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
+    /* Get PMU node index corresponding to the node instance primary */
+    node_index = val_pmu_get_node_index(node_primary_instance, node_type);
+    if (node_index == PMU_INVALID_INDEX) {
+        val_print(ACS_PRINT_ERR, "\n       Node primary instance : 0x%lx ", node_primary_instance);
+        val_print(ACS_PRINT_ERR, "\n       Node type : 0x%x has no PMU associated with it",
+                (uint32_t)node_type);
+        return TEST_FAIL;
+    }
+
+    /* Based on scenario to run check if minimum event counters are met*/
+    num_counters = val_pmu_get_monitor_count(node_index);
+    if (num_counters <= 0) {
+        val_print(ACS_PRINT_ERR, "\n       PMU node must support atleast one counter."
+                  , 0);
+        return TEST_FAIL;
+    }
+
+    /* initialise even_supported array*/
+    for (event_idx = 0; event_idx < num_events; event_idx++)
+        event_supported[event_idx] = 0;
+
+    /* Check if counters collectively support events required */
+    for (counter = 0; counter < num_counters; counter++) {
+        for (event_idx = 0; event_idx < num_events; event_idx++) {
+            if (event_supported[event_idx])
+                continue;
+
+            if (val_pmu_configure_monitor(node_index, event_list[event_idx], counter) == 0) {
+                event_supported[event_idx] = 1;
+                val_print(ACS_PRINT_DEBUG, "\n       Counter : %d ", counter);
+                val_print(ACS_PRINT_DEBUG, "Supports event ID :%d", event_list[event_idx]);
+            }
+        }
+    }
+
+    for (event_idx = 0; event_idx < num_events; event_idx++) {
+        if (!event_supported[event_idx]) {
+            val_print(ACS_PRINT_DEBUG, "\n       Missing support for event ID %d",
+                      event_list[event_idx]);
+            return TEST_FAIL;
+        }
+    }
+
+    return TEST_PASS;
+}
+
+/* This payload checks for presence PMU monitor(s) with required event list passed as parameter */
+static void payload_check_pmu_monitors(void *arg)
+{
+    test_status_t status;
+    uint64_t num_mem_range, mem_range_index, mc_prox_domain;
+    uint64_t node_count, node_index, pcie_rc_id;
+    uint32_t fail_cnt = 0;
+    uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+    uint8_t  run_flag = 0;
+    test_data_t *test_data = (test_data_t *)arg;
+
+    /* Check if system has Coresight compatible system PMU */
+    status = is_coresight_pmu_present();
+    if (status != TEST_PASS) {
+        val_set_status(index, TEST_STATUS(test_data->test_num, status, 01));
         return;
     }
 
-    node_count = val_pmu_get_info(PMU_NODE_COUNT, 0);
-    val_print(ACS_PRINT_DEBUG, "\n       PMU NODES = %d", node_count);
+    if (test_data->interface_type == PMU_NODE_MEM_CNTR) {
+        /* Get number of memory ranges from SRAT table */
+        num_mem_range = val_srat_get_info(SRAT_MEM_NUM_MEM_RANGE, 0);
+        if (num_mem_range == 0 || num_mem_range == SRAT_INVALID_INFO) {
+            val_print(ACS_PRINT_ERR, "\n       No Proximity domains in the system", 0);
+            val_set_status(index, RESULT_FAIL(test_data->test_num, 02));
+            return;
+        }
 
-    if (node_count == 0) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 02));
-        val_print(ACS_PRINT_TEST, "\n       No PMU nodes found in APMT table", 0);
-        val_print(ACS_PRINT_TEST, "\n       The test must be considered fail"
-                                   " if system has CoreSight PMU", 0);
-        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
-                                   "in the SBSA specification", 0);
+        /* Loop through the memory ranges listed on SRAT table */
+        for (mem_range_index = 0 ; mem_range_index < num_mem_range ; mem_range_index++) {
+
+            /* Get proximity domain mapped to the memory range */
+            mc_prox_domain = val_srat_get_prox_domain(mem_range_index);
+
+            /* Check if interface supports required events */
+            status = check_event_support(test_data->event_list, test_data->num_events,
+                                         mc_prox_domain, test_data->interface_type);
+
+            if (status == TEST_FAIL) {
+                fail_cnt++;
+            }
+        }
+    } else if (test_data->interface_type == PMU_NODE_PCIE_RC) {
+        node_count = val_pmu_get_info(PMU_NODE_COUNT, 0);
+        /* Loop through all the PMU nodes and find nodes associated with PCIe root complex */
+        for (node_index = 0; node_index < node_count; node_index++) {
+            /* Check the PMU nodes which are associated with PCIe RC */
+            if (val_pmu_get_info(PMU_NODE_TYPE, node_index) == PMU_NODE_PCIE_RC) {
+                /* Get primary node instance for PCIe RC */
+                pcie_rc_id = val_pmu_get_info(PMU_NODE_PRI_INST, node_index);
+                /* Check if interface supports required events */
+                status = check_event_support(test_data->event_list, test_data->num_events,
+                                             pcie_rc_id, test_data->interface_type);
+                if (status == TEST_FAIL) {
+                    fail_cnt++;
+                }
+                /* mark test run, to report as fail if no PCIe RC entry present
+                   APMT ACPI Table*/
+                run_flag = 1;
+            }
+        }
+    } else {
+        val_print(ACS_PRINT_ERR, "\n       Invalid interface type passed to check_monitors()", 0);
+        val_set_status(index, RESULT_FAIL(test_data->test_num, 03));
         return;
     }
 
-    /* The test uses PMU CoreSight arch register map, skip if pmu node is not cs */
-    for (node_index = 0; node_index < node_count; node_index++) {
-        cs_com |= val_pmu_get_info(PMU_NODE_CS_COM, node_index);
-    }
-    if (cs_com != 0x1) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 03));
-        val_print(ACS_PRINT_TEST, "\n       No CoreSight PMU nodes found", 0);
-        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
-                                   "in the SBSA specification", 0);
+    if (!run_flag) {
+        val_print(ACS_PRINT_ERR, "\n       No PMU associated with PCIe interface", 0);
+        val_set_status(index, RESULT_FAIL(test_data->test_num, 04));
         return;
-    }
-
-    /*Get number of memory ranges from SRAT table */
-    num_mem_range = val_srat_get_info(SRAT_MEM_NUM_MEM_RANGE, 0);
-    if (num_mem_range == 0 || num_mem_range == SRAT_INVALID_INFO) {
-        val_print(ACS_PRINT_ERR, "\n       No Proximity domains in the system", 0);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 02));
-        return;
-    }
-
-
- /* Loop through the memory ranges listed on SRAT table */
-    for (mem_range_index = 0 ; mem_range_index < num_mem_range ; mem_range_index++) {
-
-        /* Get proximity domain mapped to the memory range */
-        mc_prox_domain = val_srat_get_prox_domain(mem_range_index);
-        if (mc_prox_domain == SRAT_INVALID_INFO) {
-            val_print(ACS_PRINT_ERR, "\n       Proximity domain not found", 0);
-            fail_cnt++;
-            continue;
-        }
-
-        /* Get PMU node index corresponding to the proximity domain */
-        node_index = val_pmu_get_node_index(mc_prox_domain);
-        if (node_index == PMU_INVALID_INDEX) {
-            val_print(ACS_PRINT_ERR,
-                    "\n       Proximity domain %d has no PMU associated with it", mc_prox_domain);
-            fail_cnt++;
-            continue;
-        }
-
-
-        /* Check if the PMU supports atleast 2 counters */
-        data = val_pmu_get_monitor_count(node_index);
-        if (data < 2) {
-            val_print(ACS_PRINT_ERR, "\n       Number of monitors supported = %d", data);
-            fail_cnt++;
-            continue;
-        }
-
-            /* Configure PMEVTYPER to monitor memory latency */
-        status1 = val_pmu_configure_monitor(node_index, PMU_EVENT_IB_OPEN_TXN, 0);
-        status2 = val_pmu_configure_monitor(node_index, PMU_EVENT_IB_TOTAL_TXN, 1);
-        if (status1 || status2) {
-            val_print(ACS_PRINT_ERR,
-                      "\n       Required events are not supported at node %d", node_index);
-            fail_cnt++;
-            continue;
-        }
-
-        /* Get base address of the proximity domain */
-        prox_base_addr = val_srat_get_info(SRAT_MEM_BASE_ADDR, mc_prox_domain);
-        addr_len = val_srat_get_info(SRAT_MEM_ADDR_LEN, mc_prox_domain);
-        if ((prox_base_addr == SRAT_INVALID_INFO) || (addr_len == SRAT_INVALID_INFO) ||
-            (addr_len <= 2 * BUFFER_SIZE)) {
-            val_print(ACS_PRINT_ERR,
-                        "\n       Invalid base address for proximity domain : 0x%lx",
-                        mc_prox_domain);
-            fail_cnt++;
-            continue;
-        }
-
-        //* Allocate memory for 4 Megabytes */
-        src_buf = (void *)val_mem_alloc_at_address(prox_base_addr, BUFFER_SIZE);
-        dest_buf = (void *)val_mem_alloc_at_address(prox_base_addr + BUFFER_SIZE, BUFFER_SIZE);
-
-        if ((src_buf == NULL) || (dest_buf == NULL)) {
-            val_print(ACS_PRINT_ERR, "\n       Memory allocation of buffers failed", 0);
-            fail_cnt++;
-            continue;
-        }
-
-
-        /* Enable the required counters to count programmed events */
-        val_pmu_enable_monitor(node_index, 0);
-        val_pmu_enable_monitor(node_index, 1);
-
-        /* Perform read/write and vary scale */
-        val_memcpy(src_buf, dest_buf, BUFFER_SIZE);
-
-        /* Read the monitors */
-        num_open_txn = val_pmu_read_count(node_index, 0);
-        num_total_txn = val_pmu_read_count(node_index, 1);
-
-        /*Free the buffers */
-        val_mem_free_at_address((uint64_t)src_buf, BUFFER_SIZE);
-        val_mem_free_at_address((uint64_t)dest_buf, BUFFER_SIZE);
-
-        /* Check if counters are moving */
-        if (!num_open_txn || !num_total_txn) {
-            fail_cnt++;
-        }
-
-        /* Disable PMU monitors */
-        val_pmu_disable_all_monitors(node_index);
     }
 
     if (fail_cnt) {
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 03));
+        val_set_status(index, RESULT_FAIL(test_data->test_num, 05));
         return;
     }
 
-    val_set_status(index, RESULT_PASS(TEST_NUM, 01));
+    val_set_status(index, RESULT_PASS(test_data->test_num, 01));
 }
 
-uint32_t pmu005_entry(uint32_t num_pe)
+uint32_t
+pmu007_entry(uint32_t num_pe)
 {
     uint32_t status = ACS_STATUS_FAIL;
+    test_data_t data = {.event_list = bandwidth_mon_event_list, .num_events = BW_MON_COUNT,
+                        .interface_type = PMU_NODE_MEM_CNTR, .test_num = TEST_NUM};
 
     num_pe = 1; /* This test is run on a single PE */
 
     status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
     /* This check is when user is forcing us to skip this test */
     if (status != ACS_STATUS_SKIP)
-        val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+        val_run_test_configurable_payload(&data, payload_check_pmu_monitors);
 
     /* get the result from all PE and check for failure */
     status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
@@ -196,3 +220,46 @@ uint32_t pmu005_entry(uint32_t num_pe)
 
     return status;
 }
+
+uint32_t
+pmu010_entry(uint32_t num_pe)
+{
+    uint32_t status = ACS_STATUS_FAIL;
+    test_data_t data = {.event_list = read_latency_mon_event_list, .num_events = LAT_MON_COUNT,
+                        .interface_type = PMU_NODE_MEM_CNTR, .test_num = TEST_NUM1};
+
+    num_pe = 1; /* This test is run on a single PE */
+
+    status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
+    /* This check is when user is forcing us to skip this test */
+    if (status != ACS_STATUS_SKIP)
+        val_run_test_configurable_payload(&data, payload_check_pmu_monitors);
+
+    /* get the result from all PE and check for failure */
+    status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+    val_report_status(0, ACS_END(TEST_NUM1), TEST_RULE1);
+
+    return status;
+}
+
+uint32_t
+pmu011_entry(uint32_t num_pe)
+{
+    uint32_t status = ACS_STATUS_FAIL;
+    test_data_t data = {.event_list = bandwidth_mon_event_list, .num_events = BW_MON_COUNT,
+        .interface_type = PMU_NODE_PCIE_RC, .test_num = TEST_NUM2};
+
+    num_pe = 1; /* This test is run on a single PE */
+
+    status = val_initialize_test(TEST_NUM2, TEST_DESC2, num_pe);
+    /* This check is when user is forcing us to skip this test */
+    if (status != ACS_STATUS_SKIP)
+        val_run_test_configurable_payload(&data, payload_check_pmu_monitors);
+
+    /* get the result from all PE and check for failure */
+    status = val_check_for_error(TEST_NUM2, num_pe, TEST_RULE2);
+    val_report_status(0, ACS_END(TEST_NUM2), TEST_RULE2);
+
+    return status;
+}
+
