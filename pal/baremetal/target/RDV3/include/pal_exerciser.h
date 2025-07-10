@@ -134,40 +134,40 @@ typedef enum {
 } EXERCISER_DMA_ATTR;
 
 typedef enum {
-    SNOOP_ATTRIBUTES = 0x1,
-    LEGACY_IRQ       = 0x2,
-    MSIX_ATTRIBUTES  = 0x3,
-    DMA_ATTRIBUTES   = 0x4,
-    P2P_ATTRIBUTES   = 0x5,
-    PASID_ATTRIBUTES = 0x6,
-    CFG_TXN_ATTRIBUTES = 0x7,
-    ATS_RES_ATTRIBUTES = 0x8,
-    TRANSACTION_TYPE  = 0x9,
-    NUM_TRANSACTIONS  = 0xA,
-    ADDRESS_ATTRIBUTES = 0xB,
-    DATA_ATTRIBUTES = 0xC,
-    ERROR_INJECT_TYPE = 0xD,
-    ENABLE_POISON_MODE = 0xE,
-    ENABLE_RAS_CTRL = 0xF,
+    SNOOP_ATTRIBUTES    = 0x1,
+    LEGACY_IRQ          = 0x2,
+    MSIX_ATTRIBUTES     = 0x3,
+    DMA_ATTRIBUTES      = 0x4,
+    P2P_ATTRIBUTES      = 0x5,
+    PASID_ATTRIBUTES    = 0x6,
+    CFG_TXN_ATTRIBUTES  = 0x7,
+    ATS_RES_ATTRIBUTES  = 0x8,
+    TRANSACTION_TYPE    = 0x9,
+    NUM_TRANSACTIONS    = 0xA,
+    ADDRESS_ATTRIBUTES  = 0xB,
+    DATA_ATTRIBUTES     = 0xC,
+    ERROR_INJECT_TYPE   = 0xD,
+    ENABLE_POISON_MODE  = 0xE,
+    ENABLE_RAS_CTRL     = 0xF,
     DISABLE_POISON_MODE = 0x10,
-    CLEAR_TXN = 0x11
+    CLEAR_TXN           = 0x11
 } EXERCISER_PARAM_TYPE;
 
 typedef enum {
-    START_DMA     = 0x1,
-    GENERATE_MSI  = 0x2,
-    GENERATE_L_INTR = 0x3,  //Legacy interrupt
-    MEM_READ      = 0x4,
-    MEM_WRITE     = 0x5,
-    CLEAR_INTR    = 0x6,
-    PASID_TLP_START = 0x7,
-    PASID_TLP_STOP  = 0x8,
-    TXN_NO_SNOOP_ENABLE = 0x9,
-    TXN_NO_SNOOP_DISABLE  = 0xa,
-    START_TXN_MONITOR    = 0xb,
-    STOP_TXN_MONITOR     = 0xc,
-    ATS_TXN_REQ          = 0xd,
-    INJECT_ERROR         = 0xe
+    START_DMA            = 0x1,
+    GENERATE_MSI         = 0x2,
+    GENERATE_L_INTR      = 0x3,  //Legacy interrupt
+    MEM_READ             = 0x4,
+    MEM_WRITE            = 0x5,
+    CLEAR_INTR           = 0x6,
+    PASID_TLP_START      = 0x7,
+    PASID_TLP_STOP       = 0x8,
+    TXN_NO_SNOOP_ENABLE  = 0x9,
+    TXN_NO_SNOOP_DISABLE = 0xA,
+    START_TXN_MONITOR    = 0xB,
+    STOP_TXN_MONITOR     = 0xC,
+    ATS_TXN_REQ          = 0xD,
+    INJECT_ERROR         = 0xE
 } EXERCISER_OPS;
 
 typedef enum {
@@ -203,7 +203,7 @@ typedef union exerciser_data {
 } exerciser_data_t;
 
 typedef enum {
-    EXERCISER_DATA_CFG_SPACE = 0x1,
+    EXERCISER_DATA_CFG_SPACE  = 0x1,
     EXERCISER_DATA_BAR0_SPACE = 0x2,
     EXERCISER_DATA_MMIO_SPACE = 0x3,
 } EXERCISER_DATA_TYPE;
@@ -234,9 +234,9 @@ typedef enum {
 } BAR_MEM_DECODE_TYPE;
 
 typedef enum {
-    TXN_REQ_ID     = 0x0,
-    TXN_ADDR_TYPE  = 0x1,
-    TXN_REQ_ID_VALID    = 0x2,
+    TXN_REQ_ID       = 0x0,
+    TXN_ADDR_TYPE    = 0x1,
+    TXN_REQ_ID_VALID = 0x2,
 } EXERCISER_TXN_ATTR;
 
 typedef enum {
