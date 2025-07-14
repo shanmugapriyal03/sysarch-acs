@@ -88,7 +88,8 @@ payload (void)
     val_print(ACS_PRINT_DEBUG, "\n       Exerciser BDF - 0x%x", e_bdf);
 
     /* Search for MSI-X Capability */
-    if (val_pcie_find_capability(e_bdf, PCIE_CAP, CID_MSIX, &msi_cap_offset)) {
+    if ((val_pcie_find_capability(e_bdf, PCIE_CAP, CID_MSIX, &msi_cap_offset)) &&
+        (val_pcie_find_capability(e_bdf, PCIE_CAP, CID_MSI, &msi_cap_offset))) {
       val_print(ACS_PRINT_DEBUG, "\n       No MSI-X Capability, Skipping for 0x%x", e_bdf);
       continue;
     }
