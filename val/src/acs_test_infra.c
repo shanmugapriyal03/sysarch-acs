@@ -786,24 +786,25 @@ val_dump_dtb(void)
   @return Zero on successful pre-req. Else return 1.
 **/
 uint32_t
-val_check_for_prerequisite(uint32_t prereq_status, const test_config_t *prereq_config,
-                                                   const test_config_t *curr_config)
+val_check_for_prerequisite(uint32_t num_pe, uint32_t prereq_status,
+                           const test_config_t *prereq_config, const test_config_t *curr_config)
 {
-    if (prereq_status != (uint32_t)ACS_STATUS_PASS) {
-        /* Logs test number and description for SKIP/FAIL scenarios.
-        For PASS cases, this is handled by val_initialize_test(). */
-        val_print(ACS_PRINT_ERR, "%4d : ", curr_config->test_num);
-        val_print(ACS_PRINT_ERR, curr_config->desc, 0);
+    uint32_t status;
+    uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-        /* Report the test START */
-        val_report_status(0, ACS_START(curr_config->test_num), NULL);
+    status = val_initialize_test(curr_config->test_num, curr_config->desc, num_pe);
+    if (status == ACS_STATUS_SKIP)
+        return ACS_STATUS_SKIP;
+
+    if (prereq_status != (uint32_t)ACS_STATUS_PASS) {
 
         /* Do not execute the current test if the prerequisite rule results in FAIL or SKIP */
         val_print(ACS_PRINT_ERR, "\n       Pre-requisite rule ", 0);
         val_print(ACS_PRINT_ERR, prereq_config->rule, 0);
         val_print(ACS_PRINT_ERR, " did not pass. Skipping the test", 0);
-        return 1;
+        val_set_status(index, RESULT_SKIP(curr_config->test_num, 0));
+        return ACS_STATUS_SKIP;
     }
 
-    return 0;
+    return ACS_STATUS_PASS;
 }

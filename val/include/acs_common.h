@@ -37,12 +37,14 @@
 #define ACS_PER_TEST_NUM_BASE        600
 #define ACS_WD_TEST_NUM_BASE         700
 #define ACS_PCIE_TEST_NUM_BASE       800
-#define ACS_EXERCISER_TEST_NUM_BASE  900
+#define ACS_PCIE_EXT_TEST_NUM_BASE   900
 #define ACS_MPAM_TEST_NUM_BASE       1000
 #define ACS_PMU_TEST_NUM_BASE        1100
 #define ACS_RAS_TEST_NUM_BASE        1200
 #define ACS_NIST_TEST_NUM_BASE       1300
 #define ACS_ETE_TEST_NUM_BASE        1400
+#define ACS_EXERCISER_TEST_NUM_BASE  1500
+
 /* Module specific print APIs */
 
 typedef enum {
@@ -55,12 +57,13 @@ typedef enum {
     PERIPHERAL_MODULE,
     WD_MODULE,
     PCIE_MODULE,
-    EXERCISER_MODULE,
+    PCIE_EXT_MODULE,
     MPAM_MODULE,
     PMU_MODULE,
     RAS_MODULE,
+    NIST_MODULE,
     ETE_MODULE,
-    NIST_MODULE
+    EXERCISER_MODULE
 } MODULE_ID_e;
 
 #define STATE_BIT   28
@@ -166,8 +169,8 @@ uint32_t
 val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid);
 
 uint32_t
-val_check_for_prerequisite(uint32_t prereq_status, const test_config_t *prereq_config,
-                                                   const test_config_t *curr_config);
+val_check_for_prerequisite(uint32_t num_pe, uint32_t prereq_status,
+                           const test_config_t *prereq_config, const test_config_t *curr_config);
 
 void
 val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), uint64_t test_input);

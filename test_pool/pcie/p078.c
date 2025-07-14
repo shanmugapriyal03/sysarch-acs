@@ -215,10 +215,7 @@ p078_entry(uint32_t num_pe)
 
   /* The rule covered by this test (PCI_LI_03) has a pre-requisite (PCI_LI_01) */
   /* Check for the status of the pre-requisite before proceeding with the test */
-  if (val_check_for_prerequisite(prereq_status, &test_entries[0], &test_entries[1]))
-    status = ACS_STATUS_SKIP;
-  else
-    status = val_initialize_test(test_num, test_entries[1].desc, num_pe);
+  status = val_check_for_prerequisite(num_pe, prereq_status, &test_entries[0], &test_entries[1]);
 
   if (status != ACS_STATUS_SKIP)
       val_run_test_payload(test_num, num_pe, payload_secondary, 0);
