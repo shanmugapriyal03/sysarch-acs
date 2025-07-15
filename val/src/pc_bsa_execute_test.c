@@ -297,7 +297,7 @@ val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
 
-  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)))
+  if (!(((level >= 2) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)))
       return ACS_STATUS_SKIP;
 
   for (i = 0; i < g_num_skip; i++) {
@@ -317,7 +317,7 @@ val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe)
   val_print_test_start("Watchdog");
   g_curr_module = 1 << WD_MODULE;
 
-  if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)) {
+  if (((level >= 2) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 2)) {
       status |= w001_entry(num_pe);
       status |= w002_entry(num_pe);
   }

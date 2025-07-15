@@ -39,6 +39,5 @@ ShellAppMain (
 {
   command_init();
   execute_tests();
-
   return 0;
 }
