@@ -102,7 +102,8 @@
                                        /*[24 B Each + 8 B Header]*/
 #define PCC_INFO_TBL_SZ         262144 /*Supports maximum of 234 PCC info entries*/
                                        /*[112 B Each + 4B Header]*/
-
+#define TPM2_INFO_TBL_SZ        256   /* Supports maximum of 10 TPM2 info entries */
+                                      /* [24 B each: 3 x uint64_t] + 16 B Header */
 
 #define BSA_LEVEL_PRINT_FORMAT(level, only) ((level > BSA_MAX_LEVEL_SUPPORTED) ? \
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \

@@ -736,6 +736,19 @@ createRas2InfoTable(
 }
 
 VOID
+createTpm2InfoTable(
+)
+{
+  UINT64 *Tpm2InfoTable;
+
+  Tpm2InfoTable = val_aligned_alloc(SIZE_4K, TPM2_INFO_TBL_SZ);
+
+  val_tpm2_create_info_table(Tpm2InfoTable);
+}
+
+
+
+VOID
 freeBsaAcsMem()
 {
   val_pe_free_info_table();
@@ -757,6 +770,9 @@ freeBsaAcsMem()
       val_pcc_free_info_table();
       val_free_shared_mem();
   }
+
+  if (g_build_pcbsa)
+      val_tpm2_free_info_table();
 }
 
 UINT32
@@ -811,6 +827,9 @@ execute_tests()
       createPmuInfoTable();
       createRasInfoTable();
   }
+
+  if (g_build_pcbsa)
+      createTpm2InfoTable();
 
   val_allocate_shared_mem();
 

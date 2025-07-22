@@ -54,6 +54,8 @@
   ../../test_pool/smmu/i020.c
   ../../test_pool/watchdog/w001.c
   ../../test_pool/watchdog/w002.c
+  ../../test_pool/tpm/tpm001.c
+  ../../test_pool/tpm/tpm002.c
 
 [Packages]
   StdLib/StdLib.dec

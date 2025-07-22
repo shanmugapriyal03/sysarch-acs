@@ -581,6 +581,19 @@ uint32_t val_sbsa_nist_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_bsa_execute_tests(uint32_t *g_sw_view);
 uint32_t val_sbsa_execute_tests(uint32_t g_sbsa_level);
 
+/* TPM2 API */
+
+typedef enum {
+  TPM2_INFO_IS_PRESENT = 1,
+  TPM2_INFO_BASE_ADDR,
+  TPM2_INFO_INTERFACE_TYPE
+} TPM2_INFO_e;
+
+void val_tpm2_create_info_table(uint64_t *tpm2_info_table);
+void val_tpm2_free_info_table(void);
+uint64_t val_tpm2_get_info(TPM2_INFO_e info_type);
+uint64_t val_tpm2_get_version(void);
+
 /* PC-BSA Related API's */
 uint32_t val_pcbsa_execute_tests(uint32_t g_pcbsa_level);
 uint32_t val_pcbsa_pe_execute_tests(uint32_t level, uint32_t num_pe);
@@ -589,6 +602,7 @@ uint32_t val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_tpm2_execute_tests(uint32_t level, uint32_t num_pe);
 
 /* PCC related APIs */
 void val_pcc_create_info_table(uint64_t *pcc_info_table);

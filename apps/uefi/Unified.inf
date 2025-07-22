@@ -307,6 +307,9 @@
   ../../test_pool/drtm/interface010.c
   ../../test_pool/drtm/interface011.c
 
+  ../../test_pool/tpm/tpm001.c
+  ../../test_pool/tpm/tpm002.c
+
 [Packages]
   StdLib/StdLib.dec
   EmbeddedPkg/EmbeddedPkg.dec

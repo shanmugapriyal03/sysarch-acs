@@ -25,6 +25,7 @@
 #include "include/acs_gic.h"
 #include "include/acs_timer.h"
 #include "include/acs_wd.h"
+#include "include/acs_tpm.h"
 
 extern uint32_t pcie_bdf_table_list_flag;
 
@@ -328,12 +329,56 @@ val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe)
 }
 
 
+/**
+  @brief   This API executes all the Tpm2 tests sequentially
+           1. Caller       -  Application layer.
+           2. Prerequisite -  val_tpm2_create_info_table
+  @param   level  - level of compliance being tested for.
+  @param   num_pe - the number of PE to run these tests on.
+  @return  Consolidated status of all the tests run.
+**/
+uint32_t
+val_pcbsa_tpm2_execute_tests(uint32_t level, uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_PASS, i;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
+
+  for (i = 0; i < g_num_skip; i++) {
+      if (g_skip_test_num[i] == ACS_TPM2_TEST_NUM_BASE) {
+          val_print(ACS_PRINT_INFO, "      USER Override - Skipping all TPM2 tests\n", 0);
+          return ACS_STATUS_SKIP;
+      }
+  }
+
+  /* Check if there are any tests to be executed in current module with user override options*/
+  status = val_check_skip_module(ACS_TPM2_TEST_NUM_BASE);
+  if (status) {
+      val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all TPM2 tests\n", 0);
+      return ACS_STATUS_SKIP;
+  }
+
+  val_print_test_start("TPM2");
+  g_curr_module = 1 << TPM2_MODULE;
+
+  if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)) {
+      status |= tpm001_entry(num_pe);
+      status |= tpm002_entry(num_pe);
+  }
+
+  val_print_test_end(status, "TPM2");
+
+  return status;
+}
+
+
 uint32_t
 val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
 {
 
   uint32_t Status;
- /***         Starting PE tests                     ***/
+  /***         Starting PE tests                     ***/
   Status = val_pcbsa_pe_execute_tests(g_pcbsa_level, val_pe_get_num());
 
   /***         Starting Memory tests                ***/
@@ -351,6 +396,8 @@ val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
   /***         Starting Watchdog tests               ***/
   Status |= val_pcbsa_wd_execute_tests(g_pcbsa_level, val_pe_get_num());
 
+  /***         Starting TPM2 tests               ***/
+  Status |= val_pcbsa_tpm2_execute_tests(g_pcbsa_level, val_pe_get_num());
 
   return Status;
 

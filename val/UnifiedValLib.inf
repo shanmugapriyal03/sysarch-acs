@@ -59,6 +59,7 @@
   src/acs_pcc.c
   src/acs_interface.c
   src/acs_msc_error.c
+  src/acs_tpm.c
   sys_arch_src/smmu_v3/smmu_v3.c
   sys_arch_src/gic/gic.c
   sys_arch_src/gic/acs_exception.c

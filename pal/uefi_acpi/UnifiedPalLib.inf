@@ -45,6 +45,7 @@
   src/pal_pptt.c
   src/pal_pmu.c
   src/pal_pcc.c
+  src/pal_tpm2.c
 
 [Packages]
   ArmPkg/ArmPkg.dec
@@ -72,6 +73,7 @@
   gEfiPciIoProtocolGuid                         ## CONSUMES
   gHardwareInterrupt2ProtocolGuid               ## CONSUMES
   gEfiPciRootBridgeIoProtocolGuid               ## CONSUMES
+  gEfiTcg2ProtocolGuid                          ## CONSUMES
 
 [Guids]
   gEfiAcpi20TableGuid
