@@ -30,7 +30,7 @@
 
 /* PC BSA Release versions */
 #define PC_BSA_ACS_MAJOR_VER     0
-#define PC_BSA_ACS_MINOR_VER     5
+#define PC_BSA_ACS_MINOR_VER     8
 #define PC_BSA_ACS_SUBMINOR_VER  0
 
 /* DRTM Release versions */

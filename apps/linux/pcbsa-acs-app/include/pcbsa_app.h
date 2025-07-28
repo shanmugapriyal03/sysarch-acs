@@ -22,7 +22,7 @@
 
 /* PC BSA Release versions */
 #define PC_BSA_APP_VERSION_MAJOR     0
-#define PC_BSA_APP_VERSION_MINOR     5
+#define PC_BSA_APP_VERSION_MINOR     8
 #define PC_BSA_APP_VERSION_SUBMINOR  0
 
 #define PCBSA_MIN_LEVEL_SUPPORTED 1
