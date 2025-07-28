@@ -18,7 +18,7 @@ jobs:
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
-          git checkout edk2-stable202411
+          git checkout edk2-stable202505
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
@@ -61,7 +61,7 @@ jobs:
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
-          git checkout edk2-stable202411
+          git checkout edk2-stable202505
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
@@ -104,7 +104,7 @@ jobs:
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
-          git checkout edk2-stable202411
+          git checkout edk2-stable202505
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
@@ -148,7 +148,7 @@ jobs:
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
-          git checkout edk2-stable202411
+          git checkout edk2-stable202505
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
@@ -191,7 +191,7 @@ jobs:
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
-          git checkout edk2-stable202411
+          git checkout edk2-stable202505
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
@@ -303,7 +303,7 @@ jobs:
       - name: Download Linux ACS
         run: |
               cd ..
-              wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/sysarch-acs/acs-drv/files/build.sh
+              wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/master/acs-drv/files/build.sh
               chmod +x build.sh
               ls
 

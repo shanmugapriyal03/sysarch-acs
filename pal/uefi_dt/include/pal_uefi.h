@@ -55,6 +55,10 @@ extern UINT32 g_pcie_cache_present;
 #define BAR_MT_SHIFT    3
 #define BAR_BASE_SHIFT  4
 
+/* smbios defines */
+#define SMBIOS_OBTAIN_PROCESSOR_FAMILY2 0xFE
+#define SMBIOS_OBTAIN_CORE_COUNT2       0xFF
+
 typedef enum {
   MMIO = 0,
   IO = 1
@@ -321,7 +325,7 @@ typedef union {
   ID_MAP map;
 }NODE_DATA_MAP;
 
-#define MAX_NAMED_COMP_LENGTH 256
+#define MAX_NAMED_COMP_LENGTH 150
 
 typedef struct {
   UINT64 smmu_base;                     /* SMMU base to which component is attached, else NULL */

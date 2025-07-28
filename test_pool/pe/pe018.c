@@ -18,7 +18,8 @@
 #include "val/include/acs_val.h"
 #include "val/include/acs_pe.h"
 
-#define TEST_NUM   (ACS_PE_HYP_TEST_NUM_BASE  +  18)
+
+#define TEST_NUM   (ACS_PE_TEST_NUM_BASE  +  18)
 #ifdef PC_BSA
 #define TEST_RULE  "P_L1PE_01"
 #else
