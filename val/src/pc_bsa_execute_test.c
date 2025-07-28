@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2024-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,6 +30,8 @@
 extern uint32_t pcie_bdf_table_list_flag;
 
 #ifndef TARGET_LINUX
+uint32_t ecam_status = ACS_STATUS_FAIL;
+
 /**
   @brief   This API will execute all PE tests designated for a given compliance level
            1. Caller       -  Application layer.
@@ -228,65 +230,6 @@ val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe)
 }
 
 /**
-  @brief   This API executes all the PCIe tests sequentially
-           1. Caller       -  Application layer.
-           2. Prerequisite -  val_pcie_create_info_table()
-  @param   level       - level of compliance being tested for.
-  @param   num_pe      - the number of PE to run these tests on.
-  @return  Consolidated status of all the tests run.
-**/
-uint32_t
-val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
-{
-  uint32_t status = ACS_STATUS_PASS, i;
-  uint32_t ecam_status = ACS_STATUS_PASS;
-
-  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
-      return ACS_STATUS_SKIP;
-
-  for (i = 0; i < g_num_skip; i++) {
-      if (g_skip_test_num[i] == ACS_PCIE_TEST_NUM_BASE) {
-          val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all PCIe tests\n", 0);
-          return ACS_STATUS_SKIP;
-      }
-  }
-
-  /* Check if there are any tests to be executed in current module with user override options*/
-  status = val_check_skip_module(ACS_PCIE_TEST_NUM_BASE);
-  if (status) {
-      val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all PCIe tests\n", 0);
-      return ACS_STATUS_SKIP;
-  }
-
-  if (pcie_bdf_table_list_flag == 1) {
-    val_print(ACS_PRINT_WARN, "\n     *** Created device list with valid bdf doesn't match \
-                    with the platform pcie device hierarchy, Skipping PCIE tests ***\n", 0);
-    return ACS_STATUS_SKIP;
-  }
-
-  val_print_test_start("PCIe");
-  g_curr_module = 1 << PCIE_MODULE;
-
-  ecam_status = p001_entry(num_pe);
-  status |= ecam_status;
-  if (ecam_status == ACS_STATUS_FAIL) {
-    val_print(ACS_PRINT_WARN, "\n     *** Skipping remaining PCIE tests ***\n", 0);
-    val_print_test_end(status, "PCIe");
-    return status;
-  }
-
-  if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)) {
-    /* Only the test p087 will be run with the test number (ACS_PER_TEST_NUM_BASE + 1) */
-      status |= p087_entry(num_pe);
-  }
-
-  val_print_test_end(status, "PCIe");
-
-  return status;
-
-}
-
-/**
   @brief   This API executes all the Watchdog tests sequentially
            1. Caller       -  Application layer.
            2. Prerequisite -  val_wd_create_info_table
@@ -373,6 +316,73 @@ val_pcbsa_tpm2_execute_tests(uint32_t level, uint32_t num_pe)
   return status;
 }
 
+#endif
+
+/**
+  @brief   This API executes all the PCIe tests sequentially
+           1. Caller       -  Application layer.
+           2. Prerequisite -  val_pcie_create_info_table()
+  @param   level       - level of compliance being tested for.
+  @param   num_pe      - the number of PE to run these tests on.
+  @return  Consolidated status of all the tests run.
+**/
+uint32_t
+val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_PASS, i;
+
+  if (!(((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)))
+      return ACS_STATUS_SKIP;
+
+  for (i = 0; i < g_num_skip; i++) {
+      if (g_skip_test_num[i] == ACS_PCIE_TEST_NUM_BASE) {
+          val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all PCIe tests\n", 0);
+          return ACS_STATUS_SKIP;
+      }
+  }
+
+  /* Check if there are any tests to be executed in current module with user override options*/
+  status = val_check_skip_module(ACS_PCIE_TEST_NUM_BASE);
+  if (status) {
+      val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all PCIe tests\n", 0);
+      return ACS_STATUS_SKIP;
+  }
+
+  if (pcie_bdf_table_list_flag == 1) {
+    val_print(ACS_PRINT_WARN, "\n     *** Created device list with valid bdf doesn't match \
+                    with the platform pcie device hierarchy, Skipping PCIE tests ***\n", 0);
+    return ACS_STATUS_SKIP;
+  }
+
+  val_print_test_start("PCIe");
+  g_curr_module = 1 << PCIE_MODULE;
+
+#if defined(TARGET_LINUX)
+    if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1))
+      status |= p046_entry(num_pe);  /* This covers GIC rule */
+#else
+
+  ecam_status = p001_entry(num_pe);
+  status |= ecam_status;
+  if (ecam_status == ACS_STATUS_FAIL) {
+    val_print(ACS_PRINT_WARN, "\n     *** Skipping remaining PCIE tests ***\n", 0);
+    val_print_test_end(status, "PCIe");
+    return status;
+  }
+
+  if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)) {
+    /* Only the test p087 will be run with the test number (ACS_PER_TEST_NUM_BASE + 1) */
+      status |= p087_entry(num_pe);
+  }
+#endif
+
+  val_print_test_end(status, "PCIe");
+
+  return status;
+
+}
+
+#ifndef TARGET_LINUX
 
 uint32_t
 val_pcbsa_execute_tests(uint32_t g_pcbsa_level)
