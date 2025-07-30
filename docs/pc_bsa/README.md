@@ -42,19 +42,21 @@ Note: The details of the packages are beyond the scope of this document.
 >	 git clone https://github.com/ARM-software/sysarch-acs ShellPkg/Application/sysarch-acs <br>
 
 ##### 3. Build PC-BSA UEFI Application <br>
-Note :  Install GCC-ARM 13.2 [toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads)
-> 1. export GCC49_AARCH64_PREFIX=<path to arm-gnu-toolchain-13.2.Rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-<br>
+Note :  Install GCC-ARM 13.2 from [toolchain](https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads) <br>
+For a x86 host build,
+>  export GCC49_AARCH64_PREFIX=<path to arm-gnu-toolchain-13.2.Rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-><br>
 
 For an AArch64 build,
-export GCC49_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
+>  export GCC49_AARCH64_PREFIX=/usr/bin/aarch64-linux-gnu-
 
-> 3. export PACKAGES_PATH=$PWD/edk2-libc<br>
-> 4. source edksetup.sh<br>
-> 5. make -C BaseTools/Source/C<br>
-> 6. source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh pc_bsa<br>
+Build the binary,
+> 1. export PACKAGES_PATH=$PWD/edk2-libc<br>
+> 2. source edksetup.sh<br>
+> 3. make -C BaseTools/Source/C<br>
+> 4. source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh pc_bsa<br>
 
 ##### 4. PC BSA EFI application path
-- The EFI executable file is generated at <edk2-path>/Build/Shell/DEBUG_GCC49/AARCH64/PC_Bsa.efi
+- The EFI executable file is generated at \<edk2-path\>/Build/Shell/DEBUG_GCC49/AARCH64/PC_Bsa.efi
 
 ### 2. Execution Steps
 The execution of the compliance suite varies depending on the test environment. These steps assume that the test suite is invoked through the ACS UEFI shell application
@@ -166,7 +168,7 @@ Please follow instructions provided in [**LSC23 TC3 Setup Guide**](https://total
 
 ### 2. Download the TC3 FVP Model
 
-Refer to the official Arm Total Compute FVP download page: [**TC3 FVP – Arm Developer**](https://developer.arm.com/Tools%20and%20Software/Fixed%20Virtual%20Platforms/Total%20Compute%20FVPs)
+Refer to the official Arm Total Compute FVP download page: [**TC3 FVP - Arm Developer**](https://developer.arm.com/Tools%20and%20Software/Fixed%20Virtual%20Platforms/Total%20Compute%20FVPs)
 
 
 ### 3. Set Up Environment Variable
@@ -221,7 +223,7 @@ PC_bsa.efi      # Launch the PC BSA test
 - PC-BSA rules `P_L1NV_01` and `P_L1SE_01` requires [VariableServicesTest](https://github.com/tianocore/edk2-test/tree/master/uefi-sct/SctPkg/TestCase/UEFI/EFI/RuntimeServices/VariableServices/BlackBoxTest) SCT test to be run for compliance check. Please refer to [BBR ACS User Guide](https://github.com/ARM-software/bbr-acs/blob/main/README.md) for instructions to build and run SCT test suite. see the [SCT User Guide](http://www.uefi.org/testtools)for instructions on choosing and running individual testcase from UEFI Shell.
 
 ## Guidance on running Bsa Uefi Coverage
-Rule **P_L1_01** is covered by BSA ACS. Compliance requires running Bsa.efi. Refer to the [BSA ACS README](../../README.md#bsa-architecture-compliance-suite) for instructions to build and run Bsa.efi from the UEFI Shell.
+- Rule **P_L1_01** is covered by BSA ACS. Compliance requires running Bsa.efi. Refer to the [BSA ACS README](../../README.md#bsa-architecture-compliance-suite) for instructions to build and run Bsa.efi from the UEFI Shell.
 
 
 ## Limitations
@@ -241,4 +243,3 @@ PC BSA ACS is distributed under Apache v2.0 License.
 --------------
 
 *Copyright (c) 2025, Arm Limited and Contributors. All rights reserved.*
-
