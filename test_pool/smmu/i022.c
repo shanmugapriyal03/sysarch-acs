@@ -22,7 +22,11 @@
 #include "val/include/acs_pe.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 22)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1SM_05"
+#else
 #define TEST_RULE  "S_L7SM_01"
+#endif
 #define TEST_DESC  "Check if all DMA reqs behind SMMU     "
 
 static
@@ -34,11 +38,6 @@ payload()
   uint32_t i, test_fails = 0;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t num_dma_req = 0;
-
-  if (g_sbsa_level < 7) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   /* check whether all DMA capable PCIe root complexes are behind a SMMU */
   num_pcie_rc = val_iovirt_get_pcie_rc_info(NUM_PCIE_RC, 0);

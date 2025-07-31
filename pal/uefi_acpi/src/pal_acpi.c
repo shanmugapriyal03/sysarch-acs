@@ -534,3 +534,39 @@ pal_get_srat_ptr(void)
 
   return 0;
 }
+
+/**
+  @brief  Iterate through the tables pointed by XSDT and return TPM2 table address
+
+  @param  None
+
+  @return 64-bit TPM2 table address
+**/
+UINT64
+pal_get_tpm2_ptr(void)
+{
+  EFI_ACPI_DESCRIPTION_HEADER   *Xsdt;
+  UINT64                        *Entry64;
+  UINT32                        Entry64Num;
+  UINT32                        Idx;
+
+  Xsdt = (EFI_ACPI_DESCRIPTION_HEADER *) pal_get_xsdt_ptr();
+  if (Xsdt == NULL) {
+      acs_print(ACS_PRINT_ERR, L" XSDT not found\n");
+      return 0;
+  }
+
+  Entry64  = (UINT64 *)(Xsdt + 1);
+  Entry64Num = (Xsdt->Length - sizeof(EFI_ACPI_DESCRIPTION_HEADER)) >> 3;
+
+  for (Idx = 0; Idx < Entry64Num; Idx++) {
+    if (*(UINT32 *)(UINTN)(Entry64[Idx]) ==
+        EFI_ACPI_6_1_TRUSTED_COMPUTING_PLATFORM_2_TABLE_SIGNATURE) {
+        return (UINT64)(Entry64[Idx]);
+    }
+  }
+
+  return 0;
+}
+
+

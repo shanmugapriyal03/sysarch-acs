@@ -46,6 +46,7 @@ UINT64  g_exception_ret_addr;
 UINT64  g_ret_addr;
 UINT32  g_wakeup_timeout;
 UINT32  g_build_sbsa = 0;
+UINT32  g_build_pcbsa = 0;
 UINT32  g_print_mmio;
 UINT32  g_curr_module;
 UINT32  g_enable_module;

@@ -21,7 +21,11 @@
 #include "val/include/acs_pcie.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 20)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1SM_04"
+#else
 #define TEST_RULE  "S_L4SM_03"
+#endif
 #define TEST_DESC  "Check SMMU Coherent Access Support    "
 
 static
@@ -33,10 +37,6 @@ payload(void)
   uint32_t num_smmu;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-  if (g_sbsa_level < 4) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
   num_smmu = val_smmu_get_info(SMMU_NUM_CTRL, 0);
 
   if (num_smmu == 0) {

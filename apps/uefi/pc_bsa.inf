@@ -1,0 +1,93 @@
+
+## @file
+#  Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
+#  SPDX-License-Identifier : Apache-2.0
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+##
+
+
+[Defines]
+  INF_VERSION                    = 0x00010006
+  BASE_NAME                      = PC_Bsa
+  FILE_GUID                      = 4404cafa-b7f2-4b45-a443-ac83de24940c
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = ShellCEntryLib
+
+#
+#  VALID_ARCHITECTURES           = AARCH64
+#
+
+[Sources.AARCH64]
+  ../
+  ../../
+  app.c
+  pc_bsa_main.c
+  ../../test_pool/drtm/interface010.c
+  ../../test_pool/drtm/interface011.c
+  ../../test_pool/gic/g012.c
+  ../../test_pool/gic/g014.c
+  ../../test_pool/memory_map/m005.c
+  ../../test_pool/pcie/p001.c
+  ../../test_pool/pcie/p087.c
+  ../../test_pool/pe/pe004.c
+  ../../test_pool/pe/pe015.c
+  ../../test_pool/pe/pe018.c
+  ../../test_pool/pe/pe024.c
+  ../../test_pool/pe/pe025.c
+  ../../test_pool/pe/pe026.c
+  ../../test_pool/pe/pe028.c
+  ../../test_pool/pe/pe029.c
+  ../../test_pool/pe/pe030.c
+  ../../test_pool/smmu/i008.c
+  ../../test_pool/smmu/i020.c
+  ../../test_pool/smmu/i022.c
+  ../../test_pool/watchdog/w001.c
+  ../../test_pool/watchdog/w002.c
+  ../../test_pool/tpm/tpm001.c
+  ../../test_pool/tpm/tpm002.c
+
+[Packages]
+  StdLib/StdLib.dec
+  EmbeddedPkg/EmbeddedPkg.dec
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+  ShellPkg/ShellPkg.dec
+
+[LibraryClasses]
+  UnifiedValLib
+  UnifiedPalLib
+  UefiLib
+  ShellLib
+  DebugLib
+  BaseMemoryLib
+  ShellCEntryLib
+  UefiBootServicesTableLib
+  UefiRuntimeServicesTableLib
+
+[Protocols]
+  gEfiAcpiTableProtocolGuid                     ## CONSUMES
+  gHardwareInterruptProtocolGuid                ## CONSUMES
+  gEfiCpuArchProtocolGuid                       ## CONSUMES
+  gEfiPciIoProtocolGuid                         ## CONSUMES
+  gEfiLoadedImageProtocolGuid                   ## CONSUMES
+  gEfiSmbiosProtocolGuid                        ## CONSUMES
+
+[Guids]
+  gEfiAcpi20TableGuid
+  gEfiAcpiTableGuid
+
+[BuildOptions]
+  GCC:*_*_*_ASM_FLAGS  =  -march=armv8.1-a
+  GCC:*_*_*_CC_FLAGS   = -O0 -DPC_BSA -I${ACS_PATH}/ -I${ACS_PATH}/val/

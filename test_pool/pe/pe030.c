@@ -20,18 +20,17 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE  + 30)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PE_08"
+#else
 #define TEST_RULE  "S_L4PE_04"
+#endif
 #define TEST_DESC  "Check for Virtual host extensions     "
 
 static void payload(void)
 {
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-    if (g_sbsa_level < 4) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return ;
-    }
 
     /* Read ID_AA64MMFR1_EL1[11:8] For VH */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64MMFR1_EL1), 8, 11);
