@@ -19,8 +19,13 @@
 #include "val/include/acs_gic.h"
 #include "val/include/val_interface.h"
 
+#ifdef PC_BSA
+#define TEST_NUM   (ACS_GIC_TEST_NUM_BASE  +  10)
+#define TEST_RULE  "P_L1GI_03"
+#else
 #define TEST_NUM   (ACS_DRTM_INTERFACE_TEST_NUM_BASE  +  10)
 #define TEST_RULE  ""
+#endif
 #define TEST_DESC  "Check GIC supports disabling LPIs     "
 
 extern GIC_ITS_INFO    *g_gic_its_info;

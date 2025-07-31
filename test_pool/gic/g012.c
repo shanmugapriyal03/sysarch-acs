@@ -20,7 +20,11 @@
 #include "val/include/acs_gic.h"
 
 #define TEST_NUM   (ACS_GIC_TEST_NUM_BASE + 12)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1GI_01"
+#else
 #define TEST_RULE  "S_L3GI_01"
+#endif
 #define TEST_DESC  "Check GIC version                     "
 
 static

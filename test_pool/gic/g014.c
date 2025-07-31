@@ -22,7 +22,11 @@
 #include "val/include/acs_gic_support.h"
 
 #define TEST_NUM   (ACS_GIC_TEST_NUM_BASE + 14)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PP_01"
+#else
 #define TEST_RULE  "S_L3PP_01"
+#endif
 #define TEST_DESC  "Check All PPI Interrupt IDs           "
 
 
@@ -32,12 +36,6 @@ static void payload(void)
   uint64_t data;
   uint32_t intid;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-
-  if (g_sbsa_level < 3) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   /* Check non-secure physical timer Private Peripheral Interrupt (PPI) assignment */
   intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);

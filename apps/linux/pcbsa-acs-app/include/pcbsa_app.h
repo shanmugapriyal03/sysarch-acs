@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,31 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
-**/
+ **/
 
-#include  <Uefi.h>
-#include  <Library/UefiLib.h>
-#include  <Library/ShellCEntryLib.h>
-#include  <Library/ShellLib.h>
-#include  <Library/UefiBootServicesTableLib.h>
 
-#include "val/include/val_interface.h"
-#include "val/include/acs_pe.h"
-#include "val/include/acs_val.h"
-#include "val/include/acs_memory.h"
+#ifndef __PCBSA_APP_LINUX_H__
+#define __PCBSA_APP_LINUX_H__
 
-#include "acs.h"
 
-UINT32 g_its_init = 0;
+/* PC BSA Release versions */
+#define PC_BSA_APP_VERSION_MAJOR     0
+#define PC_BSA_APP_VERSION_MINOR     8
+#define PC_BSA_APP_VERSION_SUBMINOR  0
 
-INTN
-EFIAPI
-ShellAppMain (
-  IN UINTN Argc,
-  IN CHAR16 **Argv
-  )
-{
-  command_init();
-  execute_tests();
-  return 0;
-}
+#define PCBSA_MIN_LEVEL_SUPPORTED 1
+#define PCBSA_MAX_LEVEL_SUPPORTED 1
+
+#include "pcbsa_drv_intf.h"
+
+typedef unsigned long int addr_t;
+typedef unsigned char     char8_t;
+
+int
+execute_tests_pcie(int num_pe, int level, unsigned int print_level);
+
+#endif

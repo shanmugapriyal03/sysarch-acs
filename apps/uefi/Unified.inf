@@ -305,6 +305,11 @@
   ../../test_pool/ete/ete007.c
   ../../test_pool/ete/ete008.c
 
+  ../../test_pool/drtm/interface010.c
+  ../../test_pool/drtm/interface011.c
+
+  ../../test_pool/tpm/tpm001.c
+  ../../test_pool/tpm/tpm002.c
 
 [Packages]
   StdLib/StdLib.dec
@@ -338,4 +343,4 @@
 
 [BuildOptions]
   GCC:*_*_*_ASM_FLAGS  =  -march=armv8.1-a
-  GCC:*_*_*_CC_FLAGS   = -O0 -I${ACS_PATH}/ -I${ACS_PATH}/val/
+  GCC:*_*_*_CC_FLAGS   = -O0 -DPC_BSA -I${ACS_PATH}/ -I${ACS_PATH}/val/

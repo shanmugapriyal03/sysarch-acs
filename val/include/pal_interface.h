@@ -1390,6 +1390,21 @@ typedef struct {
 void pal_hmat_create_info_table(HMAT_INFO_TABLE *HmatTable);
 void pal_srat_create_info_table(SRAT_INFO_TABLE *SratTable);
 
+#ifndef TARGET_LINUX
+
+/* TPM2 Info Table */
+
+typedef struct {
+  uint64_t tpm_presence;    /*  TPM Presence  */
+  uint64_t tpm_interface;   /*  TPM2 Interface */
+  uint64_t base;            /*  TPM2 Register base address */
+} TPM2_INFO_TABLE;
+
+void pal_tpm2_create_info_table(TPM2_INFO_TABLE *Tpm2InfoTable);
+uint64_t pal_tpm2_get_version(void);
+
+#endif
+
 long pal_invoke_drtm_fn(unsigned long function_id, unsigned long arg1,
             unsigned long arg2, unsigned long arg3,
             unsigned long arg4, unsigned long arg5,
@@ -1404,4 +1419,3 @@ typedef struct drtm_log_control {
 int32_t pal_invoke_psci_fn(uint64_t function_id, uint64_t arg0,
                                     uint64_t arg1, uint64_t arg2);
 #endif
-
