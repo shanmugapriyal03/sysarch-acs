@@ -21,18 +21,17 @@
 #include "val/include/acs_memory.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE + 28)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PE_06"
+#else
 #define TEST_RULE  "S_L4PE_02"
+#endif
 #define TEST_DESC  "Check DC CVAP support                 "
 
 static void payload(void)
 {
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-    if (g_sbsa_level < 4) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     if (val_memory_check_for_persistent_mem()) {
         /* ID_AA64ISAR1_EL1.DPB[3:0] = 0b0001 or 0b0010 indicate support for

@@ -20,12 +20,18 @@
 #include "val/include/acs_smmu.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 8)
-#define TEST_RULE  "S_L4SM_01"
-#define TEST_DESC  "Check Stage 1 SMMUv3 functionality    "
-
 #define TEST_NUM1   (ACS_SMMU_TEST_NUM_BASE + 25)
-#define TEST_RULE1  "S_L4SM_02"
-#define TEST_DESC1  "Check Stage 2 SMMUv3 functionality    "
+
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1SM_02"
+#define TEST_RULE1 "P_L1SM_03"
+#else
+#define TEST_RULE  "S_L4SM_01"
+#define TEST_RULE1 "S_L4SM_02"
+#endif
+
+#define TEST_DESC  "Check Stage 1 SMMUv3 functionality    "
+#define TEST_DESC1 "Check Stage 2 SMMUv3 functionality    "
 
 static
 void

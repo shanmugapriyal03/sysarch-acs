@@ -21,7 +21,12 @@
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 46)
 #define TEST_DESC  "Check all MSI(X) vectors are LPIs     "
+
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1GI_02"
+#else
 #define TEST_RULE  "S_L3GI_02"
+#endif
 
 #define LPI_BASE 8192
 

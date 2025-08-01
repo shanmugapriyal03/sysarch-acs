@@ -21,7 +21,7 @@
 #include "val/include/acs_pe.h"
 #include "val/include/acs_peripherals.h"
 #include "val/include/acs_gic.h"
-#include "val/sys_arch_src/gic/v3/gic_v3.h"
+#include "val/driver/gic/v3/gic_v3.h"
 
 #define TEST_NUM   (ACS_PER_TEST_NUM_BASE + 3)
 #define TEST_RULE_BSA  "B_PER_05"
@@ -239,7 +239,7 @@ check_uart_16550()
   uint32_t lcr_reg;
   uint32_t lcr_scratch2;
   uint32_t lcr_scratch3;
-  uint32_t skip_test = 0;
+  uint32_t test_skip = 1;
   uint32_t test_fail = 0;
 
   if (count == 0) {
@@ -256,7 +256,7 @@ check_uart_16550()
            || interface_type == COMPATIBLE_SUBSET_16550
            || interface_type == COMPATIBLE_GENERIC_16550)
       {
-          skip_test = 1;
+          test_skip = 0;
           val_print(ACS_PRINT_DEBUG,
               "\n         UART 16550 found with instance: %x",
               count - 1);
@@ -352,7 +352,7 @@ check_uart_16550()
       count--;
   }
 
-  if (!skip_test)
+  if (test_skip)
       return TEST_SKIP;
   else if (test_fail)
       return TEST_FAIL;

@@ -31,15 +31,23 @@ bsa_acs_val-objs += $(VAL_SRC)/acs_status.o      $(VAL_SRC)/acs_memory.o \
     $(VAL_SRC)/acs_peripherals.o $(VAL_SRC)/acs_dma.o  $(VAL_SRC)/acs_smmu.o \
     $(VAL_SRC)/acs_test_infra.o  $(VAL_SRC)/acs_pcie.o  $(VAL_SRC)/acs_pe_infra.o \
     $(VAL_SRC)/acs_iovirt.o $(VAL_SRC)/bsa_execute_test.o\
-    $(VAL_SRC)/../sys_arch_src/smmu_v3/smmu_v3.o $(VAL_SRC)/../sys_arch_src/pcie/pcie.o
+    $(VAL_SRC)/../driver/smmu_v3/smmu_v3.o $(VAL_SRC)/../driver/pcie/pcie.o
 
-else
+else ifeq ($(ACS), sbsa)
 obj-m += sbsa_acs_val.o
 sbsa_acs_val-objs += $(VAL_SRC)/acs_status.o      $(VAL_SRC)/acs_memory.o \
     $(VAL_SRC)/acs_peripherals.o  $(VAL_SRC)/acs_smmu.o $(VAL_SRC)/acs_dma.o \
     $(VAL_SRC)/acs_test_infra.o  $(VAL_SRC)/acs_pcie.o $(VAL_SRC)/acs_pe_infra.o \
-    $(VAL_SRC)/acs_iovirt.o $(VAL_SRC)/../sys_arch_src/smmu_v3/smmu_v3.o \
-    $(VAL_SRC)/sbsa_execute_test.o $(VAL_SRC)/../sys_arch_src/pcie/pcie.o 
+    $(VAL_SRC)/acs_iovirt.o $(VAL_SRC)/../driver/smmu_v3/smmu_v3.o \
+    $(VAL_SRC)/sbsa_execute_test.o $(VAL_SRC)/../driver/pcie/pcie.o
+
+else  ifeq ($(ACS), pcbsa)
+obj-m += pcbsa_acs_val.o
+pcbsa_acs_val-objs += $(VAL_SRC)/acs_status.o      $(VAL_SRC)/acs_memory.o \
+    $(VAL_SRC)/acs_peripherals.o  $(VAL_SRC)/acs_smmu.o $(VAL_SRC)/acs_dma.o\
+    $(VAL_SRC)/acs_test_infra.o  $(VAL_SRC)/acs_pcie.o $(VAL_SRC)/acs_pe_infra.o \
+    $(VAL_SRC)/acs_iovirt.o    $(VAL_SRC)/../driver/smmu_v3/smmu_v3.o \
+    $(VAL_SRC)/pc_bsa_execute_test.o $(VAL_SRC)/../driver/pcie/pcie.o
 endif
 
 ccflags-y=-I$(PWD)/$(ACS_DIR)/include -I$(PWD)/$(ACS_DIR)/include -I$(PWD)/$(ACS_DIR) -DTARGET_LINUX -Wall -Werror
@@ -57,6 +65,8 @@ bsa:
 
 sbsa:
 	make -C $(KERNEL_SRC) M=$(PWD) ACS=sbsa modules
+pcbsa:
+	make -C $(KERNEL_SRC) M=$(PWD) ACS=pcbsa modules
 
 modules_install:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install

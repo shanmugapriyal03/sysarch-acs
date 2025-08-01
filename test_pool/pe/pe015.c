@@ -18,7 +18,11 @@
 #include "val/include/acs_pe.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE  +  15)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PE_04"
+#else
 #define TEST_RULE  "B_PE_25"
+#endif
 #define TEST_DESC  "Check for FEAT_LSE support            "
 
 static

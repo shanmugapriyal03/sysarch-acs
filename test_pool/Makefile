@@ -34,8 +34,8 @@ ifeq ($(ACS), bsa)
                      $(TEST_POOL)/pcie/p097.o \
                      $(TEST_POOL)/pcie/p105.o \
                      $(TEST_POOL)/peripherals/d004.o \
-                     $(TEST_POOL)/memory_map/m004.o
-else
+                     $(TEST_POOL)/memory_map/m004.o 
+else  ifeq ($(ACS), sbsa)
     obj-m += sbsa_acs_test.o
     sbsa_acs_test-objs += $(TEST_POOL)/pcie/p043.o \
         $(TEST_POOL)/pcie/p045.o \
@@ -43,9 +43,17 @@ else
         $(TEST_POOL)/pcie/p091.o \
         $(TEST_POOL)/pcie/p094.o \
         $(TEST_POOL)/smmu/i023.o
+else ifeq ($(ACS), pcbsa)
+    obj-m += pcbsa_acs_test.o
+    pcbsa_acs_test-objs +=$(TEST_POOL)/pcie/p046.o
+
 endif
 
 ccflags-y=-I$(PWD)/$(ACS_DIR)/.. -I$(PWD)/$(ACS_DIR)/val/ -I$(PWD)/$(ACS_DIR)/ -DTARGET_LINUX -Wall -Werror
+
+ifeq ($(ACS), pcbsa)
+ccflags-y += -DPC_BSA
+endif
 
 all:
 ifeq ($(KERNEL_SRC),)
@@ -60,6 +68,8 @@ bsa:
 
 sbsa:
 	make -C $(KERNEL_SRC) M=$(PWD) ACS=sbsa modules
+pcbsa:
+	make -C $(KERNEL_SRC) M=$(PWD) ACS=pcbsa modules
 
 modules_install:
 	$(MAKE) -C $(KERNEL_SRC) M=$(PWD) modules_install

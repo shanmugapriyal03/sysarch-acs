@@ -20,9 +20,14 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_pe.h"
 
+
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 87)
-#define TEST_DESC  "Check EA Capability                   "
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PCI_2"
+#else
 #define TEST_RULE  "S_L4PCI_2"
+#endif
+#define TEST_DESC  "Check EA Capability                   "
 
 static
 void

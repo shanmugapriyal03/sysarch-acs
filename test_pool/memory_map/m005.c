@@ -23,12 +23,17 @@
 #include "val/include/acs_mpam.h"
 
 #define TEST_NUM (ACS_MEMORY_MAP_TEST_NUM_BASE + 5)
-#define TEST_RULE "S_L3MM_01"
-#define TEST_DESC "NS-EL2 Stage-2 64KB Mapping Check     "
-
 #define TEST_NUM1 (ACS_MEMORY_MAP_TEST_NUM_BASE + 8)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1MM_01"
+#define TEST_RULE1  "P_L1MM_01"
+#else
+#define TEST_RULE "S_L3MM_01"
 #define TEST_RULE1 "S_L3MM_02"
+#endif
+#define TEST_DESC "NS-EL2 Stage-2 64KB Mapping Check     "
 #define TEST_DESC1 "Check peripherals addr 64Kb apart     "
+
 
 static void payload_check_peripheral_mem_64kb_align(void)
 {

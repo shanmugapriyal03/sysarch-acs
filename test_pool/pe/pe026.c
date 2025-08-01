@@ -21,7 +21,11 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE + 26)
+#ifdef PC_BSA
+#define TEST_RULE  "P_L1PE_05"
+#else
 #define TEST_RULE  "S_L3PE_04"
+#endif
 #define TEST_DESC  "Check FEAT_LPA Requirements           "
 
 #define FEAT_LPA_IMPL 0x6

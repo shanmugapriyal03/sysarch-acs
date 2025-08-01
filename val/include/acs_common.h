@@ -44,6 +44,7 @@
 #define ACS_NIST_TEST_NUM_BASE       1300
 #define ACS_ETE_TEST_NUM_BASE        1400
 #define ACS_EXERCISER_TEST_NUM_BASE  1500
+#define ACS_TPM2_TEST_NUM_BASE       1600
 
 /* Module specific print APIs */
 
@@ -63,7 +64,8 @@ typedef enum {
     RAS_MODULE,
     NIST_MODULE,
     ETE_MODULE,
-    EXERCISER_MODULE
+    EXERCISER_MODULE,
+    TPM2_MODULE
 } MODULE_ID_e;
 
 #define STATE_BIT   28
