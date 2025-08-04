@@ -331,15 +331,13 @@ ShellAppMainsbsa(
       g_print_level = ACS_PRINT_ERR;
   }
 
-#ifdef TARGET_BM_BOOT
-  /* Write page tables */
+  /* Create MMU page tables before enabling the MMU at EL2 */
   if (val_setup_mmu())
       return ACS_STATUS_FAIL;
 
   /* Enable Stage-1 MMU */
   if (val_enable_mmu())
       return ACS_STATUS_FAIL;
-#endif
 
   g_sbsa_level = PLATFORM_OVERRIDE_SBSA_LEVEL;
   if (g_sbsa_level < SBSA_MIN_LEVEL_SUPPORTED)
@@ -377,8 +375,8 @@ ShellAppMainsbsa(
       g_execute_modules = &g_module_array[0];
   }
 
-  g_execute_nist = FALSE;
-  g_print_mmio = FALSE;
+  g_execute_nist = 0;
+  g_print_mmio = 0;
   g_wakeup_timeout = PLATFORM_OVERRIDE_TIMEOUT;
   g_sys_last_lvl_cache = PLATFORM_OVERRRIDE_SLC;
 

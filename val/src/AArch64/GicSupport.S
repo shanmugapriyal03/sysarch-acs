@@ -16,7 +16,6 @@
 #
 #**/
 
-#ifdef TARGET_EMULATION
 /* Private worker functions for ASM_PFX() */
 #define _CONCATENATE(a, b)  __CONCATENATE(a, b)
 #define __CONCATENATE(a, b) a ## b
@@ -33,7 +32,6 @@
 
 #define GCC_ASM_IMPORT(func__)  \
        .extern  _CONCATENATE (__USER_LABEL_PREFIX__, func__)
-#endif
 
 .text
 .align 2
@@ -95,7 +93,3 @@ ASM_PFX(TestExecuteBarrier):
   dsb sy
   isb
   ret
-
-#ifndef TARGET_EMULATION
-ASM_FUNCTION_REMOVE_IF_UNREFERENCED
-#endif

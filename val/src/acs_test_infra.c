@@ -39,15 +39,8 @@ uint32_t g_override_skip;
 void
 val_print(uint32_t level, char8_t *string, uint64_t data)
 {
-#ifndef TARGET_BM_BOOT
   if (level >= g_print_level)
       pal_print(string, data);
-#else
-  if (level >= g_print_level) {
-      pal_uart_print(level, string, data);
-  }
-#endif
-
 }
 
 /**

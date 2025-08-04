@@ -498,7 +498,7 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
   if (g_sw_view[G_SW_OS]) {
 
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= p045_entry(num_pe);
           status |= p094_entry(num_pe);
           status |= p095_entry(num_pe);
@@ -509,7 +509,7 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #ifndef TARGET_LINUX
           status |= p002_entry(num_pe);
           status |= p003_entry(num_pe);
-#if defined(TARGET_EMULATION)
+#if defined(TARGET_BAREMETAL)
           status |= p004_entry(num_pe);
           status |= p005_entry(num_pe);
 #endif
@@ -597,7 +597,7 @@ val_bsa_peripheral_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= d006_entry(num_pe);
           status |= d008_entry(num_pe);
 #endif
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= d004_entry(num_pe);
           status |= d007_entry(num_pe);
 #endif
@@ -652,14 +652,14 @@ val_bsa_memory_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(OPERATING_SYSTEM);
-#if defined(TARGET_EMULATION)
+#if defined(TARGET_BAREMETAL)
           status |= m001_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
           status |= m002_entry(num_pe);
           status |= m003_entry(num_pe);
 #endif
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= m004_entry(num_pe);
           status |= m006_entry(num_pe);
           status |= m007_entry(num_pe);

@@ -84,3 +84,4 @@
 
 [BuildOptions]
   GCC:*_*_*_ASM_FLAGS  =  -march=armv8.2-a+sve+profile
+  GCC:*_*_*_CC_FLAGS   =  -DTARGET_UEFI

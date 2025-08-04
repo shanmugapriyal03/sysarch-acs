@@ -329,10 +329,10 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
   val_print_test_start("PCIe");
   g_curr_module = 1 << PCIE_MODULE;
 
-  #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
-    if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
+  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
       status |= p046_entry(num_pe);  /* This covers GIC rule */
-  #endif
+#endif
 
   ecam_status = p043_entry(num_pe);
   if (ecam_status == ACS_STATUS_FAIL) {
@@ -342,7 +342,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
   status |= ecam_status;
 
-  #ifndef TARGET_LINUX
+#ifndef TARGET_LINUX
     if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
       status |= p068_entry(num_pe);
 
@@ -367,18 +367,18 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p093_entry(num_pe);
     }
 
-  #endif
+#endif
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
   if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
     status |= p091_entry(num_pe);
 #endif
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
-    #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
       status |= p103_entry(num_pe);
       status |= p104_entry(num_pe);
-    #endif
+#endif
 
     if (g_pcie_integrated_devices == 0) {
       val_print(ACS_PRINT_WARN, "\n     *** No integrated PCIe Devices Found, \
@@ -427,7 +427,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p074_entry(num_pe);
       status |= p075_entry(num_pe); /* iEP/RP only */
 #endif
-#if defined(TARGET_EMULATION) && !defined(TARGET_LINUX)
+#if defined(TARGET_BAREMETAL) && !defined(TARGET_LINUX)
       status |= p076_entry(num_pe); /* iEP/RP only */
       status |= p077_entry(num_pe);
 #endif
@@ -532,7 +532,7 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
   }
 #endif  // TARGET_LINUX
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
   if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7))
      status |= i023_entry(num_pe);
 #endif
@@ -952,7 +952,7 @@ val_sbsa_ete_execute_tests(uint32_t level, uint32_t num_pe)
   return (ete_status | trbe_status);
 }
 
-#ifndef TARGET_BM_BOOT
+#ifndef TARGET_BAREMETAL
 /**
   @brief   This API executes all the PCIe tests sequentially
   @param   level  - level of compliance being tested for.

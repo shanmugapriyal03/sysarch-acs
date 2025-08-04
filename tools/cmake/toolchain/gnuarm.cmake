@@ -42,8 +42,7 @@ endif()
 set(C_COMPILE_DEBUG_OPTIONS "-g -Wa,-gdwarf-4")
 set(ASM_COMPILE_DEBUG_OPTIONS "-g -Wa,--gdwarf-4")
 
-add_definitions(-DTARGET_EMULATION)
-add_definitions(-DTARGET_BM_BOOT)
+add_definitions(-DTARGET_BAREMETAL)
 
 if(ACS MATCHES "sbsa")
     add_definitions(-DSBSA)

@@ -231,4 +231,4 @@
 
 [BuildOptions]
   GCC:*_*_*_ASM_FLAGS  =  -march=armv8.1-a
-  GCC:*_*_*_CC_FLAGS   = -O0 -I${ACS_PATH}/ -I${ACS_PATH}/val/
+  GCC:*_*_*_CC_FLAGS   = -O0 -I${ACS_PATH}/ -I${ACS_PATH}/val/ -DTARGET_UEFI
