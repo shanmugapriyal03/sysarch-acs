@@ -334,7 +334,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p046_entry(num_pe);  /* This covers GIC rule */
 #endif
 
-  ecam_status = p043_entry(num_pe);
+  ecam_status = p001_entry(num_pe);
   if (ecam_status == ACS_STATUS_FAIL) {
     val_print(ACS_PRINT_WARN, "\n     *** Skipping remaining PCIE tests ***\n", 0);
     return status;
@@ -351,7 +351,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
     }
 
     if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
-      status |= p044_entry(num_pe);
+      status |= p002_entry(num_pe);
     }
 
     if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
@@ -387,6 +387,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
     }
 
 #ifndef TARGET_LINUX
+      status |= p011_entry(num_pe);
       status |= p012_entry(num_pe);
       status |= p013_entry(num_pe);
       status |= p014_entry(num_pe);
@@ -396,6 +397,8 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p028_entry(num_pe);
       status |= p029_entry(num_pe);
       status |= p034_entry(num_pe);
+      status |= p037_entry(num_pe);
+      status |= p038_entry(num_pe);
       status |= p040_entry(num_pe);
       status |= p041_entry(num_pe);
       status |= p047_entry(num_pe);
@@ -423,13 +426,10 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p070_entry(num_pe);
       status |= p071_entry(num_pe); /* iEP/RP only */
       status |= p072_entry(num_pe); /* iEP/RP only */
-      status |= p073_entry(num_pe); /* iEP/RP only */
-      status |= p074_entry(num_pe);
-      status |= p075_entry(num_pe); /* iEP/RP only */
 #endif
 #if defined(TARGET_BAREMETAL) && !defined(TARGET_LINUX)
-      status |= p076_entry(num_pe); /* iEP/RP only */
-      status |= p077_entry(num_pe);
+      status |= p004_entry(num_pe); /* iEP/RP only */
+      status |= p005_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
       status |= p078_entry(num_pe); /* Depends on p027; run it prior to this test */
