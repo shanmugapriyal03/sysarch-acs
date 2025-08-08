@@ -242,10 +242,11 @@ test_fail:
 }
 
 uint32_t
-e008_entry(void)
+e008_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
 
   test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RCiEP};
 
@@ -261,10 +262,11 @@ e008_entry(void)
 }
 
 uint32_t
-e038_entry(void)
+e038_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
 
   test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_EP};
 

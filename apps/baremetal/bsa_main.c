@@ -213,6 +213,7 @@ ShellAppMainbsa(
 
   uint32_t             Status;
   void                 *branch_label;
+  uint32_t             num_pe;
 
   g_print_level = PLATFORM_OVERRIDE_PRINT_LEVEL;
 
@@ -314,35 +315,38 @@ ShellAppMainbsa(
   val_pe_context_save(AA64ReadSp(), (uint64_t)branch_label);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
 
+  /* Get number of PEs in the system */
+  num_pe = val_pe_get_num();
+
   /***  Starting PE tests             ***/
-  Status = val_bsa_pe_execute_tests(val_pe_get_num(), g_sw_view);
+  Status = val_bsa_pe_execute_tests(num_pe, g_sw_view);
 
   /***  Starting Memory Map tests     ***/
-  Status |= val_bsa_memory_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_memory_execute_tests(num_pe, g_sw_view);
 
   /***  Starting GIC tests            ***/
-  Status |= val_bsa_gic_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_gic_execute_tests(num_pe, g_sw_view);
 
   /***  Starting System MMU tests     ***/
-  Status |= val_bsa_smmu_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_smmu_execute_tests(num_pe, g_sw_view);
 
   /***  Starting Timer tests          ***/
-  Status |= val_bsa_timer_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_timer_execute_tests(num_pe, g_sw_view);
 
   /***  Starting Wakeup semantic tests ***/
-  Status |= val_bsa_wakeup_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_wakeup_execute_tests(num_pe, g_sw_view);
 
   /***  Starting Peripheral tests     ***/
-  Status |= val_bsa_peripheral_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_peripheral_execute_tests(num_pe, g_sw_view);
 
   /***  Starting Watchdog tests       ***/
-  Status |= val_bsa_wd_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_wd_execute_tests(num_pe, g_sw_view);
 
   /***  Starting PCIe tests           ***/
-  Status |= val_bsa_pcie_execute_tests(val_pe_get_num(), g_sw_view);
+  Status |= val_bsa_pcie_execute_tests(num_pe, g_sw_view);
 
   /***  Starting PCIe Exerciser tests ***/
-  Status |= val_bsa_exerciser_execute_tests(g_sw_view);
+  Status |= val_bsa_exerciser_execute_tests(num_pe, g_sw_view);
 
 print_test_status:
   val_print(ACS_PRINT_ERR, "\n     -------------------------------------------------------\n", 0);

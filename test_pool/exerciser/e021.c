@@ -429,9 +429,10 @@ payload(void *arg)
 }
 
 uint32_t
-e021_entry(void)
+e021_entry(uint32_t num_pe)
 {
-  uint32_t num_pe = 1;
+  /* Run test on single PE */
+  num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
   test_data_t data = {.test_num = test_entries[0].test_num, .dev_type1 = (uint32_t)RCiEP};
 
@@ -448,9 +449,10 @@ e021_entry(void)
 }
 
 uint32_t
-e031_entry(void)
+e031_entry(uint32_t num_pe)
 {
-  uint32_t num_pe = 1;
+  /* Run test on single PE */
+  num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
   test_data_t data = {.test_num = test_entries[1].test_num, .dev_type1 = (uint32_t)iEP_EP};
 

@@ -452,7 +452,7 @@ uint64_t val_memory_get_unpopulated_addr(addr_t *addr, uint32_t instance);
 uint64_t val_get_max_memory(void);
 
 /* PCIe Exerciser tests */
-uint32_t val_bsa_exerciser_execute_tests(uint32_t *g_sw_view);
+uint32_t val_bsa_exerciser_execute_tests(uint32_t num_pe, uint32_t *g_sw_view);
 
 /* NIST VAL APIs */
 uint32_t val_nist_generate_rng(uint32_t *rng_buffer);
@@ -576,7 +576,7 @@ uint32_t val_sbsa_wd_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_timer_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
-uint32_t val_sbsa_exerciser_execute_tests(uint32_t level);
+uint32_t val_sbsa_exerciser_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_pmu_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_ras_execute_tests(uint32_t level, uint32_t num_pe);

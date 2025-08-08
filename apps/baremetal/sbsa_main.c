@@ -319,6 +319,7 @@ ShellAppMainsbsa(
 
   uint32_t             Status;
   void                 *branch_label;
+  uint32_t             num_pe;
 
   g_print_level = PLATFORM_OVERRIDE_PRINT_LEVEL;
   if (g_print_level < ACS_PRINT_INFO)
@@ -430,48 +431,51 @@ ShellAppMainsbsa(
   val_pe_context_save(AA64ReadSp(), (uint64_t)branch_label);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
 
+  /* Get number of PEs in the system */
+  num_pe = val_pe_get_num();
+
   /***         Starting PE tests                     ***/
-  Status = val_sbsa_pe_execute_tests(g_sbsa_level, val_pe_get_num());
+  Status = val_sbsa_pe_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting Memory tests                 ***/
-  Status |= val_sbsa_memory_execute_tests(g_sbsa_level, val_pe_get_num());
+  Status |= val_sbsa_memory_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting GIC tests                    ***/
-  Status |= val_sbsa_gic_execute_tests(g_sbsa_level, val_pe_get_num());
+  Status |= val_sbsa_gic_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting SMMU tests                   ***/
   if (g_sbsa_level > 3)
-    Status |= val_sbsa_smmu_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_smmu_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting Timer tests                  ***/
   if (g_sbsa_level > 7)
-    Status |= val_sbsa_timer_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_timer_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting Watchdog tests               ***/
   if (g_sbsa_level > 5)
-    Status |= val_sbsa_wd_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_wd_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting PCIe tests                   ***/
-  Status |= val_sbsa_pcie_execute_tests(g_sbsa_level, val_pe_get_num());
+  Status |= val_sbsa_pcie_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting Exerciser tests              ***/
-  Status |= val_sbsa_exerciser_execute_tests(g_sbsa_level);
+  Status |= val_sbsa_exerciser_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting MPAM tests                   ***/
   if (g_sbsa_level > 6)
-    Status |= val_sbsa_mpam_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_mpam_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting PMU tests                    ***/
   if (g_sbsa_level > 6)
-    Status |= val_sbsa_pmu_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_pmu_execute_tests(g_sbsa_level, num_pe);
 
   /***         Starting RAS tests                    ***/
   if (g_sbsa_level > 6)
-    Status |= val_sbsa_ras_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_ras_execute_tests(g_sbsa_level, num_pe);
 
     /***         Starting ETE tests                    ***/
   if (g_sbsa_level > 7)
-    Status |= val_sbsa_ete_execute_tests(g_sbsa_level, val_pe_get_num());
+    Status |= val_sbsa_ete_execute_tests(g_sbsa_level, num_pe);
 
 print_test_status:
   val_print(ACS_PRINT_ERR, "\n     -------------------------------------------------------\n", 0);

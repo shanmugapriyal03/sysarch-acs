@@ -218,12 +218,12 @@ payload (void)
 }
 
 uint32_t
-e013_entry(void)
+e013_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
 
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
 
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)

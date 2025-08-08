@@ -236,10 +236,12 @@ test_clean:
   val_memory_free_aligned(pgt_base);
 }
 
-uint32_t e026_entry(void)
+uint32_t
+e026_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
 
   payload_data_t data = {.test_num = test_entries[0].test_num, .check2_only = 1};
 
@@ -255,10 +257,12 @@ uint32_t e026_entry(void)
   return status;
 }
 
-uint32_t e032_entry(void)
+uint32_t
+e032_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
 
   payload_data_t data = {.test_num = test_entries[1].test_num, .check2_only = 0};
 

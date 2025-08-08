@@ -217,9 +217,10 @@ exception_return:
 }
 
 uint32_t
-e017_entry(void)
+e017_entry(uint32_t num_pe)
 {
-  uint32_t num_pe = 1;
+  /* Run test on single PE */
+  num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
 
   test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RP};
@@ -237,9 +238,10 @@ e017_entry(void)
 }
 
 uint32_t
-e034_entry(void)
+e034_entry(uint32_t num_pe)
 {
-  uint32_t num_pe = 1;
+  /* Run test on single PE */
+  num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
 
   test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_RP};

@@ -419,10 +419,11 @@ test_clean:
 }
 
 uint32_t
-e036_entry(void)
+e036_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
   test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RCiEP};
 
   status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
@@ -438,10 +439,11 @@ e036_entry(void)
 }
 
 uint32_t
-e037_entry(void)
+e037_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
-  uint32_t num_pe = 1;  //This test is run on single processor
+  /* Run test on single PE */
+  num_pe = 1;
   test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_EP};
 
   status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
