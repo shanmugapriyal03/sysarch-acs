@@ -159,7 +159,7 @@ static void payload(void)
         return;
     }
     /* Get memory controller local to the primary PE */
-    mc_node_index = val_pmu_get_node_index(pe_prox_domain);
+    mc_node_index = val_pmu_get_node_index(pe_prox_domain, PMU_NODE_MEM_CNTR);
     if (mc_node_index == PMU_INVALID_INDEX) {
         val_print(ACS_PRINT_ERR, "\n       PMU node not found", 0);
         val_set_status(index, RESULT_FAIL(TEST_NUM, 4));

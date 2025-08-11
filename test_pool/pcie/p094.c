@@ -19,13 +19,20 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_memory.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 94)
-#define TEST_RULE  "PCI_MM_01, PCI_MM_02, PCI_MM_03"
-#define TEST_DESC  "PCIe Unaligned access                 "
+/* Test runs on Linux and BM Env */
+static const
+test_config_t test_entries[] = {
+    /* p094 targets EP, RP, DP, and UP, and is executed for BSA */
+    { ACS_PCIE_TEST_NUM_BASE + 94, "PCIe Normal Memory mapping support    ", "PCI_MM_03"},
+    /* p104 targets RCiEP, RCEC, iEP_EP, and iEP_RP, and is executed for SBSA */
+    { ACS_PCIE_TEST_NUM_BASE + 104, "PCIe Normal Memory mapping support    ", "PCI_MM_03"}
+};
 
 #define DATA 0xC0DECAFE
 
 static void *branch_to_test;
+static uint32_t test_num;
+static uint32_t onchip_peripherals_check;
 
 static
 void
@@ -37,13 +44,14 @@ esr(uint64_t interrupt_type, void *context)
   val_pe_update_elr(context, (uint64_t)branch_to_test);
 
   val_print(ACS_PRINT_ERR, "\n       Received Exception of type %d", interrupt_type);
-  val_set_status(index, RESULT_FAIL(TEST_NUM, 02));
+  val_set_status(index, RESULT_FAIL(test_num, 02));
 }
 
 static
 void
 payload(void)
 {
+  uint32_t data;
   uint32_t old_data;
   uint32_t bdf;
   uint32_t dp_type;
@@ -66,15 +74,15 @@ payload(void)
   uint32_t max_bar_offset;
   uint32_t msa_en = 0;
 
-  val_set_status(index, RESULT_SKIP(TEST_NUM, 0));
+  val_set_status(index, RESULT_SKIP(test_num, 0));
 
   /* Install exception handlers */
   status = val_pe_install_esr(EXCEPT_AARCH64_SYNCHRONOUS_EXCEPTIONS, esr);
   status |= val_pe_install_esr(EXCEPT_AARCH64_SERROR, esr);
   if (status)
   {
-      val_print(ACS_PRINT_ERR, "\n       Failed in installing the exception handler", 0);
-      val_set_status(index, RESULT_FAIL(TEST_NUM, 01));
+      val_print(ACS_PRINT_ERR, "\n       Failed to install exception handler", 0);
+      val_set_status(index, RESULT_FAIL(test_num, 01));
       return;
   }
 
@@ -86,10 +94,15 @@ next_bdf:
       bdf = bdf_tbl_ptr->device[tbl_index].bdf;
 
       dp_type = val_pcie_device_port_type(bdf);
-      /* Check entry is RP/EP/UP/DP. Else move to next BDF. */
-      if ((dp_type == iEP_EP) || (dp_type == iEP_RP)
-          || (dp_type == RCEC) || (dp_type == RCiEP))
-          continue;
+      /* Based on the test scope, verify if the device type falls under DP/UP/EP/RP/
+         or iEP/RCiEP/RCEC. */
+      if (onchip_peripherals_check) {
+          if ((dp_type != iEP_EP) && (dp_type != iEP_RP) && (dp_type != RCEC) && (dp_type != RCiEP))
+              continue;
+          } else {
+          if ((dp_type != EP) && (dp_type != RP) && (dp_type != DP) && (dp_type != UP))
+              continue;
+          }
 
       /* Configure the max BAR offset */
       dev_type = val_pcie_get_device_type(bdf);
@@ -189,6 +202,8 @@ next_bdf:
            */
           old_data = *(uint32_t *)(baseptr);
           *(uint32_t *)(baseptr) = DATA;
+          data = *(char *)(baseptr+3);
+          val_print(ACS_PRINT_DEBUG, "\n       Value read: %llx", data);
           *(uint32_t *)(baseptr) = old_data;
 
 exception_return_normal:
@@ -199,39 +214,15 @@ exception_return_normal:
               /* Setting the status to Pass to enable next check for current BDF.
                * Failure has been recorded with test_fail.
                */
-              val_set_status(index, RESULT_PASS(TEST_NUM, 01));
-              test_fail++;
-          }
-
-          branch_to_test = &&exception_return_device;
-
-          /* Map the BARs to a DEVICE memory (non-cachable) attribute
-           * and check transaction.
-           */
-          baseptr = (char *)val_memory_ioremap((void *)base, 1024, DEVICE_nGnRnE);
-
-          /* Access check. Not performing data comparison check. */
-          old_data = *(uint32_t *)(baseptr);
-          *(uint32_t *)(baseptr) = DATA;
-          *(uint32_t *)(baseptr) = old_data;
-
-          val_memory_unmap(baseptr);
-
-exception_return_device:
-          if (IS_TEST_FAIL(val_get_status(index))) {
-              val_print(ACS_PRINT_ERR, "\n       Device memory access failed for Bdf: 0x%x", bdf);
-              /* Setting the status to Pass to enable test for next BDF.
-               * Failure has been recorded with test_fail.
-               */
-              val_set_status(index, RESULT_PASS(TEST_NUM, 02));
+              val_set_status(index, RESULT_PASS(test_num, 01));
               test_fail++;
           }
 
 next_bar:
-          if (BAR_REG(bar_reg_lower_value) == BAR_32_BIT)
+          if (BAR_REG(bar_value) == BAR_32_BIT)
               offset = offset + 4;
 
-          if (BAR_REG(bar_reg_lower_value) == BAR_64_BIT)
+          if (BAR_REG(bar_value) == BAR_64_BIT)
               offset = offset + 8;
 
           if (msa_en)
@@ -240,11 +231,11 @@ next_bar:
   }
 
   if (test_skip)
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 0));
+      val_set_status(index, RESULT_SKIP(test_num, 0));
   else if (test_fail)
-      val_set_status(index, RESULT_FAIL(TEST_NUM, test_fail));
+      val_set_status(index, RESULT_FAIL(test_num, test_fail));
   else
-      val_set_status(index, RESULT_PASS(TEST_NUM, 0));
+      val_set_status(index, RESULT_PASS(test_num, 0));
 
 }
 
@@ -253,18 +244,41 @@ p094_entry(uint32_t num_pe)
 {
 
   uint32_t status = ACS_STATUS_FAIL;
+  test_num = test_entries[0].test_num;
+  onchip_peripherals_check = 0;
 
   num_pe = 1;  //This test is run on single processor
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_payload(test_num, num_pe, payload, 0);
 
   /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  status = val_check_for_error(test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), NULL);
+  val_report_status(0, ACS_END(test_num), test_entries[0].rule);
 
   return status;
 }
 
+uint32_t
+p104_entry(uint32_t num_pe)
+{
+
+  uint32_t status = ACS_STATUS_FAIL;
+  test_num = test_entries[1].test_num;
+  onchip_peripherals_check = 1;
+
+  num_pe = 1;  //This test is run on single processor
+
+  status = val_initialize_test(test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_payload(test_num, num_pe, payload, 0);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_num), test_entries[1].rule);
+
+  return status;
+}

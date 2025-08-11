@@ -115,7 +115,3 @@ ASM_PFX(AA64ReadErrPfgcdn1):
 ASM_PFX(AA64WriteErrPfgcdn1):
   msr   erxpfgcdn_el1, x0
   ret
-
-#ifndef TARGET_EMULATION
-ASM_FUNCTION_REMOVE_IF_UNREFERENCED
-#endif // TARGET_EMULATION

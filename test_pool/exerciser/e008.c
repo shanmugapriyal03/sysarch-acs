@@ -14,6 +14,25 @@
  * limitations under the License.
  **/
 
+#include "val/include/acs_val.h"
+#include "val/include/acs_memory.h"
+#include "val/include/acs_exerciser.h"
+#include "val/include/acs_smmu.h"
+#include "val/include/acs_pcie.h"
+#include "val/include/acs_pcie_enumeration.h"
+
+static const
+test_config_t test_entries[] = {
+    { ACS_EXERCISER_TEST_NUM_BASE + 8, "Tx pending bit clear correctness RCiEP", "RE_ORD_4"},
+    { ACS_EXERCISER_TEST_NUM_BASE + 38, "Tx pending bit clear correctness: iEP ", "IE_ORD_4"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t dev_type;
+    uint32_t test_num;
+} test_data_t;
+
 
 /* Test sequence - Initialize a main memory region marked as WB,
  * outer shareable by the PE page tables. CPU Write to this region with
@@ -22,17 +41,6 @@
  * exerciser must get the latest data. The exerciser updates the
  * location with newest data. PE reads the location and must get NEWEST VAL.
  */
-
-#include "val/include/acs_val.h"
-#include "val/include/acs_memory.h"
-#include "val/include/acs_exerciser.h"
-#include "val/include/acs_smmu.h"
-#include "val/include/acs_pcie.h"
-#include "val/include/acs_pcie_enumeration.h"
-
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 8)
-#define TEST_RULE  "PCI_IC_12, PCI_IC_14, RE_ORD_4, IE_ORD_4"
-#define TEST_DESC  "Check PCIe Software Coherency         "
 
 #define TEST_DATA_BLK_SIZE  (4*1024)
 #define NEW_DATA 0xAD
@@ -137,15 +145,18 @@ test_sequence1(void *dram_buf1_virt, void *dram_buf1_phys, uint32_t e_bdf, uint3
 
 static
 void
-payload (void)
+payload (void *arg)
 {
 
   uint32_t pe_index;
   uint32_t instance;
   uint32_t e_bdf;
+  uint32_t dp_type;
+  bool     test_skip = 1;
   uint32_t smmu_index;
   void *dram_buf1_virt;
   void *dram_buf1_phys;
+  test_data_t *test_data = (test_data_t *)arg;
 
   dram_buf1_virt = NULL;
   dram_buf1_phys = NULL;
@@ -165,6 +176,12 @@ payload (void)
     e_bdf = val_exerciser_get_bdf(instance);
     val_print(ACS_PRINT_DEBUG, "\n       Exerciser BDF - 0x%x", e_bdf);
 
+    dp_type = val_pcie_device_port_type(e_bdf);
+    /* Check entry is RCiEP/ iEP_EP. Else move to next BDF. */
+    if (dp_type != test_data->dev_type)
+        continue;
+
+    test_skip = 0;
     /* Find SMMU node index for this exerciser instance */
     smmu_index = val_iovirt_get_rc_smmu_index(PCIE_EXTRACT_BDF_SEG(e_bdf),
                                               PCIE_CREATE_BDF_PACKED(e_bdf));
@@ -179,7 +196,7 @@ payload (void)
     if (smmu_index != ACS_INVALID_INDEX) {
         if (val_smmu_disable(smmu_index)) {
             val_print(ACS_PRINT_ERR, "\n       Exerciser %x smmu disable error", instance);
-            val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 2));
+            val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 1));
             return;
         }
     }
@@ -190,7 +207,7 @@ payload (void)
     if (!dram_buf1_virt) {
 
       val_print(ACS_PRINT_ERR, "\n       WB and OSH mem alloc failure %x", 2);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 2));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 2));
       return;
     }
 
@@ -212,31 +229,52 @@ payload (void)
 
   }
 
-  val_set_status(pe_index, RESULT_PASS(TEST_NUM, 0));
+  if (test_skip)
+      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 1));
+  else
+      val_set_status(pe_index, RESULT_PASS(test_data->test_num, 1));
   return;
 
 test_fail:
-  val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 2));
+  val_set_status(pe_index, RESULT_FAIL(test_data->test_num, 3));
   val_memory_free_cacheable(e_bdf, TEST_DATA_BLK_SIZE, dram_buf1_virt, dram_buf1_phys);
   return;
 }
 
 uint32_t
-e008_entry (void)
+e008_entry(void)
 {
-  uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
 
-  status = val_initialize_test (TEST_NUM, TEST_DESC, num_pe);
+  test_data_t data = {.test_num = test_entries[0].test_num, .dev_type = (uint32_t)RCiEP};
 
-  if (status != ACS_STATUS_SKIP) {
-      val_run_test_payload (TEST_NUM, num_pe, payload, 0);
-  }
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
 
-  /* Get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), NULL);
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+  return status;
+}
 
+uint32_t
+e038_entry(void)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
+
+  test_data_t data = {.test_num = test_entries[1].test_num, .dev_type = (uint32_t)iEP_EP};
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
   return status;
 }

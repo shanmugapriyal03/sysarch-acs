@@ -26,8 +26,8 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 24)
-#define TEST_DESC  "RP's must support DPC                 "
-#define TEST_RULE  "PCI_ER_05, PCI_ER_06"
+#define TEST_DESC  "Check DPC funcionality for RPs        "
+#define TEST_RULE  "PCI_ER_06"
 
 #define ERR_FATAL 1
 #define ERR_FATAL_NONFATAL 2

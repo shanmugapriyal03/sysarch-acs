@@ -32,7 +32,7 @@ MEMORY_INFO_TABLE  *g_memory_info_table;
 #define CHECK_ADDR_52BIT(addr) (((uint64_t)(addr)) & ~ADDR_52BIT_MASK)
 
 
-#ifdef TARGET_BM_BOOT
+#ifdef TARGET_BAREMETAL
 /**
  *   @brief    Add regions assigned to host into its translation table data structure.
  *   @param    void
@@ -62,7 +62,7 @@ uint32_t val_mmu_get_mapping_count(void)
 {
     return pal_mmu_get_mapping_count();
 }
-#endif  // TARGET_BM_BOOT
+#endif  // TARGET_BAREMETAL
 
 #ifndef TARGET_LINUX
 /**

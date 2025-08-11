@@ -19,158 +19,336 @@
 
 /**
 * The test table covers bit-field entries for registers
-* which are applicable only for type1 header
+* which are applicable for type1 header
 **/
 
 pcie_cfgreg_bitfield_entry bf_info_table50[] = {
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        3,                                       // Start bit position
+        3,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR SCE value mismatch",                 // SCE invalid configured value
+        "CR SCE attribute mismatch"              // SCE invalid attribute
+    },
+
+    // Bit-field entry 2: Command register, bit[4] = Memory Write and Invalidate
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        4,                                       // Start bit position
+        4,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR MWI value mismatch",                 // MWI invalid configured value
+        "CR MWI attribute mismatch"              // MWI invalid attribute
+    },
+
+    // Bit-field entry 3: Command register, bit[5] = VGA Palette Snoop
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR VPS cfg value mismatch",             // VPS invalid configured value
+        "CR VPS attribute mismatch"              // VPS invalid attribute
+    },
+
+    // Bit-field entry 4: Command register, bit[7] = IDSEL Stepping/Wait Cycle Control
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR IDSEL value mismatch",               // IDSEL invalid configured value
+        "CR IDSEL attribute mismatch"            // IDSEL invalid attribute
+    },
+
+    // Bit-field entry 5: Command register, bit[9] = Fast Back-to-Back Transaction Enable
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        9,                                       // Start bit position
+        9,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR FBBTE value mismatch",               // FBBTE invalid configured value
+        "CR FBBTE attribute mismatch"            // FBBTE invalid attribute
+    },
+
+    // Bit-field entry 6: Command register, bit[10] = interrupt disable
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        10,                                      // Start bit position
+        10,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR ID value mismatch",                  // Interrupt disable invalid configured value
+        "CR ID attribute mismatch"               // Interrupt disable invalid attribute
+    },
+
+    // Bit-field entry 7: Status register, bit[3] = Interrupt Status
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        3,                                       // Start bit position
+        3,                                       // End bit position
+        0,                                       // Hardwired to 1b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR IS value mismatch",                  // Interrupt Status invalid configured value
+        "SR IS attribute mismatch"               // Interrupt Status invalid attribute
+    },
+
+    // Bit-field entry 8: Status register, bit[4] = Capabilities List
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        4,                                       // Start bit position
+        4,                                       // End bit position
+        1,                                       // Hardwired to 1b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR CL value mismatch",                  // Capabilities List invalid configured value
+        "SR CL attribute mismatch"               // Capabilities List invalid attribute
+    },
+
+    // Bit-field entry 9: Status register, bit[5] = 66 MHz Capable
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR 66MHz capable value mismatch",       // 66MHz Capable invalid configured value
+        "SR 66MHz capable attribute mismatch"    // 66MHz Capable invalid attribute
+    },
+
+    // Bit-field entry 10: Status register, bit[7] = Fast Back-to-Back Transactions Capable
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR FBBTC value mismatch",               // FBBTC invalid configured value
+        "SR FBBTC attribute mismatch"            // FBBTC invalid attribute
+    },
+
+    // Bit-field entry 11: Status register, bit[9:10] = DEVSEL timing
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        9,                                       // Start bit position
+        10,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR DT value mismatch",                  // DEVSEL Timing invalid configured value
+        "SR DT attribute mismatch"               // DEVSEL Timing invalid attribute
+    },
+
+    // Bit-field entry 12: Latency Timer register, bit[0:7] = latency timer register
+    {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x0D,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to integrated root ports
+        0,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "LTR value mismatch",                    // Latency Timer invalid configured value
+        "LTR attribute mismatch"                 // Latency Timer invalid attribute
+    },
 
     // Bit-field entry 1: Secondary Latency Timer, bit[0:7]
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x1B,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       0,                                       // Start bit position
-       7,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SLT value mismatch",                    // SLT invalid configured value
-       "SLT attribute mismatch"                 // SLT invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x1B,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        0,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SLT value mismatch",                    // SLT invalid configured value
+        "SLT attribute mismatch"                 // SLT invalid attribute
     },
 
     // Bit-field entry 2: Secondary Status Register, bit[5] 66 Mhz capable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x1E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       5,                                       // Start bit position
-       5,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SSR 66Mhz value mismatch",              // SSR 66Mhz invalid configured value
-       "SSR 66Mhz attribute mismatch"           // SSR 66Mhz invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x1E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SSR 66Mhz value mismatch",              // SSR 66Mhz invalid configured value
+        "SSR 66Mhz attribute mismatch"           // SSR 66Mhz invalid attribute
     },
 
     // Bit-field entry 3: Secondary Status Register, bit[7] Fast Back-to-back transactions capable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x1E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       7,                                       // Start bit position
-       7,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SSR FBBTC value mismatch",              // SSR FBBTC invalid configured value
-       "SSR FBBTC attribute mismatch"           // SSR FBBTC invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x1E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SSR FBBTC value mismatch",              // SSR FBBTC invalid configured value
+        "SSR FBBTC attribute mismatch"           // SSR FBBTC invalid attribute
     },
 
     // Bit-field entry 4: Secondary Status Register, bit[9:10] DEVSEL timing
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x1E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       9,                                       // Start bit position
-       10,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SSR DEVSEL value mismatch",             // DEVSEL Timing invalid configured value
-       "SSR DEVSEL attribute mismatch"          // DEVSEL Timing invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x1E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        9,                                       // Start bit position
+        10,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SSR DEVSEL value mismatch",             // DEVSEL Timing invalid configured value
+        "SSR DEVSEL attribute mismatch"          // DEVSEL Timing invalid attribute
     },
 
     // Bit-field entry 5: Bridge Control Register, bit[5] Master Abort Mode
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       5,                                       // Start bit position
-       5,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR MAM value mismatch",                // MAM invalid configured value
-       "BCR MAM attribute mismatch"             // MAM invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR MAM value mismatch",                // MAM invalid configured value
+        "BCR MAM attribute mismatch"             // MAM invalid attribute
     },
 
     // Bit-field entry 6: Bridge Control Register, bit[7] Fast Back-to-Back Transactions Enable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       7,                                       // Start bit position
-       7,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR FBBTE value mismatch",              // FBBTE invalid configured value
-       "BCR FBBTE attribute mismatch"           // FBBTE invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR FBBTE value mismatch",              // FBBTE invalid configured value
+        "BCR FBBTE attribute mismatch"           // FBBTE invalid attribute
     },
 
     // Bit-field entry 7: Bridge Control Register, bit[8] Primary Discard Timer
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       8,                                       // Start bit position
-       8,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR PDT value mismatch",                // PDT invalid configured value
-       "BCR PDT attribute mismatch"             // PDT invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        8,                                       // Start bit position
+        8,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR PDT value mismatch",                // PDT invalid configured value
+        "BCR PDT attribute mismatch"             // PDT invalid attribute
     },
 
     // Bit-field entry 8: Bridge Control Register, bit[9] Secondary Discard Timer
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       9,                                       // Start bit position
-       9,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR SDT value mismatch",                // SDT invalid configured value
-       "BCR SDT attribute mismatch"             // SDT invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        9,                                       // Start bit position
+        9,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR SDT value mismatch",                // SDT invalid configured value
+        "BCR SDT attribute mismatch"             // SDT invalid attribute
     },
 
     // Bit-field entry 9: Bridge Control Register, bit[10] Discard Timer Status
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       10,                                      // Start bit position
-       10,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR DTS value mismatch",                // DTS invalid configured value
-       "BCR DTS attribute mismatch"             // DTS invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        10,                                      // Start bit position
+        10,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR DTS value mismatch",                // DTS invalid configured value
+        "BCR DTS attribute mismatch"             // DTS invalid attribute
     },
 
     // Bit-field entry 10: Bridge Control Register, bit[11] Discard Timer SERR Enable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x3E,                                    // Offset from ECAM base
-       iEP_RP,                                  // Applicable to Rootports
-       11,                                      // Start bit position
-       11,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "BCR DTSE value mismatch",               // DTSE invalid configured value
-       "BCR DTSE attribute mismatch"            // DTSE invalid attribute
-    },
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x3E,                                    // Offset from ECAM base
+        iEP_RP,                                  // Applicable to Rootports
+        11,                                      // Start bit position
+        11,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "BCR DTSE value mismatch",               // DTSE invalid configured value
+        "BCR DTSE attribute mismatch"            // DTSE invalid attribute
+    }
 };

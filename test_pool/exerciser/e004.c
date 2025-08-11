@@ -25,8 +25,8 @@
 #include "val/driver/gic/its/acs_gic_its.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 4)
-#define TEST_RULE  "PCI_MSI_2,ITS_DEV_6"
-#define TEST_DESC  "MSI(-X) triggers intr with unique ID  "
+#define TEST_RULE  "ITS_DEV_6"
+#define TEST_DESC  "Write to ITS GITS_TRANSLATER          "
 
 static uint32_t irq_pending;
 static uint32_t lpi_int_id = 0x204C;
@@ -139,7 +139,6 @@ payload (void)
         return;
     }
 
-    /* Part 1 : ITS_DEV_6 */
     /* Trigger the interrupt by writing to GITS_TRANSLATER from PE */
     val_mmio_write(its_base + GITS_TRANSLATER, (lpi_int_id - ARM_LPI_MINID) + instance);
 
@@ -157,28 +156,7 @@ payload (void)
         return;
     }
 
-    /* Part 2: PCI_MSI_2 */
-    /* Trigger the interrupt for this Exerciser instance */
-    val_exerciser_ops(GENERATE_MSI, msi_index, instance);
-
-    /* PE busy polls to check the completion of interrupt service routine */
-    timeout = TIMEOUT_LARGE;
-    while ((--timeout > 0) && irq_pending)
-        {};
-
-    if (timeout == 0) {
-        val_print(ACS_PRINT_ERR,
-            "\n       Interrupt trigger failed for : 0x%x, ", lpi_int_id + instance);
-        val_print(ACS_PRINT_ERR,
-            "BDF : 0x%x   ", e_bdf);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 6));
-        val_gic_free_msi(e_bdf, device_id, its_id, lpi_int_id + instance, msi_index);
-        return;
-    }
-
-    /* Clear Interrupt and Mappings */
     val_gic_free_msi(e_bdf, device_id, its_id, lpi_int_id + instance, msi_index);
-
   }
 
   if (test_skip) {

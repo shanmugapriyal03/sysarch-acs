@@ -22,7 +22,7 @@
 #ifdef PC_BSA
 #define TEST_RULE  "P_L2WD_01"
 #else
-#define TEST_RULE  "B_WD_01, B_WD_02, S_L3WD_01"
+#define TEST_RULE  "B_WD_01, S_L3WD_01"
 #endif
 #define TEST_DESC  "Non Secure Watchdog Access            "
 

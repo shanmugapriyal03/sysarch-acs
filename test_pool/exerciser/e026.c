@@ -24,9 +24,17 @@
 #include "val/include/val_interface.h"
 #include "val/include/acs_exerciser.h"
 
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 26)
-#define TEST_DESC  "Check Relaxed Ordering of writes      "
-#define TEST_RULE  "S_PCIe_07, S_PCIe_08"
+static const
+test_config_t test_entries[] = {
+    { ACS_EXERCISER_TEST_NUM_BASE + 26, "Check Inbound writes seen in order    ", "S_PCIe_07"},
+    { ACS_EXERCISER_TEST_NUM_BASE + 32, "Check ordered writes flush prev writes", "S_PCIe_08"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t check2_only;
+    uint32_t test_num;
+} payload_data_t;
 
 #define DMA_BUFF_LEN 0x8
 #define BUFF_LEN 0x12
@@ -54,7 +62,7 @@ write_test_data(uint64_t pgt_base_addr)
 
 static
 void
-payload(void)
+payload(void *arg)
 {
   uint32_t pe_index;
   uint32_t instance;
@@ -65,7 +73,8 @@ payload(void)
   uint64_t dma_buffer = 0xABCDC0DE12345678;
   uint64_t test_data  = 0x5678567856785678;
   uint8_t  j = 0x2, i = 0;
-  uint32_t test_skip = 1;
+  bool     test_skip = 1;
+  payload_data_t *payload_data = (payload_data_t *)arg;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
   num_exercisers = val_exerciser_get_info(EXERCISER_NUM_CARDS);
@@ -78,14 +87,14 @@ payload(void)
   pgt_base_array = val_aligned_alloc(MEM_ALIGN_4K, sizeof(uint64_t) * num_exercisers);
   if (!pgt_base_array) {
       val_print(ACS_PRINT_ERR, "\n       mem alloc failure for pgt_base_array", 0);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_FAIL(payload_data->test_num, 01));
       return;
   }
 
   pgt_base = val_aligned_alloc(MEM_ALIGN_4K, sizeof(uint64_t) * num_exercisers);
   if (!pgt_base) {
       val_print(ACS_PRINT_ERR, "\n       mem alloc failure for pgt_base", 0);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 02));
+      val_set_status(pe_index, RESULT_FAIL(payload_data->test_num, 02));
       val_memory_free_aligned(pgt_base_array);
       return;
   }
@@ -105,6 +114,12 @@ payload(void)
       /* Get exerciser bdf */
       e_bdf = val_exerciser_get_bdf(instance);
       val_print(ACS_PRINT_DEBUG, "\n       Exercise BDF - 0x%x", e_bdf);
+
+      /* S_PCIe_07 requires only the second part of the check,
+         while S_PCIe_08 requires both the first and second parts.
+      */
+      if (payload_data->check2_only)
+        goto disable_ro;
 
       /* Check 1: Enable Relaxed ordering by setting RO = 1 and
        * Send a set of additional writes to address. Before sending
@@ -145,6 +160,7 @@ payload(void)
       }
       i = 0;
 
+disable_ro:
       /* Check 2: Disable Relaxed ordering by setting RO = 0 and
        * Send a set of staggered writes to address. The transactions
        * must be recieved in the same order in which it was initiated
@@ -153,10 +169,15 @@ payload(void)
       /*Disable Relaxed Ordering*/
       val_pcie_disable_ordering(e_bdf);
 
-      /* All the previous writes sent must be completed, before next transaction */
-      if (val_memory_compare(&test_data, pgt_base_array, 8)) {
-          val_print(ACS_PRINT_ERR, "\n      Data Comparasion failure for Exerciser %4x", instance);
-          goto test_fail;
+      if (!payload_data->check2_only) {
+          /* All the previous writes sent must be completed, before next transaction */
+          if (val_memory_compare(&test_data, pgt_base_array, 8)) {
+              val_print(ACS_PRINT_ERR,
+                                  "\n      Data Comparasion failure for Exerciser %4x", instance);
+              goto test_fail;
+          }
+
+          goto test_pass;
       }
 
       /* Initialize the sender buffer with test specific data */
@@ -201,14 +222,15 @@ payload(void)
       }
   }
 
-  val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+test_pass:
+  val_set_status(pe_index, RESULT_PASS(payload_data->test_num, 01));
   goto test_clean;
 
   if (test_skip)
-      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_SKIP(payload_data->test_num, 01));
 
 test_fail:
-  val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 03));
+  val_set_status(pe_index, RESULT_FAIL(payload_data->test_num, 03));
 test_clean:
   val_memory_free_aligned(pgt_base_array);
   val_memory_free_aligned(pgt_base);
@@ -216,17 +238,38 @@ test_clean:
 
 uint32_t e026_entry(void)
 {
-  uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  payload_data_t data = {.test_num = test_entries[0].test_num, .check2_only = 1};
+
+
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
-  /* Get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+  return status;
+}
 
+uint32_t e032_entry(void)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  uint32_t num_pe = 1;  //This test is run on single processor
+
+  payload_data_t data = {.test_num = test_entries[1].test_num, .check2_only = 0};
+
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
   return status;
 }

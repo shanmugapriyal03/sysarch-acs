@@ -118,7 +118,7 @@ val_pe_free_info_table(void)
     }
     else {
       val_print(ACS_PRINT_ERR,
-                  "\n WARNING: g_pe_info_table pointer is already NULL", 
+                  "\n WARNING: g_pe_info_table pointer is already NULL",
         0);
     }
 }
@@ -569,7 +569,7 @@ val_get_pe_architecture(uint32_t index)
   return ACS_STATUS_ERR;
 }
 
-#ifdef TARGET_BM_BOOT
+#ifdef TARGET_BAREMETAL
 /**
  *   @brief    Convert mpidr to logical cpu number
  *   @param    mpidr    - mpidr value
@@ -599,7 +599,7 @@ uint32_t val_get_pe_id(uint64_t mpidr)
 
     return PAL_INVALID_MPID;
 }
-#endif //TARGET_BM_BOOT
+#endif //TARGET_BAREMETAL
 
 /**
   @brief   This API returns the index of the PE whose ACPI UID matches with the input UID

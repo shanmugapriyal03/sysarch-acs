@@ -20,11 +20,21 @@
 #include "val/include/val_interface.h"
 #include "val/include/acs_pcie.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 58)
-#define TEST_DESC  "Check Cmd Reg memory space enable     "
-#define TEST_RULE  "RE_REG_1, IE_REG_1, IE_REG_3"
+static const
+test_config_t test_entries[] = {
+    { ACS_PCIE_TEST_NUM_BASE + 58, "Check MSE, CapPtr & BIST: RCiEP, RCEC ", "RE_REG_1"},
+    { ACS_PCIE_TEST_NUM_BASE + 59, "Check MSE, CapPtr & BIST: iEP EP      ", "IE_REG_1"},
+    { ACS_PCIE_TEST_NUM_BASE + 60, "Check MSE, CapPtr & BIST: iEP RP      ", "IE_REG_3"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t dev_type1;
+    uint32_t dev_type2;
+} test_data_t;
 
 static void *branch_to_test;
+static uint32_t test_num;
 
 static
 void
@@ -38,12 +48,12 @@ esr(uint64_t interrupt_type, void *context)
   val_pe_update_elr(context, (uint64_t)branch_to_test);
 
   val_print(ACS_PRINT_DEBUG, "\n       Received exception of type: %d", interrupt_type);
-  val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+  val_set_status(pe_index, RESULT_PASS(test_num, 01));
 }
 
 static
 void
-payload(void)
+payload(void *arg)
 {
 
   uint32_t bdf;
@@ -57,6 +67,8 @@ payload(void)
   uint32_t dp_type;
   uint32_t status;
   uint32_t timeout;
+  uint32_t reg_value;
+  test_data_t *test_data = (test_data_t *)arg;
 
   pcie_device_bdf_table *bdf_tbl_ptr;
 
@@ -69,7 +81,7 @@ payload(void)
   if (status)
   {
       val_print(ACS_PRINT_ERR, "\n       Failed in installing the exception handler", 0);
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_FAIL(test_num, 01));
       return;
   }
 
@@ -87,11 +99,34 @@ payload(void)
       dp_type = val_pcie_device_port_type(bdf);
 
       /* Check entry is RCiEP/ RCEC/ iEP. Else move to next BDF. */
-      if ((dp_type != iEP_EP) && (dp_type != iEP_RP)
-          && (dp_type != RCEC) && (dp_type != RCiEP))
+      if ((dp_type != test_data->dev_type1) && (dp_type != test_data->dev_type2))
           continue;
 
       val_print(ACS_PRINT_DEBUG, "\n       BDF - 0x%x", bdf);
+
+      /* Get BIST register value */
+      reg_value = val_pcie_get_bist(bdf);
+
+      /* If BIST Capable bit[7] is clear Completion Code[0:3] and Start Bist[6]
+      * must be hardwired to 0b */
+      if (((reg_value & BIST_BC_MASK) == 0x00) &&
+         (((reg_value & BIST_CC_MASK) != 0x00) || ((reg_value & BIST_SB_MASK) != 0x00)))
+      {
+          val_print(ACS_PRINT_ERR, "\n       BDF - 0x%x", bdf);
+          val_print(ACS_PRINT_ERR, " BIST Reg Value : %d", reg_value);
+          test_fails++;
+      }
+
+      /* Get Capabilities Pointer register value */
+      reg_value = val_pcie_get_cap_ptr(bdf);
+
+      /* Check Capabilities Pointer is not NULL and is between 40h and FCh */
+      if (!((reg_value != 0x00) && ((reg_value >= 0x40) && (reg_value <= 0xFC))))
+      {
+          val_print(ACS_PRINT_ERR, "\n       BDF 0x%x", bdf);
+          val_print(ACS_PRINT_ERR, " Cap Ptr Value: 0x%x", reg_value);
+          test_fails++;
+      }
 
       /*
        * For a Function with type 0 config space header, obtain
@@ -129,7 +164,7 @@ payload(void)
       val_pcie_disable_msa(bdf);
 
       /* Set test status as FAIL, update to PASS in exception handler */
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 02));
+      val_set_status(pe_index, RESULT_FAIL(test_num, 02));
 
       /* If test runs for atleast an endpoint */
       test_skip = 0;
@@ -163,31 +198,74 @@ exception_return:
 
   if (test_skip == 1) {
       val_print(ACS_PRINT_DEBUG,
-               "\n       Found no RCiEP/ RCEC/ iEP type device with MMIO Bar. Skipping test.", 0);
-      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+        "\n       Found no target device type with MMIO BAR. Skipping test.", 0);
+      val_set_status(pe_index, RESULT_SKIP(test_num, 01));
   }
   else if (test_fails)
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, test_fails));
+      val_set_status(pe_index, RESULT_FAIL(test_num, test_fails));
   else
-      val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_PASS(test_num, 01));
 }
 
 uint32_t
 p058_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.dev_type1 = (uint32_t)RCEC, .dev_type2 = (uint32_t)RCiEP};
 
   num_pe = 1;  //This test is run on single processor
+  test_num = test_entries[0].test_num;
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
   /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  status = val_check_for_error(test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+  val_report_status(0, ACS_END(test_num), test_entries[0].rule);
+
+  return status;
+}
+
+uint32_t
+p059_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.dev_type1 = (uint32_t)iEP_EP};
+
+  num_pe = 1;  //This test is run on single processor
+  test_num = test_entries[1].test_num;
+
+  status = val_initialize_test(test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_num), test_entries[1].rule);
+
+  return status;
+}
+
+uint32_t
+p060_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.dev_type1 = (uint32_t)iEP_RP};
+
+  num_pe = 1;  //This test is run on single processor
+  test_num = test_entries[2].test_num;
+
+  status = val_initialize_test(test_num, test_entries[2].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_num, num_pe, test_entries[2].rule);
+
+  val_report_status(0, ACS_END(test_num), test_entries[2].rule);
 
   return status;
 }

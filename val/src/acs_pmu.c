@@ -231,7 +231,7 @@ val_pmu_free_info_table(void)
     }
     else {
       val_print(ACS_PRINT_ERR,
-                  "\n WARNING: g_pmu_info_table pointer is already NULL", 
+                  "\n WARNING: g_pmu_info_table pointer is already NULL",
         0);
     }
 }
@@ -537,11 +537,12 @@ val_pmu_read_count(uint32_t node_index, uint32_t mon_inst)
 
 /**
  @brief   This API returns PMU node index for given proximity domain
- @param   prox_domain Proximity domain from SRAT ACPI table.
+ @param   node_instance_primary Node instance primary field in APMT table.
+ @param   node_type Node instance type
  @return  PMU node index from APMT ACPI table.
 **/
 uint32_t
-val_pmu_get_node_index(uint64_t prox_domain)
+val_pmu_get_node_index(uint64_t node_instance_primary, PMU_NODE_INFO_TYPE node_type)
 {
     uint32_t node_index;
     PMU_INFO_BLOCK *entry;
@@ -549,13 +550,11 @@ val_pmu_get_node_index(uint64_t prox_domain)
     for (node_index = 0 ; node_index < g_pmu_info_table->pmu_count ; node_index++)
     {
         entry = &g_pmu_info_table->info[node_index];
-        if (entry->type == PMU_NODE_MEM_CNTR) {
-            if (prox_domain == entry->primary_instance) {
-                return node_index;
-            }
+        if (node_instance_primary == entry->primary_instance && node_type == entry->type) {
+            return node_index;
         }
     }
-    val_print(ACS_PRINT_DEBUG, "\n   PMU node for given proximity domain not found ", 0);
+    val_print(ACS_PRINT_DEBUG, "\n   PMU node for given node primary instance not found ", 0);
     return PMU_INVALID_INDEX;
 }
 
@@ -664,4 +663,42 @@ val_pmu_get_multi_traffic_support_interface(uint64_t *interface_acpiid,
                                                        uint32_t *num_traffic_type_support)
 {
     return pal_pmu_get_multi_traffic_support_interface(interface_acpiid, num_traffic_type_support);
+}
+
+/**
+  @brief   This API checks system has Coresight PMU .
+  @return  TEST_PASS - success status
+           non-zero - error status
+**/
+test_status_t is_coresight_pmu_present(void)
+{
+    uint32_t node_count;
+    uint32_t cs_com = 0;
+    uint32_t node_index;
+
+    /* Check if PMU nodes present in the system */
+    node_count = val_pmu_get_info(PMU_NODE_COUNT, 0);
+    val_print(ACS_PRINT_DEBUG, "\n       PMU NODES = %d", node_count);
+
+    if (node_count == 0) {
+        val_print(ACS_PRINT_TEST, "\n       No PMU nodes found in APMT table", 0);
+        val_print(ACS_PRINT_TEST, "\n       The test must be considered fail"
+                                " if system has CoreSight PMU", 0);
+        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
+                                "in the SBSA specification", 0);
+        return TEST_SKIP;
+    }
+
+    /* The test uses PMU CoreSight arch register map, skip if pmu node is not cs */
+    for (node_index = 0; node_index < node_count; node_index++) {
+        cs_com |= val_pmu_get_info(PMU_NODE_CS_COM, node_index);
+    }
+    if (cs_com != 0x1) {
+        val_print(ACS_PRINT_TEST, "\n       No CoreSight PMU nodes found", 0);
+        val_print(ACS_PRINT_TEST, "\n       For non CoreSight PMU, manually verify A.4 PMU rules "
+                                "in the SBSA specification", 0);
+        return TEST_SKIP;
+    }
+
+    return TEST_PASS;
 }

@@ -46,8 +46,9 @@ list(REMOVE_ITEM VAL_SRC
  "${ROOT_DIR}/val/src/AArch64/BsaBootEntry.S"
  "${ROOT_DIR}/val/src/bsa_execute_test.c"
  "${ROOT_DIR}/val/src/mpam_execute_test.c"
+ "${ROOT_DIR}/val/src/acs_tpm.c"
 )
- 
+
 #Create compile list files
 list(APPEND COMPILE_LIST ${VAL_SRC})
 set(COMPILE_LIST ${COMPILE_LIST} PARENT_SCOPE)

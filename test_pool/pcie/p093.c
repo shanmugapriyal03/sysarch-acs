@@ -20,7 +20,7 @@
 #include "val/include/acs_memory.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 93)
-#define TEST_RULE  "GPU_03,PCI_PP_06"
+#define TEST_RULE  "GPU_03"
 #define TEST_DESC  "Switches must support ACS if P2P      "
 
 /* PCI_PP_06 is BSA recommended Rule ID */

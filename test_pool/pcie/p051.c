@@ -21,7 +21,7 @@
 #include "p051_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 51)
-#define TEST_DESC  "Check PCIe capability rules           "
+#define TEST_DESC  "Check PCIe capability rules: iEP_RP   "
 #define TEST_RULE  "IE_REG_4"
 
 static

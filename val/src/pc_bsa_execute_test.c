@@ -170,6 +170,7 @@ val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 
   if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)) {
       status = i008_entry(num_pe);
+      status |= i025_entry(num_pe);
 
       if (status != ACS_STATUS_PASS) {
          val_print(ACS_PRINT_WARN, "\n     SMMU Compatibility Check Failed, ", 0);
@@ -222,6 +223,7 @@ val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe)
 
   if (((level >= 1) && (g_pcbsa_only_level == 0)) || (g_pcbsa_only_level == 1)) {
       status = m005_entry(num_pe);
+      status |= m008_entry(num_pe);
   }
 
   val_print_test_end(status, "Memory");

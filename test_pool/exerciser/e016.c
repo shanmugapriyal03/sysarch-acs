@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  **/
+
 #include "val/include/acs_val.h"
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_memory.h"
@@ -23,11 +24,10 @@
 #include "val/include/acs_exerciser.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 16)
-#define TEST_DESC  "PCIe Memory access check              "
-#define TEST_RULE  "PCI_MM_01, PCI_MM_02, PCI_MM_03"
+#define TEST_DESC  "PCIe Device Memory access check       "
+#define TEST_RULE  "PCI_MM_01"
 
 #define TEST_DATA 0xDEADDAED
-static const ARM_NORMAL_MEM ARM_NORMAL_MEM_ARRAY[] = {NORMAL_NC, NORMAL_WT};
 static const ARM_DEVICE_MEM ARM_DEVICE_MEM_ARRAY[] = {DEVICE_nGnRnE, DEVICE_nGnRE, DEVICE_nGRE,
                                                       DEVICE_GRE};
 
@@ -126,34 +126,6 @@ exception_return:
         /* Remove BAR mapping from MMU page tables */
         val_memory_unmap(baseptr);
     }
-
-    /* Do additional checks if the BAR is pcie prefetchable mmio space */
-    if (e_data.bar_space.type == MMIO_PREFETCHABLE) {
-
-        /* Map the mmio space to ARM normal memory in MMU page tables */
-        for (idx = 0; idx < sizeof(ARM_NORMAL_MEM_ARRAY)/sizeof(ARM_NORMAL_MEM_ARRAY[0]); idx++) {
-            baseptr = (char *)val_memory_ioremap((void *)e_data.bar_space.base_addr,
-                                                  512,
-                                                  ARM_NORMAL_MEM_ARRAY[idx]);
-            if (!baseptr) {
-                val_print(ACS_PRINT_ERR,
-                         "\n       Failed in BAR ioremap for instance %x", instance);
-                goto test_fail;
-            }
-
-            /* Write predefined data to an unaligned address in mmio space and read it back */
-            val_mmio_write((addr_t)(baseptr+3), TEST_DATA);
-            if (TEST_DATA != val_mmio_read((addr_t)(baseptr+3))) {
-                val_print(ACS_PRINT_ERR,
-                        "\n       Exerciser %d BAR space access error %x", instance);
-                goto test_fail;
-            }
-
-            /* Remove BAR mapping from MMU page tables */
-            val_memory_unmap(baseptr);
-        }
-    }
-
   }
 
   val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));

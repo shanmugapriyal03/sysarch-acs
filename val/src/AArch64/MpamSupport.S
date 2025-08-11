@@ -64,7 +64,3 @@ ASM_PFX(AA64WriteMpam2):
 ASM_PFX(AA64ReadMpamidr):
   mrs  x0, mpamidr_el1
   ret
-
-#ifndef TARGET_EMULATION
-ASM_FUNCTION_REMOVE_IF_UNREFERENCED
-#endif // TARGET_EMULATION
