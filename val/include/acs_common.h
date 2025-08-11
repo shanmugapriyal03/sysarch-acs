@@ -79,6 +79,7 @@ typedef enum {
 #define TEST_SKIP_VAL    0x9
 #define TEST_PENDING_VAL 0xA
 #define TEST_WARN_VAL    0xB
+#define TEST_PARTIAL_COV 0xC
 
 #define CPU_NUM_BIT  32
 #define CPU_NUM_MASK 0xFFFFFFFF
@@ -98,6 +99,8 @@ typedef enum {
 #define ACS_END(test_num) (((TEST_END_VAL) << STATE_BIT) | ((test_num) << TEST_NUM_BIT))
 
 /* TEST Result defines */
+
+#define ENCODE_STATUS(test_status)  ((test_status) << STATE_BIT)
 
 #define RESULT_PASS(test_num, status) (((TEST_PASS_VAL) << STATE_BIT) | ((test_num) << TEST_NUM_BIT) | (status))
 
