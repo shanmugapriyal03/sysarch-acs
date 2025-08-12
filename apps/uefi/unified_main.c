@@ -771,8 +771,10 @@ freeBsaAcsMem()
       val_free_shared_mem();
   }
 
-  if (g_build_pcbsa)
+  if (g_build_pcbsa) {
       val_tpm2_free_info_table();
+      val_srat_free_info_table();
+  }
 }
 
 UINT32
@@ -828,8 +830,10 @@ execute_tests()
       createRasInfoTable();
   }
 
-  if (g_build_pcbsa)
+  if (g_build_pcbsa) {
       createTpm2InfoTable();
+      createSratInfoTable();
+  }
 
   val_allocate_shared_mem();
 

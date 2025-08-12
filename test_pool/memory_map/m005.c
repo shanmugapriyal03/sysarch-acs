@@ -95,6 +95,8 @@ static void payload_check_peripheral_mem_64kb_align(void)
         val_print(ACS_PRINT_DEBUG, "\n       No memory regions reported by the system.", 0);
         /* Mark test as fail, since atleast mem region should be there in the system */
         fail_cnt++;
+        /* Set number of memory region as zero, incase of SRAT_INVALID_INFO */
+        num_mem_range = 0;
     }
 
     for (mem_range_index = 0; mem_range_index < num_mem_range; mem_range_index++) {
