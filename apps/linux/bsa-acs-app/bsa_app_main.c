@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include "include/bsa_app.h"
 #include <getopt.h>
+#include <stdbool.h>
 
 int  g_print_level = 3;
 int  g_bsa_level = 1;
@@ -34,6 +35,7 @@ unsigned long int  g_exception_ret_addr;
 unsigned int g_print_mmio;
 unsigned int g_curr_module;
 unsigned int g_enable_module;
+bool g_pcie_skip_dp_nic_ms = 0;
 
 #define BSA_LEVEL_PRINT_FORMAT(level, only) ((level > BSA_MAX_LEVEL_SUPPORTED) ? \
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
@@ -68,6 +70,7 @@ void print_help(){
          "        Refer to section 4 of BSA_ACS_User_Guide\n"
          "        To skip a module, use Model_ID as mentioned in user guide\n"
          "        To skip a particular test within a module, use the exact testcase number\n"
+         "--skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
   );
 }
 
@@ -82,6 +85,7 @@ main (int argc, char **argv)
     struct option long_opt[] =
     {
       {"skip", required_argument, NULL, 'n'},
+      {"skip-dp-nic-ms", no_argument, NULL, 'c'},
       {"help", no_argument, NULL, 'h'},
       {"only", no_argument, NULL, 'o'},
       {"fr", no_argument, NULL, 'r'},
@@ -91,7 +95,7 @@ main (int argc, char **argv)
     g_skip_test_num = (unsigned int *) malloc(g_num_skip * sizeof(unsigned int));
 
     /* Process Command Line arguments */
-    while ((c = getopt_long(argc, argv, "hrv:l:oe:", long_opt, NULL)) != -1)
+    while ((c = getopt_long(argc, argv, "hrv:l:oe:c", long_opt, NULL)) != -1)
     {
        switch (c)
        {
@@ -110,6 +114,9 @@ main (int argc, char **argv)
        case 'h':
          print_help();
          return 1;
+         break;
+       case 'c':
+         g_pcie_skip_dp_nic_ms = 1;
          break;
        case 'n':/*SKIP tests */
          pt = strtok(optarg, ",");

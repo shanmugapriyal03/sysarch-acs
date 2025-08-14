@@ -37,6 +37,7 @@ uint64_t  g_stack_pointer;
 uint64_t  g_exception_ret_addr;
 uint64_t  g_ret_addr;
 uint32_t  g_wakeup_timeout;
+bool      g_pcie_skip_dp_nic_ms = 0;
 
 uint32_t  g_sw_view[3] = {1, 1, 1}; //Operating System, Hypervisor, Platform Security
 uint32_t  *g_skip_test_num;

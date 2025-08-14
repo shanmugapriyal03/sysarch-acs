@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018, 2023,2025 Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2018, 2023, 2025, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,9 +18,11 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <stdbool.h>
 #include <stdint.h>
 #include "include/sbsa_drv_intf.h"
+
+extern bool g_pcie_skip_dp_nic_ms;
 
 typedef
 struct __SBSA_DRV_PARMS__
@@ -95,7 +97,7 @@ call_drv_init_test_env(unsigned int print_level)
 
     test_params.api_num  = SBSA_CREATE_INFO_TABLES;
     test_params.arg1     = print_level;
-    test_params.arg2     = 0;
+    test_params.arg2     = g_pcie_skip_dp_nic_ms;
 
     fwrite(&test_params,1,sizeof(test_params),fd);
 
