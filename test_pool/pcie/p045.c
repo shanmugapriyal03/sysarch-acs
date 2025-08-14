@@ -19,6 +19,8 @@
 #include "val/include/acs_pcie.h"
 #include "val/include/acs_memory.h"
 
+extern bool g_pcie_skip_dp_nic_ms;
+
 /* Test runs on Linux and BM Env */
 static const
 test_config_t test_entries[] = {
@@ -73,6 +75,7 @@ payload(void)
   uint32_t dp_type;
   uint32_t max_bar_offset;
   uint32_t msa_en = 0;
+  uint32_t reg_value, base_cc;
 
   val_set_status(index, RESULT_SKIP(test_num, 0));
 
@@ -130,6 +133,16 @@ next_bdf:
           if (bar_value & 0x1) {
               val_print(ACS_PRINT_DEBUG, "\n       BAR is used for IO address space request", 0);
               val_print(ACS_PRINT_DEBUG, " for BDF 0x%x", bdf);
+              tbl_index++;
+              goto next_bdf;
+          }
+
+          val_pcie_read_cfg(bdf, TYPE01_RIDR, &reg_value);
+          val_print(ACS_PRINT_DEBUG, "\n       Class code is 0x%x", reg_value);
+          base_cc = reg_value >> TYPE01_BCC_SHIFT;
+          if (g_pcie_skip_dp_nic_ms &&
+              ((base_cc == CNTRL_CC) || (base_cc == DP_CNTRL_CC) || (base_cc == MAS_CC))) {
+              val_print(ACS_PRINT_DEBUG, "\n   Skipping BDF as  0x%x", bdf);
               tbl_index++;
               goto next_bdf;
           }
