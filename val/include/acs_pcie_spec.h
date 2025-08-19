@@ -359,8 +359,14 @@
 #define DCTL2R_AFE_MASK  0x1
 #define DCTL2R_AFE_NORMAL 0xFFDF
 
+/* Link Capabilities 2 reg mask and shift */
 #define LCAP2R_SLSV_MASK 0xFF
 #define LCAP2R_SLSV_SHIFT 1
+
+/* Link Speed macros */
+#define LINK_SPEED_5GTPS   0b0010
+#define LINK_SPEED_8GTPS   0b0100
+#define LINK_SPEED_16GTPS  0b1000
 
 /* Device bitmask definitions */
 #define RCiEP    (1 << 0b1001)

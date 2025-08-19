@@ -22,8 +22,8 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 6)
-#define TEST_RULE  "PCI_LI_01, PCI_LI_03"
-#define TEST_DESC  "Legacy int must be SPI & lvl-sensitive"
+#define TEST_RULE  "PCI_LI_01"
+#define TEST_DESC  "Check Legacy Intrrupt is SPI          "
 
 static
 void
@@ -39,7 +39,6 @@ payload(void)
   uint32_t intr_pin, intr_line;
   PERIPHERAL_IRQ_MAP *intr_map;
   pcie_device_bdf_table *bdf_tbl_ptr;
-  INTR_TRIGGER_INFO_TYPE_e trigger_type;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
 
@@ -60,8 +59,7 @@ payload(void)
       dp_type = val_pcie_device_port_type(bdf);
 
       /* Check entry is RP/EP/DP/UP. Else move to next BDF. */
-      if ((dp_type == iEP_EP) || (dp_type == iEP_RP)
-          || (dp_type == RCEC) || (dp_type == RCiEP))
+      if ((dp_type != RP) && (dp_type != EP) && (dp_type != DP) && (dp_type != UP))
           continue;
 
       val_print(ACS_PRINT_DEBUG, "\n       BDF - 0x%x", bdf);
@@ -108,24 +106,6 @@ payload(void)
           val_print(ACS_PRINT_ERR, "\n Int id %d is not SPI", intr_line);
           val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 3));
           return;
-      }
-
-      /* Read GICD_ICFGR/ICFGR-E register to Check for Level/Edge Sensitive. */
-      if (intr_line >= 32 && intr_line <= 1019)
-          status = val_gic_get_intr_trigger_type(intr_line, &trigger_type);
-      else
-          status = val_gic_get_espi_intr_trigger_type(intr_line, &trigger_type);
-
-      if (status) {
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 4));
-        return;
-      }
-
-      if (trigger_type != INTR_TRIGGER_INFO_LEVEL_HIGH) {
-        val_print(ACS_PRINT_ERR,
-            "\n       Legacy interrupt programmed with incorrect trigger type", 0);
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 5));
-        return;
       }
   }
 

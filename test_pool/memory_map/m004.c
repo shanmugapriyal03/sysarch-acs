@@ -21,82 +21,141 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_MEMORY_MAP_TEST_NUM_BASE + 4)
-#define TEST_RULE  "B_MEM_03, B_MEM_04, B_MEM_06"
-#define TEST_DESC  "Addressability                        "
+#define TEST_RULE  "B_MEM_03"
+#define TEST_DESC  "Check Addressability                  "
 
+#define TEST_NUM1   (ACS_MEMORY_MAP_TEST_NUM_BASE + 6)
+#define TEST_RULE1  "B_MEM_04"
+#define TEST_DESC1  "Check Addressability when SMMU's off  "
+
+#define TEST_NUM2   (ACS_MEMORY_MAP_TEST_NUM_BASE + 7)
+#define TEST_RULE2  "B_MEM_06"
+#define TEST_DESC2  "Check Addressability for non-DMA dev  "
+
+/* This payload targets peripherals (PCIe) subset of Non-secure on-chip DMA requesters in a
+base system for the capability of addressing all of the Non-secure address space (i.e, 64 bit
+while writing the test). And know ways were by PCIe 64 bit DMA or placing device behind an SMMU. */
 static
 void
-payload (void)
+check_peripheral_dma_capability (void)
 {
-  /* This test checks for the Addressability of Non-Secure Masters */
-  uint32_t index;
-  uint32_t count;
-  uint32_t data;
-  uint32_t dev_type;
-  uint32_t dev_bdf;
-  uint32_t p_cap, cid_offset;
-  uint32_t test_run = 0;
+  uint32_t i, fail_cnt = 0;
+  uint32_t index = val_pe_get_index_mpid (val_pe_get_mpid());
+  pcie_bdf_list_t *pcie_peripherals_bdf_list = val_pcie_get_pcie_peripheral_bdf_list();
 
-  index = val_pe_get_index_mpid (val_pe_get_mpid());
-  count = val_peripheral_get_info (NUM_ALL, 0);
-
-  if (!count) {
-     val_print(ACS_PRINT_DEBUG, "\n       Skip as No peripherals detected   ", 0);
-     val_set_status(index, RESULT_SKIP (TEST_NUM, 1));
-     return;
+  if (pcie_peripherals_bdf_list == NULL || pcie_peripherals_bdf_list->count == 0) {
+      val_print(ACS_PRINT_DEBUG, "\n       Skip as no peripherals detected   ", 0);
+      val_set_status(index, RESULT_SKIP (TEST_NUM, 1));
+      return;
   }
 
-  val_print(ACS_PRINT_DEBUG, "\n PE index: %d", index);
-  val_print(ACS_PRINT_DEBUG, "\n Peripherals count: : %d", count);
-
-  while (count) {
-      count--;
-      dev_bdf = (uint32_t)val_peripheral_get_info (ANY_BDF, count);
-
-      if (dev_bdf == 0)
-          continue;
-
-      dev_type = val_pcie_get_device_type(dev_bdf);
-      // 1: Normal PCIe device, 2: PCIe Host bridge, 3: PCIe bridge device, else: INVALID
-
-      val_print(ACS_PRINT_INFO, "\n Dev bdf 0x%x", dev_bdf);
-
-      if ((!dev_type) || (dev_type > 1)) {
-          //Skip this device, if we either got pdev as NULL or if it is a bridge
-          continue;
+  /* Check if a device is capable of accessing non secure address */
+  for (i = 0; i < pcie_peripherals_bdf_list->count; i++) {
+      /* Fail the test if device isn't capable of DMA access */
+      if (!(val_pcie_is_devicedma_64bit(pcie_peripherals_bdf_list->dev_bdfs[i]) ||
+            val_pcie_is_device_behind_smmu(pcie_peripherals_bdf_list->dev_bdfs[i]))) {
+          val_print(ACS_PRINT_DEBUG, "\n       Failed for BDF = 0x%x",
+                    pcie_peripherals_bdf_list->dev_bdfs[i]);
+          fail_cnt++;
       }
-
-      if (!val_pcie_device_driver_present(dev_bdf)) {
-          val_print(ACS_PRINT_DEBUG, "\n Driver not present for bdf 0x%x", dev_bdf);
-          continue;
-      }
-
-      /* Skip if the device is a PCI legacy device */
-      p_cap = val_pcie_find_capability(dev_bdf, PCIE_CAP, CID_PCIECS, &cid_offset);
-      if (p_cap != PCIE_SUCCESS) {
-        val_print(ACS_PRINT_DEBUG, " \nBDF 0x%x PCI Express capability not present...Skipping\n",
-                                                                             dev_bdf);
-        continue;
-      }
-
-      test_run = 1;
-
-      data = val_pcie_is_devicedma_64bit(dev_bdf);
-      if (data == 0) {
-          if (!val_pcie_is_device_behind_smmu(dev_bdf)) {
-              val_print(ACS_PRINT_ERR, "\n   WARNING:The device with bdf=0x%x", dev_bdf);
-              val_print(ACS_PRINT_ERR, "\n   doesn't support 64 bit addressing and is not", 0);
-              val_print(ACS_PRINT_ERR, "\n   behind smmu. device is of type = %d", dev_type);
-              val_set_status(index, RESULT_FAIL (TEST_NUM, 1));
-              return;
-          }
-       }
+      /* test can't be skipped as it's required by all devices irrespective
+         how they are configured to have DMA */
   }
 
-  if (test_run)
+  if (fail_cnt) {
+      val_set_status (index, RESULT_FAIL (TEST_NUM, 01));
+  } else {
       val_set_status (index, RESULT_PASS (TEST_NUM, 01));
-  else
-      val_set_status (index, RESULT_SKIP (TEST_NUM, 02));
+  }
+
+}
+
+/* This payload verifies that when a device's DMA transactions pass through an SMMU,
+it can still access the entire Non-secure address space even if the SMMU is disabled.
+We're testing PCIe peripherals behind the SMMU to ensure they can perform 64-bit DMA
+as if the SMMU were not present. */
+static
+void
+payload_check_dev_dma_if_behind_smmu (void)
+{
+  uint32_t i, fail_cnt = 0;
+  bool test_run = 0;
+  uint32_t index = val_pe_get_index_mpid (val_pe_get_mpid());
+  pcie_bdf_list_t *pcie_peripherals_bdf_list = val_pcie_get_pcie_peripheral_bdf_list();
+
+  if (pcie_peripherals_bdf_list == NULL || pcie_peripherals_bdf_list->count == 0) {
+      val_print(ACS_PRINT_DEBUG, "\n       Skip as no peripherals detected   ", 0);
+      val_set_status(index, RESULT_SKIP (TEST_NUM1, 1));
+      return;
+  }
+
+  /* Check if a device is capable of accessing non secure address */
+  for (i = 0; i < pcie_peripherals_bdf_list->count; i++) {
+      /* Fail the test if device isn't capable of 64 bit DMA access without SMMU's help */
+      if (val_pcie_is_device_behind_smmu(pcie_peripherals_bdf_list->dev_bdfs[i])) {
+          /* Flag if test is run, since check is conditional on availability of
+          device behind a SMMU */
+          test_run = 1;
+          if (!(val_pcie_is_devicedma_64bit(pcie_peripherals_bdf_list->dev_bdfs[i]))) {
+            val_print(ACS_PRINT_DEBUG, "\n       Failed for BDF = 0x%x",
+                      pcie_peripherals_bdf_list->dev_bdfs[i]);
+          fail_cnt++;
+          }
+      }
+  }
+
+  if (!test_run) {
+      val_set_status (index, RESULT_SKIP (TEST_NUM1, 02));
+  } else if (fail_cnt) {
+      val_set_status (index, RESULT_FAIL (TEST_NUM1, 01));
+  } else {
+      val_set_status (index, RESULT_PASS (TEST_NUM1, 01));
+  }
+}
+
+/* This payload verifies that PCIe peripherals without DMA capability are located behind an SMMU,
+as required. This test scenario is for all Non-secure off-chip devices but in here we are
+targeting PCIe ones with intent of covering a subset, since discovery of off-chip can't be done
+in generic way */
+static
+void
+payload_check_if_non_dma_dev_behind_smmu (void)
+{
+  uint32_t i, fail_cnt = 0;
+  bool test_run = 0;
+  uint32_t index = val_pe_get_index_mpid (val_pe_get_mpid());
+  pcie_bdf_list_t *pcie_peripherals_bdf_list = val_pcie_get_pcie_peripheral_bdf_list();
+
+  if (pcie_peripherals_bdf_list == NULL || pcie_peripherals_bdf_list->count == 0) {
+      val_print(ACS_PRINT_DEBUG, "\n       Skip as no peripherals detected   ", 0);
+      val_set_status(index, RESULT_SKIP (TEST_NUM2, 1));
+      return;
+  }
+
+  /* Check if a device is capable of accessing non secure address */
+  for (i = 0; i < pcie_peripherals_bdf_list->count; i++) {
+      /* Test is valid for devices which can't DMA and fail if such
+        device not behind a SMMU */
+      if (!(val_pcie_is_devicedma_64bit(pcie_peripherals_bdf_list->dev_bdfs[i]))) {
+          /* Flag if test is run, since check is conditional on availability of
+            non DMA devices */
+          test_run = 1;
+          /* Mark has fail if non DMA device not behind SMMU */
+          if (!(val_pcie_is_device_behind_smmu(pcie_peripherals_bdf_list->dev_bdfs[i]))) {
+              val_print(ACS_PRINT_DEBUG, "\n       Failed for BDF = 0x%x",
+                        pcie_peripherals_bdf_list->dev_bdfs[i]);
+              fail_cnt++;
+          }
+      }
+  }
+
+  if (!test_run) {
+      val_set_status (index, RESULT_SKIP (TEST_NUM2, 02));
+  } else if (fail_cnt) {
+      val_set_status (index, RESULT_FAIL (TEST_NUM2, 01));
+  } else {
+      val_set_status (index, RESULT_PASS (TEST_NUM2, 01));
+  }
 }
 
 uint32_t
@@ -104,17 +163,46 @@ m004_entry (uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
 
-  num_pe = 1;  //This test is run on single processor
-
+  num_pe = 1;  /* This test is run on single processor */
   status = val_initialize_test (TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP) {
-      val_run_test_payload (TEST_NUM, num_pe, payload, 0);
+      val_run_test_payload (TEST_NUM, num_pe, check_peripheral_dma_capability, 0);
   }
-
-  /* get the result from all PE and check for failure */
+  /* Get the result from all PE and check for failure */
   status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
 
   val_report_status(0, ACS_END(TEST_NUM), NULL);
+  return status;
+}
 
+uint32_t
+m006_entry (uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+
+  num_pe = 1;  /* This test is run on single processor */
+  status = val_initialize_test (TEST_NUM1, TEST_DESC1, num_pe);
+  if (status != ACS_STATUS_SKIP) {
+      val_run_test_payload (TEST_NUM1, num_pe, payload_check_dev_dma_if_behind_smmu, 0);
+  }
+  /* Get the result from all PE and check for failure */
+  status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+  val_report_status(0, ACS_END(TEST_NUM1), NULL);
+  return status;
+}
+
+uint32_t
+m007_entry (uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+
+  num_pe = 1;  /* This test is run on single processor */
+  status = val_initialize_test (TEST_NUM2, TEST_DESC2, num_pe);
+  if (status != ACS_STATUS_SKIP) {
+      val_run_test_payload (TEST_NUM2, num_pe, payload_check_if_non_dma_dev_behind_smmu, 0);
+  }
+  /* Get the result from all PE and check for failure */
+  status = val_check_for_error(TEST_NUM2, num_pe, TEST_RULE2);
+  val_report_status(0, ACS_END(TEST_NUM2), NULL);
   return status;
 }

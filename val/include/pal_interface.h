@@ -18,15 +18,16 @@
 #ifndef __PAL_INTERFACE_H__
 #define __PAL_INTERFACE_H__
 
-#ifdef TARGET_LINUX
-#include <linux/slab.h>
-#endif
+#ifdef TARGET_BAREMETAL
+  #include <stdlib.h>
+  #include <stdint.h>
+  #include <stddef.h>
+  #include <stdbool.h>
+  #include "platform_override_fvp.h"
 
-#define MAX_NAMED_COMP_LENGTH 150
-
-#ifdef TARGET_BM_BOOT
-
-#include "platform_override_fvp.h"
+  typedef uint64_t addr_t;
+  typedef char     char8_t;
+  typedef uint64_t dma_addr_t;
 
   #define VAL_TG0_4K      0x0
   #define VAL_TG0_64K     0x1
@@ -53,94 +54,69 @@
     #define TCR_TG0             VAL_TG0_64K
   #endif
 
+  #define MAX_SID          PLATFORM_OVERRIDE_MAX_SID
   #define MMU_PGT_IAS      PLATFORM_OVERRIDE_MMU_PGT_IAS
   #define MMU_PGT_OAS      PLATFORM_OVERRIDE_MMU_PGT_OAS
+  #define MAX_IRQ_CNT      PLATFORM_BM_OVERRIDE_MAX_IRQ_CNT
+  #define PCIE_MAX_BUS     PLATFORM_BM_OVERRIDE_PCIE_MAX_BUS
+  #define PCIE_MAX_DEV     PLATFORM_BM_OVERRIDE_PCIE_MAX_DEV
+  #define PCIE_MAX_FUNC    PLATFORM_BM_OVERRIDE_PCIE_MAX_FUNC
+  #define TIMEOUT_LARGE    PLATFORM_BM_OVERRIDE_TIMEOUT_LARGE
+  #define TIMEOUT_MEDIUM   PLATFORM_BM_OVERRIDE_TIMEOUT_MEDIUM
+  #define TIMEOUT_SMALL    PLATFORM_BM_OVERRIDE_TIMEOUT_SMALL
 
-#endif
+#endif // TARGET_BAREMETAL
 
 #ifdef TARGET_LINUX
+
+  #include <linux/slab.h>
   typedef char          char8_t;
   typedef long long int addr_t;
-#define TIMEOUT_LARGE    0x1000000
-#define TIMEOUT_MEDIUM   0x100000
-#define TIMEOUT_SMALL    0x1000
 
-#define PCIE_MAX_BUS   256
-#define PCIE_MAX_DEV    32
-#define PCIE_MAX_FUNC    8
-#define MAX_IRQ_CNT    0xFFFF    // This value is arbitrary and may have to be adjusted
+  #define TIMEOUT_LARGE    0x1000000
+  #define TIMEOUT_MEDIUM   0x100000
+  #define TIMEOUT_SMALL    0x1000
 
-#define MAX_SID        32
-#define MMU_PGT_IAS    48
-#define MMU_PGT_OAS    48
+  #define PCIE_MAX_BUS   256
+  #define PCIE_MAX_DEV    32
+  #define PCIE_MAX_FUNC    8
+  #define MAX_IRQ_CNT    0xFFFF    // This value is arbitrary and may have to be adjusted
 
-#elif TARGET_EMULATION
-#include <stdlib.h>
-#include <stdint.h>
-#include <stddef.h>
-#include "platform_override_fvp.h"
-  typedef uint64_t addr_t;
-  typedef char     char8_t;
-  typedef uint64_t dma_addr_t;
+  #define MAX_SID        32
+  #define MMU_PGT_IAS    48
+  #define MMU_PGT_OAS    48
+#endif //TARGET_LINUX
 
-#define TIMEOUT_LARGE    PLATFORM_BM_OVERRIDE_TIMEOUT_LARGE
-#define TIMEOUT_MEDIUM   PLATFORM_BM_OVERRIDE_TIMEOUT_MEDIUM
-#define TIMEOUT_SMALL    PLATFORM_BM_OVERRIDE_TIMEOUT_SMALL
+#ifdef TARGET_UEFI
+  #include "../../pal/include/platform_override.h"
+  typedef INT8    int8_t;
+  typedef INT32   int32_t;
+  typedef INT64   int64_t;
+  typedef CHAR8   char8_t;
+  typedef CHAR16  char16_t;
+  typedef UINT8   uint8_t;
+  typedef UINT16  uint16_t;
+  typedef UINT32  uint32_t;
+  typedef UINT64  uint64_t;
+  typedef UINT64  addr_t;
+  typedef UINT64  dma_addr_t;
+  typedef BOOLEAN bool;
 
-#define PCIE_MAX_BUS     PLATFORM_BM_OVERRIDE_PCIE_MAX_BUS
-#define PCIE_MAX_DEV     PLATFORM_BM_OVERRIDE_PCIE_MAX_DEV
-#define PCIE_MAX_FUNC    PLATFORM_BM_OVERRIDE_PCIE_MAX_FUNC
+  #define MAX_SID  32
+  #define MMU_PGT_IAS    48
+  #define MMU_PGT_OAS    48
 
-#define MAX_SID          PLATFORM_OVERRIDE_MAX_SID
-#define MAX_IRQ_CNT      PLATFORM_BM_OVERRIDE_MAX_IRQ_CNT
+  #define SMMU_MAP_SIZE   PLATFORM_OVERRIDE_SMMU_MAP_SIZE /* Size of memory to map from SMMU base */
+  #define TIMEOUT_LARGE   PLATFORM_OVERRIDE_TIMEOUT_LARGE
+  #define TIMEOUT_MEDIUM  PLATFORM_OVERRIDE_TIMEOUT_MEDIUM
+  #define TIMEOUT_SMALL   PLATFORM_OVERRIDE_TIMEOUT_SMALL
+  #define PCIE_MAX_BUS    PLATFORM_OVERRIDE_PCIE_MAX_BUS
+  #define PCIE_MAX_DEV    PLATFORM_OVERRIDE_PCIE_MAX_DEV
+  #define PCIE_MAX_FUNC   PLATFORM_OVERRIDE_PCIE_MAX_FUNC
+  #define MAX_IRQ_CNT     PLATFORM_OVERRIDE_MAX_IRQ_CNT
+#endif  // TARGET_UEFI
 
-#else
-#include "../../pal/include/platform_override.h"
-  typedef INT8   int8_t;
-  typedef INT32  int32_t;
-  typedef INT64  int64_t;
-  typedef CHAR8  char8_t;
-  typedef CHAR16 char16_t;
-  typedef UINT8  uint8_t;
-  typedef UINT16 uint16_t;
-  typedef UINT32 uint32_t;
-  typedef UINT64 uint64_t;
-  typedef UINT64 addr_t;
-  typedef UINT64 dma_addr_t;
-
-/* Max SID Size in SMMU is 32 */
-#define MAX_SID  32
-
-/* Size used to Map the SMMU Register Space, if not mapped */
-#define SMMU_MAP_SIZE        PLATFORM_OVERRIDE_SMMU_MAP_SIZE
-
-#if PLATFORM_OVERRIDE_TIMEOUT
-    #define TIMEOUT_LARGE    PLATFORM_OVERRIDE_TIMEOUT_LARGE
-    #define TIMEOUT_MEDIUM   PLATFORM_OVERRIDE_TIMEOUT_MEDIUM
-    #define TIMEOUT_SMALL    PLATFORM_OVERRIDE_TIMEOUT_SMALL
-#else
-    #define TIMEOUT_LARGE    0x1000000
-    #define TIMEOUT_MEDIUM   0x100000
-    #define TIMEOUT_SMALL    0x1000
-#endif
-
-#ifndef PLATFORM_OVERRIDE_MAX_BDF
-    #define PCIE_MAX_BUS   256
-    #define PCIE_MAX_DEV    32
-    #define PCIE_MAX_FUNC    8
-#else
-    #define PCIE_MAX_BUS    PLATFORM_OVERRIDE_PCIE_MAX_BUS
-    #define PCIE_MAX_DEV    PLATFORM_OVERRIDE_PCIE_MAX_DEV
-    #define PCIE_MAX_FUNC   PLATFORM_OVERRIDE_PCIE_MAX_FUNC
-#endif
-
-#ifdef PLATFORM_OVERRIDE_IRQ
-    #define MAX_IRQ_CNT    PLATFORM_OVERRIDE_MAX_IRQ_CNT
-#else
-    #define MAX_IRQ_CNT    0xFFFF
-#endif
-
-#endif
+/* The following are common across all platform unless guarded explicitly */
 
 #define ONE_MILLISECOND 1000
 
@@ -241,14 +217,8 @@ void pal_smbios_create_info_table(PE_SMBIOS_PROCESSOR_INFO_TABLE *SmbiosTable);
 void pal_pe_call_smc(ARM_SMC_ARGS *args, int32_t conduit);
 void pal_pe_execute_payload(ARM_SMC_ARGS *args);
 uint32_t pal_pe_install_esr(uint32_t exception_type, void (*esr)(uint64_t, void *));
-#ifdef TARGET_BM_BOOT
 uint32_t pal_get_pe_count(void);
 uint64_t *pal_get_phy_mpidr_list_base(void);
-#endif
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
-uint32_t pal_get_device_path(const char *hid, char hid_path[][MAX_NAMED_COMP_LENGTH]);
-uint32_t pal_smmu_is_etr_behind_catu(char *etr_path);
-#endif
 
 /* ********** PE INFO END **********/
 
@@ -515,6 +485,11 @@ typedef union {
   ID_MAP map;
 }NODE_DATA_MAP;
 
+#define MAX_NAMED_COMP_LENGTH 150
+
+uint32_t pal_get_device_path(const char *hid, char hid_path[][MAX_NAMED_COMP_LENGTH]);
+uint32_t pal_smmu_is_etr_behind_catu(char *etr_path);
+
 typedef struct {
   uint64_t smmu_base;                  /* SMMU base to which component is attached, else NULL */
   uint32_t cca;                        /* Cache Coherency Attribute */
@@ -539,14 +514,6 @@ typedef struct {
 
 #define IOVIRT_NEXT_BLOCK(b) (IOVIRT_BLOCK *)((uint8_t*)(&b->data_map[0]) + b->num_data_map * sizeof(NODE_DATA_MAP))
 #define IOVIRT_CCA_MASK ~((uint32_t)0)
-#ifdef TARGET_BM_BOOT
-  // Align memory access to nearest 8 byte boundary
-  #define BOUND 0x08
-  #define ALIGN_MEMORY_ACCESS(b) \
-            (IOVIRT_BLOCK *) (((uint64_t)b + BOUND - 1) & (~((uint64_t)BOUND - 1)))
-#else
-  #define ALIGN_MEMORY_ACCESS(b) (IOVIRT_BLOCK *) (b)
-#endif
 
 typedef struct {
   uint32_t num_blocks;
@@ -558,7 +525,7 @@ typedef struct {
   IOVIRT_BLOCK blocks[];
 }IOVIRT_INFO_TABLE;
 
-void pal_iovirt_create_info_table(IOVIRT_INFO_TABLE *iovirt);
+void     pal_iovirt_create_info_table(IOVIRT_INFO_TABLE *iovirt);
 uint32_t pal_iovirt_check_unique_ctx_intid(uint64_t smmu_block);
 uint32_t pal_iovirt_unique_rid_strid_map(uint64_t rc_block);
 uint64_t pal_iovirt_get_rc_smmu_base(IOVIRT_INFO_TABLE *iovirt, uint32_t rc_seg_num, uint32_t rid);

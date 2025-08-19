@@ -25,6 +25,7 @@
 
 #define WARN_STR_LEN 7
 
+pcie_bdf_list_t *pcie_pheripherals_bdf_list = NULL;
 PCIE_INFO_TABLE *g_pcie_info_table;
 pcie_device_bdf_table *g_pcie_bdf_table;
 
@@ -2316,6 +2317,74 @@ val_pcie_get_max_pasid_width(uint32_t bdf, uint32_t *max_pasid_width)
 }
 
 /**
+  @brief  This API parses the peripheral list and creates a sublist of
+           PCIe peripheral devices
+
+  @param  None
+  @return NULL pointer on failure, else pointer of type pcie_bdf_list_t containing data.
+
+**/
+pcie_bdf_list_t *val_pcie_get_pcie_peripheral_bdf_list(void)
+{
+  uint32_t dev_type;
+  uint32_t dev_bdf, i;
+  uint32_t peri_count = val_peripheral_get_info (NUM_ALL, 0);
+
+  /* If PCIe peripherals BDF list already prepared return the pointer to list */
+  if (pcie_pheripherals_bdf_list != NULL) {
+      return pcie_pheripherals_bdf_list;
+  }
+
+  if (peri_count == 0) {
+    val_print(ACS_PRINT_DEBUG, "\n       No peripherals detected not "
+                             "creating pcie_pheripherals_bdf_list", 0);
+    return NULL;
+  }
+
+  /* Else, allocate memory and parse */
+  pcie_pheripherals_bdf_list = val_aligned_alloc(SIZE_4KB, sizeof(PCIE_INFO_TABLE)
+                                                 + sizeof(uint32_t)*peri_count);
+
+  /* Check if memory allocated */
+  if (pcie_pheripherals_bdf_list == NULL) {
+      val_print(ACS_PRINT_ERR, "\n       Failed to allocate memory for pcie_pheripherals_bdf_list."
+                , 0);
+      return NULL;
+  }
+
+  /* Init the bdf count */
+  pcie_pheripherals_bdf_list->count = 0;
+
+  val_print(ACS_PRINT_DEBUG, "\n       Creating pcie_pheripherals_bdf_list ...", 0);
+  for (i = 0; i < peri_count; i++) {
+      dev_bdf = (uint32_t)val_peripheral_get_info (ANY_BDF, i);
+
+      if (dev_bdf == 0)
+          continue;
+
+      val_print(ACS_PRINT_DEBUG, "\n       Dev bdf 0x%x", dev_bdf);
+
+      dev_type = val_pcie_get_device_type(dev_bdf);
+      /* 1: Normal PCIe device, 2: PCIe Host bridge, 3: PCIe bridge device, else: INVALID */
+
+      if ((!dev_type) || (dev_type > 1)) {
+        /* Skip this device, if we either got pdev as NULL or if it is a bridge */
+        continue;
+      }
+
+      if (!val_pcie_device_driver_present(dev_bdf)) {
+        val_print(ACS_PRINT_DEBUG, "\n       Driver not present for bdf 0x%x", dev_bdf);
+        continue;
+      }
+
+      /* If all above check passes PCIe device is eligible to be in pcie_pheripherals_bdf_list */
+      pcie_pheripherals_bdf_list->dev_bdfs[pcie_pheripherals_bdf_list->count++] = dev_bdf;
+  }
+
+  return pcie_pheripherals_bdf_list;
+}
+
+/**
   @brief  Checks if the Transaction pending bit is set in device status register
 
   @param  bdf   - Segment/Bus/Dev/Func in PCIE_CREATE_BDF format
@@ -2344,4 +2413,47 @@ val_is_transaction_pending_set(uint32_t bdf)
       return 1;
 
   return 0;
+}
+
+/**
+  @brief  Returns the value of Capabilities pointer regsiter in Type 0/1 header of PCIe device
+
+  @param  bdf - Bus/Dev/Function of the PCIe device
+  @return None
+
+**/
+uint32_t val_pcie_get_cap_ptr(uint32_t bdf)
+{
+
+  uint32_t cap_ptr;
+  uint32_t reg_value;
+
+  /* Read 32-bits from Capabilities pointer register offset */
+  val_pcie_read_cfg(bdf, TYPE01_CPR, &reg_value);
+
+  /* Extract Capabilities Pointer register value */
+  cap_ptr = (reg_value >> TYPE01_CPR_SHIFT) & TYPE01_CPR_MASK;
+
+  return cap_ptr;
+}
+
+/**
+  @brief  Returns the value of BIST regsiter in Type 0/1 header of PCIe device
+
+  @param  bdf - Bus/Dev/Function of the PCIe device
+  @return None
+
+**/
+uint32_t val_pcie_get_bist(uint32_t bdf)
+{
+
+  uint32_t reg_value;
+
+  /* Read 32-bits from Capabilities pointer register offset */
+  val_pcie_read_cfg(bdf, TYPE01_CLSR, &reg_value);
+
+  /* Extract BIST register value */
+  reg_value = VAL_EXTRACT_BITS(reg_value, BIST_REG_START, BIST_REG_END);
+
+  return reg_value;
 }

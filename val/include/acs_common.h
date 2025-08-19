@@ -37,12 +37,13 @@
 #define ACS_PER_TEST_NUM_BASE        600
 #define ACS_WD_TEST_NUM_BASE         700
 #define ACS_PCIE_TEST_NUM_BASE       800
-#define ACS_EXERCISER_TEST_NUM_BASE  900
+#define ACS_PCIE_EXT_TEST_NUM_BASE   900
 #define ACS_MPAM_TEST_NUM_BASE       1000
 #define ACS_PMU_TEST_NUM_BASE        1100
 #define ACS_RAS_TEST_NUM_BASE        1200
 #define ACS_NIST_TEST_NUM_BASE       1300
 #define ACS_ETE_TEST_NUM_BASE        1400
+#define ACS_EXERCISER_TEST_NUM_BASE  1500
 #define ACS_TPM2_TEST_NUM_BASE       1600
 
 /* Module specific print APIs */
@@ -57,12 +58,13 @@ typedef enum {
     PERIPHERAL_MODULE,
     WD_MODULE,
     PCIE_MODULE,
-    EXERCISER_MODULE,
+    PCIE_EXT_MODULE,
     MPAM_MODULE,
     PMU_MODULE,
     RAS_MODULE,
-    ETE_MODULE,
     NIST_MODULE,
+    ETE_MODULE,
+    EXERCISER_MODULE,
     TPM2_MODULE
 } MODULE_ID_e;
 
@@ -76,6 +78,7 @@ typedef enum {
 #define TEST_FAIL_VAL    0x8
 #define TEST_SKIP_VAL    0x9
 #define TEST_PENDING_VAL 0xA
+#define TEST_WARN_VAL    0xB
 
 #define CPU_NUM_BIT  32
 #define CPU_NUM_MASK 0xFFFFFFFF
@@ -105,6 +108,12 @@ typedef enum {
 #define RESULT_PENDING(test_num) (((TEST_PENDING_VAL) << STATE_BIT) | \
                         ((test_num) << TEST_NUM_BIT))
 
+#define RESULT_WARN(test_num, status) (((TEST_WARN_VAL) << STATE_BIT) | \
+                        ((test_num) << TEST_NUM_BIT) | (status))
+
+#define TEST_STATUS(test_num, status, checkpoint) (((status) << STATE_BIT) | \
+                        ((test_num) << TEST_NUM_BIT) | (checkpoint))
+
 #define IS_TEST_START(value)     (((value >> STATE_BIT) & (STATE_MASK)) == TEST_START_VAL)
 #define IS_TEST_END(value)       (((value >> STATE_BIT) & (STATE_MASK)) == TEST_END_VAL)
 #define IS_RESULT_PENDING(value) (((value >> STATE_BIT) & (STATE_MASK)) == TEST_PENDING_VAL)
@@ -112,6 +121,21 @@ typedef enum {
 #define IS_TEST_FAIL(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_FAIL_VAL)
 #define IS_TEST_SKIP(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_SKIP_VAL)
 #define IS_TEST_FAIL_SKIP(value) ((IS_TEST_FAIL(value)) || (IS_TEST_SKIP(value)))
+#define IS_TEST_WARN(value)      (((value >> STATE_BIT) & (STATE_MASK)) == TEST_WARN_VAL)
+
+typedef struct {
+    uint32_t test_num;  /* ACS test number */
+    char *desc;         /* ACS test description */
+    char *rule;         /* Rule covered by the test */
+} test_config_t;
+/* Test status enum defs */
+typedef enum {
+    TEST_PASS = TEST_PASS_VAL,
+    TEST_FAIL = TEST_FAIL_VAL,
+    TEST_SKIP = TEST_SKIP_VAL,
+    TEST_WARN = TEST_WARN_VAL,
+    TEST_STATUS_UNKNOWN
+} test_status_t;
 
 uint8_t
 val_mmio_read8(addr_t addr);
@@ -146,8 +170,15 @@ val_initialize_test(uint32_t test_num, char8_t * desc, uint32_t num_pe);
 uint32_t
 val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid);
 
+uint32_t
+val_check_for_prerequisite(uint32_t num_pe, uint32_t prereq_status,
+                           const test_config_t *prereq_config, const test_config_t *curr_config);
+
 void
 val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), uint64_t test_input);
+
+void
+val_run_test_configurable_payload(void *arg, void (*payload)(void *));
 
 void
 val_data_cache_ops_by_va(addr_t addr, uint32_t type);

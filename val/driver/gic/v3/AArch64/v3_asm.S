@@ -15,14 +15,8 @@
  * limitations under the License.
  **/
 
-#ifndef TARGET_EMULATION
-#include "include/acs_pe.h"
-#include "driver/gic/acs_exception.h"
-#else
 #define ICC_IAR1_EL1    S3_0_C12_C12_0
 #define ICC_EOIR1_EL1   S3_0_C12_C12_1
-#endif
-
 
 /* Private worker functions for ASM_PFX() */
 #define _CONCATENATE(a, b)  __CONCATENATE(a, b)

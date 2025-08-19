@@ -36,6 +36,7 @@ UINT32  g_pcbsa_level;
 UINT32  g_pcbsa_only_level = 0;
 UINT32  g_pcie_p2p;
 UINT32  g_pcie_cache_present;
+bool    g_pcie_skip_dp_nic_ms = 0;
 UINT32  g_bsa_level;
 UINT32  g_bsa_only_level = 0;
 UINT32  g_sbsa_level;
@@ -118,6 +119,7 @@ HelpMsg (
          "-sbsa   Enable sbsa requirements for bsa binary\n"
          "-pc-bsa Enable PC BSA requirements for bsa binary\n"
          "-el1physkip Skips EL1 register checks\n"
+         "-skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
   );
 }
 
@@ -128,6 +130,7 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-fr", TypeValue},    // -fr   # To run BSA ACS till BSA Future Requirement tests
   {L"-f", TypeValue},    // -f    # Name of the log file to record the test results in.
   {L"-skip", TypeValue}, // -skip # test(s) to skip execution
+  {L"-skip-dp-nic-ms", TypeFlag}, // Skip tests for DisplayPort, Network, and Mass Storage devices
   {L"-t", TypeValue},    // -t    # Test to be run
   {L"-m", TypeValue},    // -m    # Module to be run
   {L"-p2p", TypeFlag},   // -p2p  # Peer-to-Peer is supported
@@ -500,6 +503,16 @@ command_init ()
   }
 
   if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {
+    ;
+  }
+
+  if (ShellCommandLineGetFlag (ParamPackage, L"-skip-dp-nic-ms")) {
+    g_pcie_skip_dp_nic_ms = TRUE;
+  } else {
+    g_pcie_skip_dp_nic_ms = FALSE;
+  }
+
+  if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {
     g_pcie_p2p = TRUE;
   } else {
     g_pcie_p2p = FALSE;
@@ -771,8 +784,10 @@ freeBsaAcsMem()
       val_free_shared_mem();
   }
 
-  if (g_build_pcbsa)
+  if (g_build_pcbsa) {
       val_tpm2_free_info_table();
+      val_srat_free_info_table();
+  }
 }
 
 UINT32
@@ -828,8 +843,10 @@ execute_tests()
       createRasInfoTable();
   }
 
-  if (g_build_pcbsa)
+  if (g_build_pcbsa) {
       createTpm2InfoTable();
+      createSratInfoTable();
+  }
 
   val_allocate_shared_mem();
 

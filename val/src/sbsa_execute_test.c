@@ -122,6 +122,7 @@ val_sbsa_pe_execute_tests(uint32_t level, uint32_t num_pe)
       status |= pe060_entry(num_pe);
       status |= pe061_entry(num_pe);
       status |= pe062_entry(num_pe);
+      status |= pe064_entry(num_pe);
    }
 
   val_print_test_end(status, "PE");
@@ -280,6 +281,7 @@ uint32_t
 val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_PASS, i;
+  uint32_t skip_status = 0;
   uint32_t ecam_status = ACS_STATUS_PASS;
 
 #ifdef TARGET_LINUX
@@ -305,7 +307,15 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
   /* Check if there are any tests to be executed in current module with user override options*/
   status = val_check_skip_module(ACS_PCIE_TEST_NUM_BASE);
-  if (status) {
+  if (status)
+      skip_status++;
+
+  status = val_check_skip_module(ACS_PCIE_EXT_TEST_NUM_BASE);
+  if (status)
+      skip_status++;
+
+  /* Skip the module only if no tests from PCIe module and extended PCIe module are run */
+  if (skip_status > 1) {
       val_print(ACS_PRINT_INFO, "\n USER Override - Skipping all PCIe tests\n", 0);
       return ACS_STATUS_SKIP;
   }
@@ -319,10 +329,10 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
   val_print_test_start("PCIe");
   g_curr_module = 1 << PCIE_MODULE;
 
-  #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
-    if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
+  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
       status |= p046_entry(num_pe);  /* This covers GIC rule */
-  #endif
+#endif
 
   ecam_status = p043_entry(num_pe);
   if (ecam_status == ACS_STATUS_FAIL) {
@@ -332,7 +342,7 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
   status |= ecam_status;
 
-  #ifndef TARGET_LINUX
+#ifndef TARGET_LINUX
     if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
       status |= p068_entry(num_pe);
 
@@ -345,6 +355,8 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
     }
 
     if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
+      status |= p007_entry(num_pe);
+      status |= p010_entry(num_pe);
       status |= p086_entry(num_pe);
     }
 
@@ -355,17 +367,18 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p093_entry(num_pe);
     }
 
-  #endif
+#endif
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
   if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
     status |= p091_entry(num_pe);
 #endif
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
-    #if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
-      status |= p045_entry(num_pe);
-    #endif
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
+      status |= p103_entry(num_pe);
+      status |= p104_entry(num_pe);
+#endif
 
     if (g_pcie_integrated_devices == 0) {
       val_print(ACS_PRINT_WARN, "\n     *** No integrated PCIe Devices Found, \
@@ -374,6 +387,17 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
     }
 
 #ifndef TARGET_LINUX
+      status |= p012_entry(num_pe);
+      status |= p013_entry(num_pe);
+      status |= p014_entry(num_pe);
+      status |= p015_entry(num_pe);
+      status |= p016_entry(num_pe); /* Depends on p015; run it prior to this test */
+      status |= p027_entry(num_pe);
+      status |= p028_entry(num_pe);
+      status |= p029_entry(num_pe);
+      status |= p034_entry(num_pe);
+      status |= p040_entry(num_pe);
+      status |= p041_entry(num_pe);
       status |= p047_entry(num_pe);
       status |= p048_entry(num_pe);
       status |= p049_entry(num_pe);
@@ -403,12 +427,12 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p074_entry(num_pe);
       status |= p075_entry(num_pe); /* iEP/RP only */
 #endif
-#if defined(TARGET_EMULATION) && !defined(TARGET_LINUX)
+#if defined(TARGET_BAREMETAL) && !defined(TARGET_LINUX)
       status |= p076_entry(num_pe); /* iEP/RP only */
       status |= p077_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
-      status |= p078_entry(num_pe);
+      status |= p078_entry(num_pe); /* Depends on p027; run it prior to this test */
       status |= p079_entry(num_pe); /* iEP/RP only */
       status |= p080_entry(num_pe);
       status |= p081_entry(num_pe); /* iEP/RP only */
@@ -418,6 +442,8 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p085_entry(num_pe);
       status |= p088_entry(num_pe); /* iEP/RP only */
       status |= p092_entry(num_pe); /* iEP/RP only */
+      status |= p098_entry(num_pe);
+      status |= p099_entry(num_pe);
 #endif
   }
 
@@ -464,6 +490,7 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 #ifndef TARGET_LINUX
   if (((level > 3) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 4)) {
       status = i008_entry(num_pe);
+      status |= i025_entry(num_pe);
 
       if (status != ACS_STATUS_PASS) {
          val_print(ACS_PRINT_WARN, "\n     SMMU Compatibility Check Failed, ", 0);
@@ -479,6 +506,7 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= i010_entry(num_pe);
       status |= i011_entry(num_pe);
       status |= i012_entry(num_pe);
+      status |= i026_entry(num_pe);
   }
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
@@ -489,19 +517,22 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= i017_entry(num_pe);
       status |= i018_entry(num_pe);
       status |= i019_entry(num_pe);
-      status |= i025_entry(num_pe);
+      status |= i030_entry(num_pe);
   }
 
-if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
+  if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
      status |= i021_entry(num_pe);
      status |= i022_entry(num_pe);
+     status |= i027_entry(num_pe);
   }
 
-if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
+  if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8)) {
      status |= i024_entry(num_pe);
+     status |= i028_entry(num_pe);
+  }
 #endif  // TARGET_LINUX
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
   if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7))
      status |= i023_entry(num_pe);
 #endif
@@ -545,8 +576,10 @@ val_sbsa_memory_execute_tests(uint32_t level, uint32_t num_pe)
   val_print_test_start("Memory");
   g_curr_module = 1 << MEM_MAP_MODULE;
 
-  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
+  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3)) {
       status = m005_entry(num_pe);
+      status |= m008_entry(num_pe);
+  }
 
   val_print_test_end(status, "Memory");
 
@@ -625,13 +658,16 @@ val_sbsa_exerciser_execute_tests(uint32_t level)
 
   g_curr_module = 1 << EXERCISER_MODULE;
 
-  if (((level > 2) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 3))
-      status = e018_entry();
-
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
+      status |= e008_entry();
       status |= e019_entry();
       status |= e020_entry();
       status |= e021_entry();
+      status |= e031_entry();
+      status |= e034_entry();
+      status |= e036_entry();
+      status |= e037_entry();
+      status |= e038_entry();
   }
 
   if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
@@ -647,6 +683,7 @@ val_sbsa_exerciser_execute_tests(uint32_t level)
       status |= e028_entry();
       status |= e029_entry();
       status |= e030_entry();
+      status |= e032_entry();
   }
 
   val_print_test_end(status, "Exerciser");
@@ -709,6 +746,8 @@ val_sbsa_pmu_execute_tests(uint32_t level, uint32_t num_pe)
       status |= pmu006_entry(num_pe);
       status |= pmu007_entry(num_pe);
       status |= pmu009_entry(num_pe);
+      status |= pmu010_entry(num_pe);
+      status |= pmu011_entry(num_pe);
   }
   val_print_test_end(status, "PMU");
 
@@ -760,6 +799,7 @@ val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe)
  if (((level > 6) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 7)) {
       /* run tests which don't check MPAM MSCs */
       status = mpam001_entry(num_pe);
+      status = mpam008_entry(num_pe);
 
       msc_node_cnt = val_mpam_get_msc_count();
       if (msc_node_cnt == 0) {
@@ -773,6 +813,7 @@ val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe)
       status |= mpam005_entry(num_pe);
       status |= mpam006_entry(num_pe);
       status |= mpam007_entry(num_pe);
+      status |= mpam009_entry(num_pe);
   }
   val_print_test_end(status, "MPAM");
 
@@ -846,6 +887,7 @@ val_sbsa_ras_execute_tests(uint32_t level, uint32_t num_pe)
       status |= ras010_entry(num_pe);
       status |= ras011_entry(num_pe);
       status |= ras012_entry(num_pe);
+      status |= ras015_entry(num_pe);
   }
 
   if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
@@ -891,6 +933,7 @@ val_sbsa_ete_execute_tests(uint32_t level, uint32_t num_pe)
       } else {
           ete_status |= ete002_entry(num_pe);
           ete_status |= ete003_entry(num_pe);
+          ete_status |= ete009_entry(num_pe);
           ete_status |= ete004_entry(num_pe);
       }
       trbe_status = ete005_entry(num_pe);
@@ -909,7 +952,7 @@ val_sbsa_ete_execute_tests(uint32_t level, uint32_t num_pe)
   return (ete_status | trbe_status);
 }
 
-#ifndef TARGET_BM_BOOT
+#ifndef TARGET_BAREMETAL
 /**
   @brief   This API executes all the PCIe tests sequentially
   @param   level  - level of compliance being tested for.

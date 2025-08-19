@@ -21,13 +21,44 @@
 #include "val/include/acs_pe.h"
 #include "val/include/acs_memory.h"
 
-#define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 82)
-#define TEST_RULE  "IE_ACS_1, RE_ACS_1, RE_ACS_2"
-#define TEST_DESC  "Check RCiEP, iEP_EP P2P Supp          "
+static const
+test_config_t test_entries[] = {
+        { ACS_PCIE_TEST_NUM_BASE + 82, "Check ACS Cap on p2p support: iEP EP  ", "IE_ACS_1"},
+        { ACS_PCIE_TEST_NUM_BASE + 15, "Check ACS Cap on p2p support: RCiEP   ", "RE_ACS_1"},
+        { ACS_PCIE_TEST_NUM_BASE + 16, "Check AER Cap on ACS Cap support      ", "RE_ACS_2"}
+    };
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t test_num;
+    uint32_t dev_type;
+    uint32_t aer_check_flag;
+} test_data_t;
+
+/* Global variable declaration - to be used for RCiEP rules */
+static uint32_t g_aer_cap_status;
 
 static
 void
-payload(void)
+parse_test_status(uint32_t test_fail, uint32_t test_skip)
+{
+  /* Report failure for RE_ACS_2 only if pre-requisite is met and AER is not supported. */
+  if (test_skip == 1)
+      g_aer_cap_status = ACS_STATUS_SKIP;
+  else if (test_fail)
+      g_aer_cap_status = ACS_STATUS_FAIL;
+  else
+      g_aer_cap_status = ACS_STATUS_PASS;
+
+  return;
+}
+
+/* IE_ACS_1 rule covers for iEP_EP -  RE_ACS_1 and RE_ACS_2 together cover for RCiEP.
+   So run the payload only once and mark the status of AER Cap.
+   Report RE_ACS_2 based on AER Cap status. */
+static
+void
+payload(void *arg)
 {
 
   uint32_t bdf;
@@ -36,11 +67,13 @@ payload(void)
   uint32_t dp_type;
   uint32_t cap_base = 0;
   uint32_t test_fails;
-  uint32_t test_skip = 1;
+  bool     test_skip = 1;
+  uint32_t aer_cap_fail = 0;
   uint32_t acs_data;
   uint32_t data;
   uint8_t p2p_support_flag = 0;
   pcie_device_bdf_table *bdf_tbl_ptr;
+  test_data_t *test_data = (test_data_t *)arg;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
 
@@ -49,7 +82,7 @@ payload(void)
     val_print(ACS_PRINT_DEBUG, "\n       The test is applicable only if the system supports", 0);
     val_print(ACS_PRINT_DEBUG, "\n       P2P traffic. If the system supports P2P, pass the", 0);
     val_print(ACS_PRINT_DEBUG, "\n       command line option '-p2p' while running the binary", 0);
-    val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+    val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
     return;
   }
 
@@ -119,36 +152,93 @@ payload(void)
           if (val_pcie_find_capability(bdf, PCIE_ECAP, ECID_AER, &cap_base) != PCIE_SUCCESS)
           {
               val_print(ACS_PRINT_ERR, "\n       AER Capability not supported, Bdf : 0x%x", bdf);
-              test_fails++;
+              aer_cap_fail++;
           }
       }
   }
 
+  /* ACS and AER capability reporting for RCiEPs are performed separately */
+  if (test_data->aer_check_flag) {
+    parse_test_status(aer_cap_fail, test_skip);
+    /* Don't let AER failure effect RE_ACS_1 status */
+    aer_cap_fail = 0;
+  }
+
   if (test_skip == 1) {
       val_print(ACS_PRINT_DEBUG,
-      "\n       No RCiEP/ iEP_EP type device with Multifunction and P2P support.Skipping test", 0);
-      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 02));
+      "\n       No target device type with Multifunction and P2P support.Skipping test", 0);
+      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 02));
   }
-  else if (test_fails)
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, test_fails));
+  else if (test_fails + aer_cap_fail)
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, test_fails));
   else
-      val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_PASS(test_data->test_num, 01));
 }
 
 uint32_t
 p082_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[0].test_num,
+                      .dev_type = (uint32_t)iEP_EP,
+                      .aer_check_flag = 0};
 
   num_pe = 1;  //This test is run on single processor
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
   /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
-  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
+
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+  return status;
+}
+
+uint32_t
+p015_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[1].test_num,
+                      .dev_type = (uint32_t)RCiEP,
+                      .aer_check_flag = 1};
+
+  num_pe = 1;  //This test is run on single processor
+  g_aer_cap_status = ACS_STATUS_SKIP;
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
+  return status;
+}
+
+uint32_t
+p016_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+  uint32_t pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+  num_pe = 1;  //This test is run on single processor
+  status = val_initialize_test(test_entries[2].test_num, test_entries[2].desc, num_pe);
+
+  if (status != ACS_STATUS_SKIP) {
+      if (g_aer_cap_status == ACS_STATUS_SKIP)
+          val_set_status(pe_index, RESULT_SKIP(test_entries[2].test_num, 01));
+      else if (g_aer_cap_status == ACS_STATUS_FAIL)
+          val_set_status(pe_index, RESULT_FAIL(test_entries[2].test_num, 01));
+      else
+          val_set_status(pe_index, RESULT_PASS(test_entries[2].test_num, 01));
+  }
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[2].test_num, num_pe, test_entries[2].rule);
+
+  val_report_status(0, ACS_END(test_entries[2].test_num), test_entries[2].rule);
   return status;
 }

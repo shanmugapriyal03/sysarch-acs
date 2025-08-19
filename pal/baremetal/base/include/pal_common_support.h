@@ -43,10 +43,8 @@ extern uint32_t g_enable_module;
 #define MEM_ALIGN_32K      0x8000
 #define MEM_ALIGN_64K      0x10000
 
-#ifdef TARGET_BM_BOOT
-    #define TRUE 1
-    #define FALSE 0
-#endif
+#define TRUE 1
+#define FALSE 0
 
 void pal_mem_free_aligned(void *Buffer);
 void *pal_aligned_alloc( uint32_t alignment, uint32_t size );
@@ -62,15 +60,10 @@ void *pal_aligned_alloc( uint32_t alignment, uint32_t size );
 #define PCIE_MAX_DEV    32
 #define PCIE_MAX_FUNC    8
 
-#ifdef TARGET_BM_BOOT
 void pal_uart_print(int log, const char *fmt, ...);
 void *mem_alloc(size_t alignment, size_t size);
 #define print(verbose, string, ...)  if(verbose >= g_print_level) \
                                                    pal_uart_print(verbose, string, ##__VA_ARGS__)
-#else
-#define print(verbose, string, ...)  if(verbose >= g_print_level) \
-                                                   printf(string, ##__VA_ARGS__)
-#endif
 
 #define PCIE_CREATE_BDF(Seg, Bus, Dev, Func) ((Seg << 24) | (Bus << 16) | (Dev << 8) | Func)
 
@@ -634,14 +627,6 @@ typedef struct {
 
 #define IOVIRT_NEXT_BLOCK(b) (IOVIRT_BLOCK *)((uint8_t*)(&b->data_map[0]) + b->num_data_map * sizeof(NODE_DATA_MAP))
 #define IOVIRT_CCA_MASK ~((uint32_t)0)
-#ifdef TARGET_BM_BOOT
-  // Align memory access to nearest 8 byte boundary
-  #define BOUND 0x08
-  #define ALIGN_MEMORY_ACCESS(b) \
-            (IOVIRT_BLOCK *) (((uint64_t)b + BOUND - 1) & (~((uint64_t)BOUND - 1)))
-#else
-  #define ALIGN_MEMORY_ACCESS(b) (IOVIRT_BLOCK *) (b)
-#endif
 
 /* Memory INFO table */
 #define MEM_MAP_SUCCESS  0x0

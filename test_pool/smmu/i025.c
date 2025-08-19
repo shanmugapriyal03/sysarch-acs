@@ -20,7 +20,7 @@
 #include "val/include/val_interface.h"
 #include "val/include/acs_smmu.h"
 
-#define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 25)
+#define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 30)
 #define TEST_RULE  "B_SMMU_05"
 #define TEST_DESC  "Check DVM capabilities                "
 
@@ -83,7 +83,7 @@ payload()
 }
 
 uint32_t
-i025_entry(uint32_t num_pe)
+i030_entry(uint32_t num_pe)
 {
 
   uint32_t status = ACS_STATUS_FAIL;

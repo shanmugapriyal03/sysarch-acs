@@ -27,6 +27,7 @@
 #define KNOWN_DATA  0xABABABAB
 
 static void *branch_to_test;
+extern bool g_pcie_skip_dp_nic_ms;
 
 static
 void
@@ -78,7 +79,8 @@ check_bdf_under_rp(uint32_t rp_bdf)
                   val_pcie_read_cfg(dev_bdf, TYPE01_RIDR, &reg_value);
                   val_print(ACS_PRINT_DEBUG, "\n       Class code is %x", reg_value);
                   base_cc = reg_value >> TYPE01_BCC_SHIFT;
-                  if ((base_cc == CNTRL_CC) || (base_cc == DP_CNTRL_CC) || (base_cc == MAS_CC))
+                  if (g_pcie_skip_dp_nic_ms &&
+                      ((base_cc == CNTRL_CC) || (base_cc == DP_CNTRL_CC) || (base_cc == MAS_CC)))
                       return 1;
               }
            }

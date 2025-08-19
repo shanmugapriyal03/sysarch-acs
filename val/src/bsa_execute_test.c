@@ -163,6 +163,7 @@ val_bsa_pe_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(PLATFORM_SECURITY);
          status |= pe022_entry(num_pe);
+         status |= pe063_entry(num_pe);
       }
   }
 
@@ -287,6 +288,7 @@ its_test:
           status |= its002_entry(num_pe);
           status |= its003_entry(num_pe);
           status |= its004_entry(num_pe);
+          status |= its005_entry(num_pe);
       }
       view_print_info(MODULE_END);
   }
@@ -342,6 +344,7 @@ val_bsa_timer_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= t003_entry(num_pe);
           status |= t004_entry(num_pe);
           status |= t005_entry(num_pe);
+          status |= t007_entry(num_pe);
       }
   }
 
@@ -423,6 +426,7 @@ uint32_t
 val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 {
   uint32_t status, i;
+  uint32_t skip_status = 0;
   uint32_t num_ecam = 0;
 
   if (!(g_bsa_level >= 1 || g_bsa_only_level == 1))
@@ -437,7 +441,15 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 
   /* Check if there are any tests to be executed in current module with user override options*/
   status = val_check_skip_module(ACS_PCIE_TEST_NUM_BASE);
-  if (status) {
+  if (status)
+      skip_status++;
+
+  status = val_check_skip_module(ACS_PCIE_EXT_TEST_NUM_BASE);
+  if (status)
+      skip_status++;
+
+  /* Skip the module only if no tests from PCIe module and extended PCIe module are run */
+  if (skip_status > 1) {
       val_print(ACS_PRINT_INFO, "\n       USER Override - Skipping all PCIe tests\n", 0);
       return ACS_STATUS_SKIP;
   }
@@ -486,16 +498,18 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
   if (g_sw_view[G_SW_OS]) {
 
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
+          status |= p045_entry(num_pe);
           status |= p094_entry(num_pe);
           status |= p095_entry(num_pe);
           status |= p096_entry(num_pe);
           status |= p097_entry(num_pe);
+          status |= p105_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
           status |= p002_entry(num_pe);
           status |= p003_entry(num_pe);
-#if defined(TARGET_EMULATION)
+#if defined(TARGET_BAREMETAL)
           status |= p004_entry(num_pe);
           status |= p005_entry(num_pe);
 #endif
@@ -510,6 +524,7 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= p020_entry(num_pe);
           status |= p021_entry(num_pe);
           status |= p022_entry(num_pe);
+          status |= p023_entry(num_pe);
           status |= p024_entry(num_pe);
           status |= p025_entry(num_pe);
           status |= p026_entry(num_pe);
@@ -579,10 +594,12 @@ val_bsa_peripheral_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= d001_entry(num_pe);
           status |= d002_entry(num_pe);
           status |= d003_entry(num_pe);
-          status |= d005_entry(num_pe);
+          status |= d006_entry(num_pe);
+          status |= d008_entry(num_pe);
 #endif
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= d004_entry(num_pe);
+          status |= d007_entry(num_pe);
 #endif
       }
   }
@@ -635,15 +652,17 @@ val_bsa_memory_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(OPERATING_SYSTEM);
-#if defined(TARGET_EMULATION)
+#if defined(TARGET_BAREMETAL)
           status |= m001_entry(num_pe);
 #endif
 #ifndef TARGET_LINUX
           status |= m002_entry(num_pe);
           status |= m003_entry(num_pe);
 #endif
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= m004_entry(num_pe);
+          status |= m006_entry(num_pe);
+          status |= m007_entry(num_pe);
 #endif
       }
   }
@@ -776,6 +795,7 @@ val_bsa_smmu_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
       if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
           view_print_info(HYPERVISOR);
           status |= i005_entry(num_pe);
+          status |= i029_entry(num_pe);
           if (ver_smmu == 2)
               status |= i006_entry(num_pe);
           status |= i007_entry(num_pe);
@@ -860,22 +880,23 @@ val_bsa_exerciser_execute_tests(uint32_t *g_sw_view)
          status |= e002_entry();
          status |= e003_entry();
          status |= e004_entry();
-         status |= e005_entry();
          status |= e006_entry();
          status |= e007_entry();
-         status |= e008_entry();
          status |= e010_entry();
 
          if (!pal_target_is_dt()) {
              status |= e011_entry();
              status |= e012_entry();
              status |= e013_entry();
+             status |= e035_entry();
          }
 
          status |= e014_entry();
          status |= e015_entry();
          status |= e016_entry();
          status |= e017_entry();
+         status |= e033_entry();
+         status |= e039_entry();
      }
   }
 

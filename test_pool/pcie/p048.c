@@ -21,9 +21,10 @@
 #include "p048_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 48)
-#define TEST_DESC  "Check Type 0/1 common config rules    "
-#define TEST_RULE  "RE_REG_1, IE_REG_1, IE_REG_3"
+#define TEST_DESC  "Check config header rule: RCEC/RCiEP  "
+#define TEST_RULE  "RE_REG_1"
 
+/* This test covers bit-field entries for registers of RCiEP and RCEC type devices*/
 static
 void
 payload(void)

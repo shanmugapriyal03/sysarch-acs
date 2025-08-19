@@ -27,8 +27,8 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 23)
-#define TEST_DESC  "RP's must support AER feature         "
-#define TEST_RULE  "PCI_ER_01, PCI_ER_04"
+#define TEST_DESC  "Check AER functionality for RPs       "
+#define TEST_RULE  "PCI_ER_04"
 
 #define ERR_CORR     0x2
 #define ERR_UNCORR   0x3

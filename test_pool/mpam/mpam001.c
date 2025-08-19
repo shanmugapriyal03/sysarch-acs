@@ -22,20 +22,18 @@
 #include "val/include/acs_mpam.h"
 
 #define TEST_NUM   (ACS_MPAM_TEST_NUM_BASE + 1)
-#define TEST_RULE  "S_L7MP_01, S_L7MP_02"
+#define TEST_RULE  "S_L7MP_01"
 #define TEST_DESC  "Check for MPAM extension              "
 
-static void payload(void)
+#define TEST_NUM1   (ACS_MPAM_TEST_NUM_BASE + 8)
+#define TEST_RULE1  "S_L7MP_02"
+#define TEST_DESC1  "Check for MPAM partition IDs          "
+
+static void payload_check_mpam_ext_support(void)
 {
     uint32_t pe_index;
-    uint64_t data = 0;
 
     pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-    if (g_sbsa_level < 7) {
-        val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* PEs must implement FEAT_MPAM */
     /* ID_AA64PFR0_EL1.MPAM bits[43:40] > 0 or ID_AA64PFR1_EL1.MPAM_frac bits[19:16] > 0
@@ -47,33 +45,53 @@ static void payload(void)
             return;
     }
 
+    val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+}
+
+static void payload_check_mpam_part_id_count(void)
+{
+    uint32_t pe_index;
+    uint64_t data = 0;
+    uint64_t mpamidr_val;
+
+    pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+    /* PEs must implement FEAT_MPAM else access to MPAMIDR_EL1 is undefined */
+    /* ID_AA64PFR0_EL1.MPAM bits[43:40] > 0 or ID_AA64PFR1_EL1.MPAM_frac bits[19:16] > 0
+    indicates implementation of MPAM extension */
+
+    mpamidr_val = val_mpam_reg_read(MPAMIDR_EL1);
+    if (!((VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR0_EL1), 40, 43) > 0) ||
+        (VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR1_EL1), 16, 19) > 0))) {
+            val_set_status(pe_index, RESULT_FAIL(TEST_NUM1, 01));
+            return;
+    }
+
 
     /* check support for minimum of 16 physical partition IDs, MPAMIDR_EL1.PARTID_MAX
-       must be >= 16 */
-    data = VAL_EXTRACT_BITS(val_mpam_reg_read(MPAMIDR_EL1), 0, 15);
+    must be >= 16 */
+    data = VAL_EXTRACT_BITS(mpamidr_val, 0, 15);
     if (data < 16) {
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 02));
+        val_set_status(pe_index, RESULT_FAIL(TEST_NUM1, 02));
         return;
     }
 
     /* check support for MPAM virtulization support indicated by MPAMIDR_EL1.HAS_HCR bit */
-    data = VAL_EXTRACT_BITS(val_mpam_reg_read(MPAMIDR_EL1), 17, 17);
+    data = VAL_EXTRACT_BITS(mpamidr_val, 17, 17);
     if (data == 0) {
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 03));
+        val_set_status(pe_index, RESULT_FAIL(TEST_NUM1, 03));
         return;
     }
 
     /* check support for minimum of 8 virtual partition IDs,
-       MPAMIDR_EL1.VPMR_MAX must be > 0 */
-    data = VAL_EXTRACT_BITS(val_mpam_reg_read(MPAMIDR_EL1), 18, 20);
+    MPAMIDR_EL1.VPMR_MAX must be > 0 */
+    data = VAL_EXTRACT_BITS(mpamidr_val, 18, 20);
     if (data < 1) {
-        val_set_status(pe_index, RESULT_FAIL(TEST_NUM, 04));
+        val_set_status(pe_index, RESULT_FAIL(TEST_NUM1, 04));
         return;
     }
 
-
-
-    val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+    val_set_status(pe_index, RESULT_PASS(TEST_NUM1, 01));
 }
 
 uint32_t mpam001_entry(uint32_t num_pe)
@@ -84,11 +102,28 @@ uint32_t mpam001_entry(uint32_t num_pe)
     status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
     /* This check is when user is forcing us to skip this test */
     if (status != ACS_STATUS_SKIP)
-        val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+        val_run_test_payload(TEST_NUM, num_pe, payload_check_mpam_ext_support, 0);
 
     /* get the result from all PE and check for failure */
     status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
     val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+
+    return status;
+}
+
+uint32_t mpam008_entry(uint32_t num_pe)
+{
+    uint32_t status = ACS_STATUS_FAIL;
+
+    num_pe = 1;
+    status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
+    /* This check is when user is forcing us to skip this test */
+    if (status != ACS_STATUS_SKIP)
+        val_run_test_payload(TEST_NUM1, num_pe, payload_check_mpam_part_id_count, 0);
+
+    /* get the result from all PE and check for failure */
+    status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+    val_report_status(0, ACS_END(TEST_NUM1), TEST_RULE1);
 
     return status;
 }

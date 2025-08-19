@@ -907,6 +907,6 @@ typedef struct {
   UINT64 base;            /*  TPM2 Register base address */
 } TPM2_INFO_TABLE;
 
-VOID pal_tpm2_create_info_table(TPM2_INFO_TABLE *Tpm2Table);
+VOID pal_tpm2_create_info_table(TPM2_INFO_TABLE * Tpm2Table);
 
 #endif

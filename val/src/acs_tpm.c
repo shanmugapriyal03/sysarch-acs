@@ -21,7 +21,7 @@
 #include "include/acs_tpm.h"
 
 
-#if !defined(TARGET_LINUX) && !defined(TARGET_BM_BOOT)
+#ifndef TARGET_LINUX
 
 static TPM2_INFO_TABLE *g_tpm2_info_table;
 
@@ -112,6 +112,5 @@ val_tpm2_free_info_table(void)
         0);
     }
 }
-
 
 #endif

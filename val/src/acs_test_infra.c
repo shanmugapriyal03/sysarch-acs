@@ -39,15 +39,8 @@ uint32_t g_override_skip;
 void
 val_print(uint32_t level, char8_t *string, uint64_t data)
 {
-#ifndef TARGET_BM_BOOT
   if (level >= g_print_level)
       pal_print(string, data);
-#else
-  if (level >= g_print_level) {
-      pal_uart_print(level, string, data);
-  }
-#endif
-
 }
 
 /**
@@ -557,6 +550,28 @@ val_run_test_payload(uint32_t test_num, uint32_t num_pe, void (*payload)(void), 
 }
 
 /**
+  @brief  This API Executes the payload function on primary PE with test specific argument as input
+          1. Caller       - Application layer
+
+  @param arg        Argument passed to the payload
+  @param payload    Function pointer of the test entry function
+
+  @return        None
+ **/
+void
+val_run_test_configurable_payload(void *arg, void (*payload)(void *))
+{
+
+  /* TODO:  Consolidate this API with val_run_test_payload to create a unified interface that
+            supports configurable payload execution for both single and multi-PE scenarios */
+
+  /* This payload runs on primary PE */
+  payload(arg);
+
+  return;
+}
+
+/**
   @brief  Prints the status of the completed test
           1. Caller       - Test Suite
           2. Prerequisite - val_set_status
@@ -754,3 +769,35 @@ val_dump_dtb(void)
   pal_dump_dtb();
 }
 
+/**
+  @brief  Checks whether a prerequisite test has passed before executing the current test.
+
+  @param  prereq_status  Status of the pre-requisite test
+  @param  prereq_config  Pre-requisite test configuration
+  @param  curr_config    Current test configuration
+
+  @return Zero on successful pre-req. Else return 1.
+**/
+uint32_t
+val_check_for_prerequisite(uint32_t num_pe, uint32_t prereq_status,
+                           const test_config_t *prereq_config, const test_config_t *curr_config)
+{
+    uint32_t status;
+    uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+    status = val_initialize_test(curr_config->test_num, curr_config->desc, num_pe);
+    if (status == ACS_STATUS_SKIP)
+        return ACS_STATUS_SKIP;
+
+    if (prereq_status != (uint32_t)ACS_STATUS_PASS) {
+
+        /* Do not execute the current test if the prerequisite rule results in FAIL or SKIP */
+        val_print(ACS_PRINT_ERR, "\n       Pre-requisite rule ", 0);
+        val_print(ACS_PRINT_ERR, prereq_config->rule, 0);
+        val_print(ACS_PRINT_ERR, " did not pass. Skipping the test", 0);
+        val_set_status(index, RESULT_SKIP(curr_config->test_num, 0));
+        return ACS_STATUS_SKIP;
+    }
+
+    return ACS_STATUS_PASS;
+}

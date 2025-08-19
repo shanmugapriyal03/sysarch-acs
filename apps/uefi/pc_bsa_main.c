@@ -173,6 +173,18 @@ createTpm2InfoTable(
 }
 
 VOID
+createSratInfoTable(
+)
+{
+  UINT64 *SratInfoTable;
+
+  SratInfoTable = val_aligned_alloc(SIZE_4K, SRAT_INFO_TBL_SZ);
+
+  val_srat_create_info_table(SratInfoTable);
+}
+
+
+VOID
 freeBsaAcsMem()
 {
 
@@ -185,6 +197,7 @@ freeBsaAcsMem()
   val_peripheral_free_info_table();
   val_tpm2_free_info_table();
   val_free_shared_mem();
+  val_srat_free_info_table();
 }
 
 VOID
@@ -509,6 +522,7 @@ execute_tests()
   createPcieVirtInfoTable();
   createPeripheralInfoTable();
   createTpm2InfoTable();
+  createSratInfoTable();
 
   val_drtm_create_info_table();
   val_allocate_shared_mem();

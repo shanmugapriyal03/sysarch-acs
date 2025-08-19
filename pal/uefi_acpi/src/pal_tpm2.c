@@ -39,7 +39,7 @@ pal_get_tpm2_ptr();
 **/
 
 VOID
-pal_tpm2_create_info_table(TPM2_INFO_TABLE *Tpm2InfoTable)
+pal_tpm2_create_info_table(TPM2_INFO_TABLE * Tpm2InfoTable)
 {
 
   EFI_STATUS Status;

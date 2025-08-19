@@ -25,7 +25,7 @@
 #include "val/include/acs_ras.h"
 
 #define TEST_NUM   (ACS_RAS_TEST_NUM_BASE + 8)
-#define TEST_RULE  "RAS_11, RAS_12"
+#define TEST_RULE  "RAS_11"
 #define TEST_DESC  "Software Fault Error Check            "
 
 /* The generic peripherals which ACS can rely on like PCIe spec it ruled out as the
