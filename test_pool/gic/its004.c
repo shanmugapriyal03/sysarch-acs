@@ -37,9 +37,9 @@ payload()
   bool     test_skip = 1;
   uint32_t test_fail = 0;
   uint32_t curr_grp_did_cons, curr_grp_sid_cons;
-  uint32_t curr_grp_its_id = -1;
-  uint32_t curr_smmu_id = -1;
-  uint32_t curr_seg_num = -1;
+  uint32_t curr_grp_its_id;
+  uint32_t curr_smmu_id;
+  uint32_t curr_seg_num;
   pcie_device_bdf_table *bdf_tbl_ptr;
 
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
@@ -73,12 +73,19 @@ payload()
           return;
       }
 
+
+      curr_grp_its_id = 0xFFFFFFFF;
+      curr_smmu_id = 0xFFFFFFFF;
+      curr_seg_num = 0xFFFFFFFF;
+      val_print(ACS_PRINT_INFO, "\n   BDF is  : 0x%x\n", bdf);
+
       smmu_id = val_iovirt_get_rc_smmu_index(seg_num, PCIE_CREATE_BDF_PACKED(bdf));
       if (smmu_id == ACS_INVALID_INDEX) {
           val_print(ACS_PRINT_INFO,
               "\n       Skipping StreamID Association check, Bdf : 0x%llx Not Behind an SMMU", bdf);
           continue;
       }
+
 
       /* If test runs for atleast an endpoint */
       test_skip = 0;
