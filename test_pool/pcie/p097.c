@@ -22,6 +22,7 @@
 #define TEST_RULE  "PCI_MSI_2"
 #define TEST_DESC  "Check MSI(X) vectors uniqueness       "
 
+extern bool g_pcie_skip_dp_nic_ms;
 /**
     @brief   Returns MSI(X) status of the device
 
@@ -145,7 +146,7 @@ payload (void)
        * descriptors is causing an exception and for the devices
        * with base class codes greater than 13h as they
        * are reserved */
-      if ((base_cc == CNTRL_CC) || (base_cc > RES_CC))
+      if ((g_pcie_skip_dp_nic_ms && (base_cc == CNTRL_CC)) || (base_cc > RES_CC))
       {
         tbl_index++;
         val_print(ACS_PRINT_DEBUG, "\n        Skipping N/W ctrl device", 0);
@@ -180,7 +181,7 @@ payload (void)
                 * descriptors is causing an exception and for the devices
                 * with base class codes greater than 13h as they
                 * are reserved */
-                if ((base_cc == CNTRL_CC) || (base_cc > RES_CC))
+                if ((g_pcie_skip_dp_nic_ms && (base_cc == CNTRL_CC)) || (base_cc > RES_CC))
                 {
                   val_print(ACS_PRINT_DEBUG, "\n        Skipping ..N/W ctrl device", 0);
                   tbl_index_next++;

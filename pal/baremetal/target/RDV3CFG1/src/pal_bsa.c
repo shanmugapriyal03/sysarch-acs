@@ -974,8 +974,8 @@ void
 pal_print(char *string, uint64_t data)
 {
 
-  (void) string;
-  (void) data;
+  print(ACS_PRINT_ERR, string, data);
+  return;
 }
 
 /**
@@ -1227,15 +1227,12 @@ void *
 pal_mem_alloc_cacheable(uint32_t Bdf, uint32_t Size, void **Pa)
 {
 
-#ifdef TARGET_BM_BOOT
   void *address;
   uint32_t alignment = 0x08;
   (void) Bdf;
   address = (void *)mem_alloc(alignment, Size);
   *Pa = (void *)address;
   return (void *)address;
-#endif
-  return 0;
 }
 
 /**

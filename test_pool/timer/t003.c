@@ -19,7 +19,7 @@
 #include "val/include/acs_timer.h"
 
 #define TEST_NUM   (ACS_TIMER_TEST_NUM_BASE + 3)
-#define TEST_RULE  "B_TIME_07, B_TIME_10"
+#define TEST_RULE  "B_TIME_07"
 #define TEST_DESC  "Memory mapped timer check             "
 
 #define ARBIT_VALUE      0xA000

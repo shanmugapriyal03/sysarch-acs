@@ -45,7 +45,6 @@ pal_iovirt_get_rc_smmu_base (
   mapping_found = 0;
   for (i = 0; i < Iovirt->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_PCI_ROOT_COMPLEX
           && block->data.rc.segment == RcSegmentNum)
       {
@@ -193,7 +192,6 @@ pal_iovirt_create_info_table(IOVIRT_INFO_TABLE *IoVirtTable)
   block = &(IoVirtTable->blocks[0]);
   for (i = 0; i < platform_iovirt_cfg.node_count; i++, block=IOVIRT_NEXT_BLOCK(block))
   {
-     block = ALIGN_MEMORY_ACCESS(block);
      block->type = platform_iovirt_cfg.type[i];
      block->flags = 0;
      switch(platform_iovirt_cfg.type[i]){
@@ -293,7 +291,6 @@ pal_iovirt_create_info_table(IOVIRT_INFO_TABLE *IoVirtTable)
   print(ACS_PRINT_DEBUG, " Number of IOVIRT blocks = %d\n", IoVirtTable->num_blocks);
   for(i = 0; i < IoVirtTable->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-    block = ALIGN_MEMORY_ACCESS(block);
     dump_block(block);
   }
 

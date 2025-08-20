@@ -2,6 +2,8 @@
 cscope.*
 *.swp
 *.o*
+.vscode/
+pre_commit_data/
 #Ignore build directory
 build/
 #Ignore kvm framework

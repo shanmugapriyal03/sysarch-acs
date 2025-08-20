@@ -41,21 +41,19 @@
 
 #define VAL_EXTRACT_BITS(data, start, end) ((data >> start) & ((1ul << (end-start+1))-1))
 
-#if defined(TARGET_EMULATION) || defined(TARGET_BM_BOOT)
-#define TRUE 1
-#define FALSE 0
-#endif
-
-#define INVALID_NAMED_COMP_INFO 0xFFFFFFFFFFFFFFFFULL
-
-#if defined(TARGET_EMULATION) || defined(TARGET_BM_BOOT)
-#define BIT0 (1)
-#define BIT1 (1 << 1)
-#define BIT4 (1 << 4)
-#define BIT6 (1 << 6)
+/* the following macros are defined by edk2 headers in case of UEFI env. Required only for BM */
+#ifdef TARGET_BAREMETAL
+#define BIT0  (1)
+#define BIT1  (1 << 1)
+#define BIT4  (1 << 4)
+#define BIT6  (1 << 6)
 #define BIT14 (1 << 14)
 #define BIT29 (1 << 29)
-#endif
+#endif /* TARGET_BAREMETAL */
+
+#define SIZE_4KB   0x00001000
+
+#define INVALID_NAMED_COMP_INFO 0xFFFFFFFFFFFFFFFFULL
 
 typedef char char8_t;
 
@@ -114,10 +112,8 @@ uint32_t val_pe_get_index_uid(uint32_t uid);
 uint32_t val_pe_get_uid(uint64_t mpidr);
 uint32_t val_pe_feat_check(PE_FEAT_NAME pe_feature);
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
 uint32_t val_get_device_path(const char *hid, char hid_path[][MAX_NAMED_COMP_LENGTH]);
 uint32_t val_smmu_is_etr_behind_catu(char *etr_path);
-#endif
 
 /* GIC VAL APIs */
 uint32_t    val_gic_create_info_table(uint64_t *gic_info_table);
@@ -230,6 +226,13 @@ uint64_t val_get_counter_frequency(void);
 
 
 /* PCIE VAL APIs */
+
+/* pcie_bdf_list_t is generic structure to carry list of device BDFs */
+typedef struct {
+  uint32_t count;
+  uint32_t dev_bdfs[];
+} pcie_bdf_list_t;
+
 void     val_pcie_enumerate(void);
 void     val_pcie_create_info_table(uint64_t *pcie_info_table);
 void     *val_pcie_bdf_table_ptr(void);
@@ -276,6 +279,7 @@ void val_pcie_clear_sig_target_abort(uint32_t bdf);
 void val_pcie_enable_ordering(uint32_t bdf);
 void val_pcie_disable_ordering(uint32_t bdf);
 uint32_t val_pcie_dsm_ste_tags(void);
+pcie_bdf_list_t *val_pcie_get_pcie_peripheral_bdf_list(void);
 
 
 /* IO-VIRT APIs */
@@ -580,6 +584,29 @@ uint32_t val_sbsa_nist_execute_tests(uint32_t level, uint32_t num_pe);
 
 uint32_t val_bsa_execute_tests(uint32_t *g_sw_view);
 uint32_t val_sbsa_execute_tests(uint32_t g_sbsa_level);
+
+/* TPM2 API */
+
+typedef enum {
+  TPM2_INFO_IS_PRESENT = 1,
+  TPM2_INFO_BASE_ADDR,
+  TPM2_INFO_INTERFACE_TYPE
+} TPM2_INFO_e;
+
+void val_tpm2_create_info_table(uint64_t *tpm2_info_table);
+void val_tpm2_free_info_table(void);
+uint64_t val_tpm2_get_info(TPM2_INFO_e info_type);
+uint64_t val_tpm2_get_version(void);
+
+/* PC-BSA Related API's */
+uint32_t val_pcbsa_execute_tests(uint32_t g_pcbsa_level);
+uint32_t val_pcbsa_pe_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_gic_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_wd_execute_tests(uint32_t level, uint32_t num_pe);
+uint32_t val_pcbsa_tpm2_execute_tests(uint32_t level, uint32_t num_pe);
 
 /* PCC related APIs */
 void val_pcc_create_info_table(uint64_t *pcc_info_table);

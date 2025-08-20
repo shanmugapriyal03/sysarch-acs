@@ -21,9 +21,10 @@
 #include "p053_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 53)
-#define TEST_DESC  "Check Device Control register rule    "
-#define TEST_RULE  "RE_REG_3, RE_REC_1, IE_REG_2, IE_REG_4"
+#define TEST_DESC  "Check Dev Cap & Ctrl Reg rule - RCEC  "
+#define TEST_RULE  "RE_REC_1"
 
+/* This test covers bit-field entries for registers of RCEC type devices*/
 static
 void
 payload(void)

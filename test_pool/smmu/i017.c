@@ -21,7 +21,7 @@
 #include "val/include/acs_smmu.h"
 
 #define TEST_NUM   (ACS_SMMU_TEST_NUM_BASE + 17)
-#define TEST_RULE  "B_SMMU_04, B_SMMU_05"
+#define TEST_RULE  "B_SMMU_04"
 #define TEST_DESC  "Check TLB Range Invalidation          "
 
 static

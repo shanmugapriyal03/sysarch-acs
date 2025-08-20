@@ -15,15 +15,10 @@
  * limitations under the License.
  **/
 
-#ifndef TARGET_EMULATION
-#include "include/acs_pe.h"
-#include "sys_arch_src/gic/acs_exception.h"
-#else
 #define EXCEPT_AARCH64_SYNCHRONOUS_EXCEPTIONS    0
 #define EXCEPT_AARCH64_IRQ                       1
 #define EXCEPT_AARCH64_FIQ                       2
 #define EXCEPT_AARCH64_SERROR                    3
-#endif
 
 /* Private worker functions for ASM_PFX() */
 #define _CONCATENATE(a, b)  __CONCATENATE(a, b)

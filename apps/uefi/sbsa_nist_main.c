@@ -30,6 +30,7 @@
 
 UINT32  g_pcie_p2p;
 UINT32  g_pcie_cache_present;
+bool    g_pcie_skip_dp_nic_ms = 0;
 UINT32  g_sbsa_level;
 UINT32  g_sbsa_only_level = 0;
 UINT32  g_print_level;
@@ -319,6 +320,7 @@ HelpMsg (
          "        1 - PPTT PE-side cache,  2 - HMAT mem-side cache\n"
          "         defaults to 0, if not set depicting SLC type unknown\n"
          "-el1physkip Skips EL1 register checks\n"
+         "-skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
   );
 }
 
@@ -329,6 +331,7 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-f"    , TypeValue},    // -f    # Name of the log file to record the test results in.
   {L"-fr"   , TypeValue},    // -fr   # To run SBSA ACS till SBSA Future Requirement tests
   {L"-skip" , TypeValue},    // -skip # test(s) to skip execution
+  {L"-skip-dp-nic-ms", TypeFlag}, // Skip tests for DisplayPort, Network, and Mass Storage devices
   {L"-help" , TypeFlag},     // -help # help : info about commands
   {L"-h"    , TypeFlag},     // -h    # help : info about commands
   {L"-nist" , TypeFlag},     // -nist # Binary Flag to enable the execution of NIST STS
@@ -555,6 +558,12 @@ command_init ()
 
           g_num_modules++;
       }
+  }
+
+  if (ShellCommandLineGetFlag (ParamPackage, L"-skip-dp-nic-ms")) {
+    g_pcie_skip_dp_nic_ms = TRUE;
+  } else {
+    g_pcie_skip_dp_nic_ms = FALSE;
   }
 
   if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {

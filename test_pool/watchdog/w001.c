@@ -19,7 +19,11 @@
 #include "val/include/acs_wd.h"
 
 #define TEST_NUM   (ACS_WD_TEST_NUM_BASE + 1)
-#define TEST_RULE  "B_WD_01, B_WD_02, S_L3WD_01"
+#ifdef PC_BSA
+#define TEST_RULE  "P_L2WD_01"
+#else
+#define TEST_RULE  "B_WD_01, S_L3WD_01"
+#endif
 #define TEST_DESC  "Non Secure Watchdog Access            "
 
 static
@@ -38,7 +42,7 @@ payload()
             wd_num);
 
     if (wd_num == 0) {
-        if (g_build_sbsa)
+        if (g_build_sbsa || g_build_pcbsa)
             val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
         else
             val_set_status(index, RESULT_SKIP(TEST_NUM, 1));
@@ -81,7 +85,7 @@ payload()
     } while (wd_num);
 
     if (!ns_wdg) {
-        if (g_build_sbsa) {
+        if (g_build_sbsa || g_build_pcbsa) {
             val_print(ACS_PRINT_ERR, "\n       No non-secure Watchdogs reported", 0);
             val_set_status(index, RESULT_FAIL(TEST_NUM, 5));
         } else {

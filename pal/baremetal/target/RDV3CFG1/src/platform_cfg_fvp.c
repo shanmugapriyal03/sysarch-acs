@@ -41,7 +41,7 @@
 #ifdef BSA
 uint32_t  g_skip_array[]   = {830};  /* Tests to skip for BSA ACS on BM RDV3CFG1 */
 #else
-uint32_t  g_skip_array[]   = {858, 924}; /* Tests to skip for SBSA ACS on BM RDV3CFG1 */
+uint32_t  g_skip_array[]   = {858, 1524}; /* Tests to skip for SBSA ACS on BM RDV3CFG1 */
 #endif
 
 uint32_t  g_test_array[]   = {};
@@ -51,7 +51,7 @@ uint32_t  g_num_skip         = sizeof(g_skip_array)/sizeof(g_skip_array[0]);
 uint32_t  g_num_tests        = sizeof(g_test_array)/sizeof(g_test_array[0]);
 uint32_t  g_num_modules      = sizeof(g_module_array)/sizeof(g_module_array[0]);
 
-/* VE systems run acs at EL1 and in some systems crash is observed during acess
+/* VE systems run acs at EL1 and in some systems crash is observed during access
    of EL1 phy and virt timer, Below command line option is added only for debug
    purpose to complete BSA run on these systems
 */

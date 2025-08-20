@@ -24,7 +24,9 @@
 #include "include/acs_pe.h"
 #include "smmu_reg.h"
 
-#ifdef TARGET_EMULATION
+/* Only Baremetal requires explicit array size definition;
+   UEFI and Linux source it from local headers */
+#ifdef TARGET_BAREMETAL
 #define ARRAY_SIZE(Array) (sizeof (Array) / sizeof ((Array)[0]))
 #endif
 

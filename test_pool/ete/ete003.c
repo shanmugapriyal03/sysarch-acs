@@ -23,8 +23,11 @@
 #include "val/include/acs_ete.h"
 
 #define TEST_NUM   (ACS_ETE_TEST_NUM_BASE + 3)
-#define TEST_RULE  "ETE_04, ETE_06"
-#define TEST_DESC  "Check ETE Trace Timestamp Source      "
+#define TEST_RULE  "ETE_04"
+#define TEST_DESC  "Check ETE Same Trace Timestamp Source "
+#define TEST_NUM1  (ACS_ETE_TEST_NUM_BASE + 9)
+#define TEST_RULE1 "ETE_06"
+#define TEST_DESC1 "Check Concurrent Trace Generation     "
 
 volatile uint64_t buffer_addr;
 volatile uint64_t *start_timestamp;
@@ -80,9 +83,9 @@ void check_timestamp(uint32_t num_pe)
                   "\n       Primary PE start_timestamp : 0x%llx", start_timestamp[index]);
         val_print(ACS_PRINT_INFO,
                   "\n       Primary PE end_timestamp   : 0x%llx", end_timestamp[index]);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 04));
+        val_set_status(index, RESULT_FAIL(0, 06));
     } else
-        val_set_status(index, RESULT_PASS(TEST_NUM, 02));
+        val_set_status(index, RESULT_PASS(0, 02));
 }
 
 static void payload(void)
@@ -92,11 +95,6 @@ static void payload(void)
     uint64_t dfr0_value = 0;
     uint64_t traced_timestamp = 0;
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
-
     dfr0_value = val_pe_reg_read(ID_AA64DFR0_EL1);
 
     /* ID_AA64DFR0_EL1.TraceBuffer, bits [47:44] non-zero value indicate FEAT_TRBE support */
@@ -104,7 +102,7 @@ static void payload(void)
     if (data == 0) {
         test_fail = 1;
         val_print_primary_pe(ACS_PRINT_ERR, "\n       FEAT_TRBE not supported", 0, index);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 01));
+        val_set_status(index, RESULT_FAIL(0, 01));
         return;
     }
 
@@ -113,7 +111,7 @@ static void payload(void)
     if (data == 0) {
         test_fail = 1;
         val_print_primary_pe(ACS_PRINT_ERR, "\n       FEAT_TRF not supported", 0, index);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 02));
+        val_set_status(index, RESULT_FAIL(0, 02));
         return;
     }
 
@@ -149,7 +147,7 @@ static void payload(void)
         test_fail = 1;
         val_data_cache_ops_by_va((addr_t)(&test_fail), CLEAN_AND_INVALIDATE);
         val_print_primary_pe(ACS_PRINT_ERR, "\n       Trace Generation Failed", 0, index);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 03));
+        val_set_status(index, RESULT_FAIL(0, 03));
         return;
     }
 
@@ -158,18 +156,25 @@ static void payload(void)
         test_fail = 1;
         val_data_cache_ops_by_va((addr_t)(&test_fail), CLEAN_AND_INVALIDATE);
         val_print_primary_pe(ACS_PRINT_ERR, "\n       Traced Timestamp is 0", 0, index);
-        val_set_status(index, RESULT_FAIL(TEST_NUM, 05));
+        val_set_status(index, RESULT_FAIL(0, 04));
         return;
     }
 
     if ((start_timestamp[index] <= traced_timestamp) &&
         (traced_timestamp <= end_timestamp[index])) {
-        val_set_status(index, RESULT_PASS(TEST_NUM, 01));
+        val_set_status(index, RESULT_PASS(0, 01));
         return;
     }
-    val_set_status(index, RESULT_FAIL(TEST_NUM, 05));
+
+    test_fail = 1;
+    val_data_cache_ops_by_va((addr_t)(&test_fail), CLEAN_AND_INVALIDATE);
+    val_set_status(index, RESULT_FAIL(0, 05));
 }
 
+/* ETE_04 - This test verifies that all the trace units
+ * share the same timestamp source and the test is verified
+ * by comparing timestamp for all the PE's
+ */
 uint32_t ete003_entry(uint32_t num_pe)
 {
     uint32_t status = ACS_STATUS_FAIL;
@@ -195,6 +200,38 @@ uint32_t ete003_entry(uint32_t num_pe)
     /* get the result from all PE and check for failure */
     status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
     val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+
+    return status;
+}
+
+/* ETE_06 - This test verifies that all the trace units
+ * concurrently generates the trace and the test is verified
+ * by comparing timestamp for every PE individually.
+ */
+uint32_t ete009_entry(uint32_t num_pe)
+{
+    uint32_t status = ACS_STATUS_FAIL;
+    test_fail = 0;
+    val_data_cache_ops_by_va((addr_t)(&test_fail), CLEAN_AND_INVALIDATE);
+
+
+    status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
+    /* This check is when user is forcing us to skip this test */
+    if (status != ACS_STATUS_SKIP) {
+        buffer_addr     = (uint64_t)val_aligned_alloc(MEM_ALIGN_4K, num_pe * MEM_ALIGN_4K);
+        start_timestamp = (uint64_t *)val_aligned_alloc(MEM_ALIGN_4K, num_pe * sizeof(uint64_t));
+        end_timestamp   = (uint64_t *)val_aligned_alloc(MEM_ALIGN_4K, num_pe * sizeof(uint64_t));
+
+        val_run_test_payload(TEST_NUM1, num_pe, payload, 0);
+
+        val_memory_free_aligned((void *)buffer_addr);
+        val_memory_free_aligned((void *)start_timestamp);
+        val_memory_free_aligned((void *)end_timestamp);
+    }
+
+    /* get the result from all PE and check for failure */
+    status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+    val_report_status(0, ACS_END(TEST_NUM1), TEST_RULE1);
 
     return status;
 }

@@ -21,20 +21,20 @@
  "${ROOT_DIR}/val/src/AArch64/*.h"
  "${ROOT_DIR}/val/include/*.h"
  "${ROOT_DIR}/val/src/*.c"
- "${ROOT_DIR}/val/sys_arch_src/pcie/*.h"
- "${ROOT_DIR}/val/sys_arch_src/pcie/*.c"
- "${ROOT_DIR}/val/sys_arch_src/smmu_v3/*.h"
- "${ROOT_DIR}/val/sys_arch_src/smmu_v3/*.c"
- "${ROOT_DIR}/val/sys_arch_src/gic/*.h"
- "${ROOT_DIR}/val/sys_arch_src/gic/*.c"
- "${ROOT_DIR}/val/sys_arch_src/gic/AArch64/*.S"
- "${ROOT_DIR}/val/sys_arch_src/gic/its/*.h"
- "${ROOT_DIR}/val/sys_arch_src/gic/its/*.c"
- "${ROOT_DIR}/val/sys_arch_src/gic/v2/*.h"
- "${ROOT_DIR}/val/sys_arch_src/gic/v2/*.c"
- "${ROOT_DIR}/val/sys_arch_src/gic/v3/*.h"
- "${ROOT_DIR}/val/sys_arch_src/gic/v3/*.c"
- "${ROOT_DIR}/val/sys_arch_src/gic/v3/AArch64/*.S"
+ "${ROOT_DIR}/val/driver/pcie/*.h"
+ "${ROOT_DIR}/val/driver/pcie/*.c"
+ "${ROOT_DIR}/val/driver/smmu_v3/*.h"
+ "${ROOT_DIR}/val/driver/smmu_v3/*.c"
+ "${ROOT_DIR}/val/driver/gic/*.h"
+ "${ROOT_DIR}/val/driver/gic/*.c"
+ "${ROOT_DIR}/val/driver/gic/AArch64/*.S"
+ "${ROOT_DIR}/val/driver/gic/its/*.h"
+ "${ROOT_DIR}/val/driver/gic/its/*.c"
+ "${ROOT_DIR}/val/driver/gic/v2/*.h"
+ "${ROOT_DIR}/val/driver/gic/v2/*.c"
+ "${ROOT_DIR}/val/driver/gic/v3/*.h"
+ "${ROOT_DIR}/val/driver/gic/v3/*.c"
+ "${ROOT_DIR}/val/driver/gic/v3/AArch64/*.S"
  "${ROOT_DIR}/apps/baremetal/*.h"
  "${ROOT_DIR}/apps/baremetal/*.c"
 
@@ -46,8 +46,9 @@ list(REMOVE_ITEM VAL_SRC
  "${ROOT_DIR}/val/src/AArch64/BsaBootEntry.S"
  "${ROOT_DIR}/val/src/bsa_execute_test.c"
  "${ROOT_DIR}/val/src/mpam_execute_test.c"
+ "${ROOT_DIR}/val/src/acs_tpm.c"
 )
- 
+
 #Create compile list files
 list(APPEND COMPILE_LIST ${VAL_SRC})
 set(COMPILE_LIST ${COMPILE_LIST} PARENT_SCOPE)
@@ -61,11 +62,11 @@ target_include_directories(${VAL_LIB} PRIVATE
  ${ROOT_DIR}/val
  ${ROOT_DIR}/val/include/
  ${ROOT_DIR}/val/src/AArch64/
- ${ROOT_DIR}/val/sys_arch_src/smmu_v3/
- ${ROOT_DIR}/val/sys_arch_src/gic/
- ${ROOT_DIR}/val/sys_arch_src/gic/its/
- ${ROOT_DIR}/val/sys_arch_src/gic/v2/
- ${ROOT_DIR}/val/sys_arch_src/gic/v3/
+ ${ROOT_DIR}/val/driver/smmu_v3/
+ ${ROOT_DIR}/val/driver/gic/
+ ${ROOT_DIR}/val/driver/gic/its/
+ ${ROOT_DIR}/val/driver/gic/v2/
+ ${ROOT_DIR}/val/driver/gic/v3/
  ${ROOT_DIR}/pal/baremetal/
  ${ROOT_DIR}/pal/baremetal/include/
  ${ROOT_DIR}/pal/baremetal/target/${TARGET}/include/

@@ -21,106 +21,165 @@
 #include "val/include/acs_dma.h"
 #include "val/include/acs_peripherals.h"
 
-#define TEST_NUM   (ACS_PER_TEST_NUM_BASE + 5)
-#define TEST_RULE  "B_PER_09, B_PER_10"
-#define TEST_DESC  "Memory Attribute of DMA               "
 
+#define TEST_NUM   (ACS_PER_TEST_NUM_BASE + 4)
+#define TEST_RULE  "B_PER_09"
+#define TEST_DESC  "Check Memory Attributes of DMA        "
 
-/* For all DMA masters populated in the Info table, which are behind an SMMU,
-   verify there are no additional translations before address is given to SMMU */
+#define TEST_NUM1   (ACS_PER_TEST_NUM_BASE + 7)
+#define TEST_RULE1  "B_PER_10"
+#define TEST_DESC1  "Memory Attribute of I/O coherent DMA  "
+
+/* This test verifies that the memory attributes for DMA traffic must be one of the following:
+   - Inner Write-Back, Outer Write-Back, Inner Shareable
+   - Inner Non-Cacheable, Outer Non-Cacheable
+   - Device type */
+
 static
 void
-payload(void)
+payload_check_dma_mem_attribute(void)
 {
-
-  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t target_dev_index;
-  uint32_t status = 0;
   void *buffer;
   uint32_t attr, sh;
   int ret;
-
+  bool flag_fail  = 0;
+  uint32_t index   = val_pe_get_index_mpid(val_pe_get_mpid());
   target_dev_index = val_dma_get_info(DMA_NUM_CTRL, 0);
 
   if (!target_dev_index)
   {
       val_print(ACS_PRINT_TEST, "\n       No DMA controllers detected...    ", 0);
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 3));
+      val_set_status(index, RESULT_SKIP(TEST_NUM, 1));
       return;
   }
 
+  /* Iterate all DMA controllers */
   while (target_dev_index)
   {
-      target_dev_index--; //index is zero based
+      target_dev_index--; /* Index is zero based */
+      /* Allocate DMA memory based on coherency */
       if (val_dma_get_info(DMA_HOST_COHERENT, target_dev_index))
       {
           val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT);
-          ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
-          if (ret)
-          {
-              val_print(ACS_PRINT_ERR,
-                        "\n       DMA controller %d: Failed to get  memory attributes\n",
-                        target_dev_index);
-              status = 1;
-              continue;
-          }
-          if (!(MEM_NORMAL_WB_IN_OUT(attr) && MEM_SH_INNER(sh)))
-          {
-              val_print(ACS_PRINT_INFO,
-                       "\n       DMA controler %d: IO Coherent DMA memory must"
-                       " be inner/outer writeback, inner shareable\n",
-                       target_dev_index);
-              val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
-              status = 1;
-          }
       } else {
           val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_NOT_COHERENT);
-          ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
-          if (ret)
-          {
-              val_print(ACS_PRINT_ERR,
-                        "\n       DMA controller %d: Failed to get"
-                        " memory attributes\n",
-                        target_dev_index);
-              status = 1;
-              continue;
-          }
+      }
+      ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
+      if (ret)
+      {
+          val_print(ACS_PRINT_ERR,
+                    "\n       DMA controller %d: Failed to get"
+                    " memory attributes\n",
+                    target_dev_index);
+          val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
+          flag_fail = 1;
+          continue;
+      }
 
-          if (!((MEM_NORMAL_WB_IN_OUT(attr) && MEM_SH_INNER(sh)) ||
-                MEM_NORMAL_NC_IN_OUT(attr) ||
-                MEM_DEVICE(attr)))
-          {
-              val_print(ACS_PRINT_INFO,
-              "\n       DMA controler %d: DMA memory must be inner/outer writeback inner "
-              "shareable, inner/outer non-cacheable, or device type\n",
-              target_dev_index);
-              val_set_status(index, RESULT_FAIL(TEST_NUM, 2));
-              status = 1;
-          }
+      if (!((MEM_NORMAL_WB_IN_OUT(attr) && MEM_SH_INNER(sh)) || /* Check Inner Write-Back, Outer
+                                                                   Write-Back, Inner Shareable */
+          MEM_NORMAL_NC_IN_OUT(attr) ||   /* Check Inner Non-Cacheable, Outer Non-Cacheable*/
+          MEM_DEVICE(attr)))              /* Check Device type */
+      {
+          val_print(ACS_PRINT_INFO,
+                    "\n       DMA controller %d: DMA memory must be inner/outer writeback inner "
+                    "shareable, inner/outer non-cacheable, or device type\n",
+          target_dev_index);
+          val_set_status(index, RESULT_FAIL(TEST_NUM, 2));
+          flag_fail = 1;
       }
   }
-  if (!status)
+  /* PASS the test if no fail conditions hit */
+  if (!flag_fail)
       val_set_status(index, RESULT_PASS(TEST_NUM, 0));
-  else
-      val_set_status(index, RESULT_FAIL(TEST_NUM, 3));
+}
+
+/* This test verifies I/O coherent DMA traffic must have the attribute
+- Inner Write-Back, Outer Write-Back, Inner Shareable */
+
+static
+void
+payload_check_io_coherent_dma_mem_attribute(void)
+{
+uint32_t target_dev_index;
+void *buffer;
+uint32_t attr, sh;
+int ret;
+bool flag_fail = 0;
+uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+target_dev_index = val_dma_get_info(DMA_NUM_CTRL, 0);
+
+if (!target_dev_index)
+{
+    val_print(ACS_PRINT_TEST, "\n       No DMA controllers detected...    ", 0);
+    val_set_status(index, RESULT_SKIP(TEST_NUM1, 1));
+    return;
+}
+
+while (target_dev_index)
+{
+    target_dev_index--; /* Index is zero based */
+    /* Check only I/O coherent DMA for attributes */
+    if (val_dma_get_info(DMA_HOST_COHERENT, target_dev_index))
+    {
+        val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT);
+        ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
+        if (ret)
+        {
+            val_print(ACS_PRINT_ERR,
+                        "\n       DMA controller %d: Failed to get memory attributes\n",
+                        target_dev_index);
+            val_set_status(index, RESULT_FAIL(TEST_NUM1, 1));
+            flag_fail = 1;
+            continue;
+        }
+        /* Check Inner Write-Back, Outer Write-Back, Inner Shareable */
+        if (!(MEM_NORMAL_WB_IN_OUT(attr) && MEM_SH_INNER(sh)))
+        {
+            val_print(ACS_PRINT_INFO,
+                    "\n       DMA controller %d: I/O Coherent DMA memory must"
+                    " be inner/outer writeback, inner shareable\n",
+                    target_dev_index);
+            val_set_status(index, RESULT_FAIL(TEST_NUM1, 2));
+            flag_fail = 1;
+        }
+    }
+}
+/* PASS the test if no fail conditions hit */
+if (!flag_fail)
+    val_set_status(index, RESULT_PASS(TEST_NUM1, 0));
 }
 
 uint32_t
 d004_entry(uint32_t num_pe)
 {
-
   uint32_t status = ACS_STATUS_FAIL;
 
-  num_pe = 1;  //This test is run on single processor
-
+  num_pe = 1;  /* This test is run on single processor */
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_payload(TEST_NUM, num_pe, payload_check_dma_mem_attribute, 0);
 
   /* get the result from all PE and check for failure */
   status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
-
   val_report_status(0, ACS_END(TEST_NUM), NULL);
+  return status;
+}
 
+uint32_t
+d007_entry(uint32_t num_pe)
+{
+  uint32_t status = ACS_STATUS_FAIL;
+
+  num_pe = 1;  /* This test is run on single processor */
+  status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_payload(TEST_NUM1, num_pe, payload_check_io_coherent_dma_mem_attribute, 0);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+  val_report_status(0, ACS_END(TEST_NUM1), NULL);
   return status;
 }

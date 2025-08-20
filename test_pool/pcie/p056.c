@@ -21,9 +21,10 @@
 #include "p056_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 56)
-#define TEST_DESC  "Check Power management cap rules      "
-#define TEST_RULE  "RE_REG_2, IE_REG_5"
+#define TEST_DESC  "Check Power Mgmt Cap/Ctrl/Status - RC "
+#define TEST_RULE  "RE_REG_2"
 
+/* This test covers bit-field entries for registers of RCiEP and RCEC type devices*/
 static
 void
 payload(void)

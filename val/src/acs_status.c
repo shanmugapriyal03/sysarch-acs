@@ -52,6 +52,9 @@ val_report_status(uint32_t index, uint32_t status, char8_t *ruleid)
       val_print(ACS_PRINT_DEBUG, "\n                                  ", 0);
       val_print(ACS_PRINT_TEST, "     : Result:  PASS\n", status);
   }
+  else if (IS_TEST_WARN(status)) {
+      val_print(ACS_PRINT_TEST, "     : Result:  WARN\n", 0);
+  }
   else
     if (IS_TEST_FAIL(status)) {
         if (ruleid) {

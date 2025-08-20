@@ -22,6 +22,8 @@
 #include "Include/Guid/Acpi.h"
 #include <Protocol/AcpiTable.h>
 #include "Include/IndustryStandard/Acpi.h"
+#include "Include/IndustryStandard/Tpm20.h"
+#include "Include/IndustryStandard/Tpm2Acpi.h"
 
 #define PLATFORM_TIMEOUT_MEDIUM 0x1000
 
@@ -874,5 +876,37 @@ typedef struct {
 } HMAT_INFO_TABLE;
 
 VOID pal_hmat_create_info_table(HMAT_INFO_TABLE *HmatTable);
+
+
+
+/* TPM2 Structure */
+
+#pragma pack(1)
+
+typedef struct {
+  TPM2_RESPONSE_HEADER    Header;
+  TPMI_YES_NO             MoreData;
+  TPMS_CAPABILITY_DATA    CapabilityData;
+} TPM2_GET_CAPABILITY_RESPONSE;
+
+
+typedef struct {
+  TPM2_COMMAND_HEADER    Header;
+  TPM_CAP                Capability;
+  UINT32                 Property;
+  UINT32                 PropertyCount;
+} TPM2_GET_CAPABILITY_COMMAND;
+
+#pragma pack()
+
+/** @brief   TPM2 Info Table  **/
+
+typedef struct {
+  UINT64 tpm_presence;    /*  TPM Presence  */
+  UINT64 tpm_interface;   /*  TPM2 Interface */
+  UINT64 base;            /*  TPM2 Register base address */
+} TPM2_INFO_TABLE;
+
+VOID pal_tpm2_create_info_table(TPM2_INFO_TABLE * Tpm2Table);
 
 #endif

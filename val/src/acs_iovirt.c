@@ -53,7 +53,6 @@ val_iovirt_get_smmu_info(SMMU_INFO_e type, uint32_t index)
   block = &g_iovirt_info_table->blocks[0];
   for(i = 0; i < g_iovirt_info_table->num_blocks; i++, block=IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if(block->type == IOVIRT_NODE_SMMU || block->type == IOVIRT_NODE_SMMU_V3)
       {
           if(j == index)
@@ -112,7 +111,6 @@ val_iovirt_get_pcie_rc_info(PCIE_RC_INFO_e type, uint32_t index)
   block = &g_iovirt_info_table->blocks[0];
   for(i = 0; i < g_iovirt_info_table->num_blocks; i++, block=IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if(block->type == IOVIRT_NODE_PCI_ROOT_COMPLEX)
       {
           if(j == index)
@@ -183,7 +181,6 @@ val_iovirt_get_device_info(uint32_t rid, uint32_t segment, uint32_t *device_id,
   mapping_found = 0;
   for (i = 0; i < g_iovirt_info_table->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_PCI_ROOT_COMPLEX
           && block->data.rc.segment == segment)
       {
@@ -359,7 +356,7 @@ val_iovirt_get_rc_smmu_index(uint32_t rc_seg_num, uint32_t rid)
   return ACS_INVALID_INDEX;
 }
 
-#if defined(TARGET_LINUX) || defined(TARGET_EMULATION)
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
 /**
   @brief   This API will call PAL layer to fill in the path of the hid passed in the
            hid parameter.
@@ -433,7 +430,6 @@ val_iovirt_get_named_comp_info(NAMED_COMP_INFO_e type, uint32_t index)
   block = &g_iovirt_info_table->blocks[0];
   for (i = 0; i < g_iovirt_info_table->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_NAMED_COMPONENT)
       {
           if (j == index)
@@ -490,7 +486,6 @@ val_iovirt_get_pmcg_info(PMCG_INFO_e type, uint32_t index)
   block = &g_iovirt_info_table->blocks[0];
   for (i = 0; i < g_iovirt_info_table->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_PMCG)
       {
           if (j == index)
@@ -538,7 +533,6 @@ val_iovirt_get_rc_index(uint32_t rc_seg_num)
   block = &g_iovirt_info_table->blocks[0];
   for (i = 0; i < g_iovirt_info_table->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_PCI_ROOT_COMPLEX)
       {
           if (block->data.rc.segment == rc_seg_num)
@@ -597,7 +591,6 @@ val_iovirt_get_its_info(
 
   for (i = 0; i < g_iovirt_info_table->num_blocks; i++, block = IOVIRT_NEXT_BLOCK(block))
   {
-      block = ALIGN_MEMORY_ACCESS(block);
       if (block->type == IOVIRT_NODE_ITS_GROUP) {
           if (type == ITS_GET_GRP_INDEX_FOR_ID) {
               /* Return the ITS Group Index for ITS_ID = param */

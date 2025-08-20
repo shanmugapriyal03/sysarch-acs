@@ -18,190 +18,204 @@
 #include "val/include/acs_pcie.h"
 
 /**
-* The test table covers bit-field entries for registers
-* which are common in both type0 and type1 header
+* The test table covers bit-field entries for registers which are common
+* in both type0 and type1 header and some specific to type0 header
 **/
 
 pcie_cfgreg_bitfield_entry bf_info_table48[] = {
 
     // Bit-field entry 1: Command register, bit[3] = Special Cycle Enable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       3,                                       // Start bit position
-       3,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR SCE value mismatch",                 // SCE invalid configured value
-       "CR SCE attribute mismatch"              // SCE invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        3,                                       // Start bit position
+        3,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR SCE value mismatch",                 // SCE invalid configured value
+        "CR SCE attribute mismatch"              // SCE invalid attribute
     },
 
     // Bit-field entry 2: Command register, bit[4] = Memory Write and Invalidate
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       4,                                       // Start bit position
-       4,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR MWI value mismatch",                 // MWI invalid configured value
-       "CR MWI attribute mismatch"              // MWI invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        4,                                       // Start bit position
+        4,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR MWI value mismatch",                 // MWI invalid configured value
+        "CR MWI attribute mismatch"              // MWI invalid attribute
     },
 
     // Bit-field entry 3: Command register, bit[5] = VGA Palette Snoop
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       5,                                       // Start bit position
-       5,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR VPS cfg value mismatch",             // VPS invalid configured value
-       "CR VPS attribute mismatch"              // VPS invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR VPS cfg value mismatch",             // VPS invalid configured value
+        "CR VPS attribute mismatch"              // VPS invalid attribute
     },
 
     // Bit-field entry 4: Command register, bit[7] = IDSEL Stepping/Wait Cycle Control
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       7,                                       // Start bit position
-       7,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR IDSEL value mismatch",               // IDSEL invalid configured value
-       "CR IDSEL attribute mismatch"            // IDSEL invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR IDSEL value mismatch",               // IDSEL invalid configured value
+        "CR IDSEL attribute mismatch"            // IDSEL invalid attribute
     },
 
     // Bit-field entry 5: Command register, bit[9] = Fast Back-to-Back Transaction Enable
-    {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       9,                                       // Start bit position
-       9,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR FBBTE value mismatch",               // FBBTE invalid configured value
-       "CR FBBTE attribute mismatch"            // FBBTE invalid attribute
-    },
-
-    // Bit-field entry 6: Command register, bit[10] = interrupt disable
-    {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x04,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP),                       // Applicable to integrated endpoint pair
-       10,                                      // Start bit position
-       10,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "CR ID value mismatch",                  // Interrupt disable invalid configured value
-       "CR ID attribute mismatch"               // Interrupt disable invalid attribute
-    },
-
-    // Bit-field entry 7: Status register, bit[3] = Interrupt Status
-    {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x06,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP),                       // Applicable to integrated endpoint pair
-       3,                                       // Start bit position
-       3,                                       // End bit position
-       0,                                       // Hardwired to 1b
-       READ_ONLY,                               // Attribute is Read-only
-       "SR IS value mismatch",                  // Interrupt Status invalid configured value
-       "SR IS attribute mismatch"               // Interrupt Status invalid attribute
-    },
+     {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x04,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        9,                                       // Start bit position
+        9,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "CR FBBTE value mismatch",               // FBBTE invalid configured value
+        "CR FBBTE attribute mismatch"            // FBBTE invalid attribute
+     },
 
     // Bit-field entry 8: Status register, bit[4] = Capabilities List
-    {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x06,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       4,                                       // Start bit position
-       4,                                       // End bit position
-       1,                                       // Hardwired to 1b
-       READ_ONLY,                               // Attribute is Read-only
-       "SR CL value mismatch",                  // Capabilities List invalid configured value
-       "SR CL attribute mismatch"               // Capabilities List invalid attribute
+     {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        4,                                       // Start bit position
+        4,                                       // End bit position
+        1,                                       // Hardwired to 1b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR CL value mismatch",                  // Capabilities List invalid configured value
+        "SR CL attribute mismatch"               // Capabilities List invalid attribute
     },
 
     // Bit-field entry 9: Status register, bit[5] = 66 MHz Capable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x06,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       5,                                       // Start bit position
-       5,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SR 66MHz capable value mismatch",       // 66MHz Capable invalid configured value
-       "SR 66MHz capable attribute mismatch"    // 66MHz Capable invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        5,                                       // Start bit position
+        5,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR 66MHz capable value mismatch",       // 66MHz Capable invalid configured value
+        "SR 66MHz capable attribute mismatch"    // 66MHz Capable invalid attribute
     },
 
     // Bit-field entry 10: Status register, bit[7] = Fast Back-to-Back Transactions Capable
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x06,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       7,                                       // Start bit position
-       7,                                       // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SR FBBTC value mismatch",               // FBBTC invalid configured value
-       "SR FBBTC attribute mismatch"            // FBBTC invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        7,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR FBBTC value mismatch",               // FBBTC invalid configured value
+        "SR FBBTC attribute mismatch"            // FBBTC invalid attribute
     },
 
     // Bit-field entry 11: Status register, bit[9:10] = DEVSEL timing
     {
-       HEADER,                                  // Part of Header type register
-       0,                                       // Not applicable
-       0,                                       // Not applicable
-       0x06,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
-       9,                                       // Start bit position
-       10,                                      // End bit position
-       0,                                       // Hardwired to 0b
-       READ_ONLY,                               // Attribute is Read-only
-       "SR DT value mismatch",                  // DEVSEL Timing invalid configured value
-       "SR DT attribute mismatch"               // DEVSEL Timing invalid attribute
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x06,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        9,                                       // Start bit position
+        10,                                      // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "SR DT value mismatch",                  // DEVSEL Timing invalid configured value
+        "SR DT attribute mismatch"               // DEVSEL Timing invalid attribute
     },
 
     // Bit-field entry 12: Latency Timer register, bit[0:7] = latency timer register
     {
+        HEADER,                                  // Part of Header type register
+        0,                                       // Not applicable
+        0,                                       // Not applicable
+        0x0D,                                    // Offset from ECAM base
+        (RCEC | RCiEP),                          // Applicable to RCiEP and RCEC Functions
+        0,                                       // Start bit position
+        7,                                       // End bit position
+        0,                                       // Hardwired to 0b
+        READ_ONLY,                               // Attribute is Read-only
+        "LTR value mismatch",                    // Latency Timer invalid configured value
+        "LTR attribute mismatch"                 // Latency Timer invalid attribute
+    },
+
+    // Bit-field entry 1: CardBus CIS Pointer, bit[0:31] = cardbus cis pointer
+    {
        HEADER,                                  // Part of Header type register
        0,                                       // Not applicable
        0,                                       // Not applicable
-       0x0D,                                    // Offset from ECAM base
-       (iEP_RP | iEP_EP | RCEC | RCiEP),        // Applicable to all PCIe Functions
+       0x28,                                    // Offset from ECAM base
+       (RCEC | RCiEP),                          // Applicable to Endpoints and RCEC Functions
+       0,                                       // Start bit position
+       31,                                      // End bit position
+       0,                                       // Hardwired to 0b
+       READ_ONLY,                               // Attribute is Read-only
+       "CCP value mismatch",                    // CardBus CIS pointer invalid configured value
+       "CCP attribute mismatch"                 // CardBus CIS pointer invalid attribute
+    },
+
+    // Bit-field entry 2: Min Grant, bit[0:7] = Min Gnt
+    {
+       HEADER,                                  // Part of Header type register
+       0,                                       // Not applicable
+       0,                                       // Not applicable
+       0x3E,                                    // Offset from ECAM base
+       (RCEC | RCiEP),                          // Applicable to Endpoints and RCEC Functions
        0,                                       // Start bit position
        7,                                       // End bit position
        0,                                       // Hardwired to 0b
        READ_ONLY,                               // Attribute is Read-only
-       "LTR value mismatch",                    // Latency Timer invalid configured value
-       "LTR attribute mismatch"                 // Latency Timer invalid attribute
+       "MinGnt value mismatch",                 // MinGnt invalid configured value
+       "MinGnt attribute mismatch"              // MinGnt invalid attribute
     },
 
+    // Bit-field entry 3: Max Latency, bit[0:7] = Max latency
+    {
+       HEADER,                                  // Part of Header type register
+       0,                                       // Not applicable
+       0,                                       // Not applicable
+       0x3F,                                    // Offset from ECAM base
+       (RCEC | RCiEP),                          // Applicable to Endpoints and RCEC Functions
+       0,                                       // Start bit position
+       7,                                       // End bit position
+       0,                                       // Hardwired to 0b
+       RSVDP_RO,                                // Attribute is Read-only
+       "Max latency value mismatch",            // Max latency invalid configured value
+       "Max latency attribute mismatch"         // Max latency invalid attribute
+    }
 };

@@ -32,8 +32,11 @@ extern VOID* g_acs_log_file_handle;
 extern VOID* g_dtb_log_file_handle;
 extern  UINT32 g_sw_view[3];
 
+UINT32  g_pcbsa_level;
+UINT32  g_pcbsa_only_level = 0;
 UINT32  g_pcie_p2p;
 UINT32  g_pcie_cache_present;
+bool    g_pcie_skip_dp_nic_ms = 0;
 UINT32  g_bsa_level;
 UINT32  g_bsa_only_level = 0;
 UINT32  g_sbsa_level;
@@ -50,6 +53,7 @@ UINT64  g_exception_ret_addr;
 UINT64  g_ret_addr;
 UINT32  g_wakeup_timeout;
 UINT32  g_build_sbsa = 0;
+UINT32  g_build_pcbsa = 0;
 UINT32  g_print_mmio;
 UINT32  g_curr_module;
 UINT32  g_enable_module;
@@ -113,7 +117,9 @@ HelpMsg (
          "-ps     Enable the execution of platform security tests\n"
          "-dtb    Enable the execution of dtb dump\n"
          "-sbsa   Enable sbsa requirements for bsa binary\n"
+         "-pc-bsa Enable PC BSA requirements for bsa binary\n"
          "-el1physkip Skips EL1 register checks\n"
+         "-skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
   );
 }
 
@@ -124,6 +130,7 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-fr", TypeValue},    // -fr   # To run BSA ACS till BSA Future Requirement tests
   {L"-f", TypeValue},    // -f    # Name of the log file to record the test results in.
   {L"-skip", TypeValue}, // -skip # test(s) to skip execution
+  {L"-skip-dp-nic-ms", TypeFlag}, // Skip tests for DisplayPort, Network, and Mass Storage devices
   {L"-t", TypeValue},    // -t    # Test to be run
   {L"-m", TypeValue},    // -m    # Module to be run
   {L"-p2p", TypeFlag},   // -p2p  # Peer-to-Peer is supported
@@ -136,6 +143,7 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-ps", TypeFlag},    // -ps   # Binary Flag to enable the execution of platform security tests.
   {L"-dtb", TypeValue},  // -dtb  # Binary Flag to enable dtb dump
   {L"-sbsa", TypeFlag},  // -sbsa # Enable sbsa requirements for bsa binary\n"
+  {L"-pc-bsa", TypeFlag},  // -pc-bsa # Enable PC SBA requirements for bsa binary\n"
   {L"-no_crypto_ext", TypeFlag},  // -no_crypto_ext  # Skip tests which have export restrictions
   {L"-mmio", TypeFlag}, // -mmio # Enable pal_mmio prints
   {L"-el1physkip", TypeFlag}, // -el1physkip # Skips EL1 register checks
@@ -174,8 +182,21 @@ command_init ()
   }
 
   // Options with Flags
+  if ((ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa")) &&
+         (ShellCommandLineGetFlag (ParamPackage, L"-sbsa"))) {
+         Print(L" Only one option(-pc-bsa or -sbsa) have to be passed \n", 0);
+         HelpMsg();
+         return SHELL_INVALID_PARAMETER;
+    }
+
+  // Options with Flags
   if (ShellCommandLineGetFlag (ParamPackage, L"-sbsa"))
       g_build_sbsa  = 1;
+
+  // Options with Flags
+  if (ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa"))
+      g_build_pcbsa  = 1;
+
 
   // Options with Values
   if (ShellCommandLineGetFlag (ParamPackage, L"-skip")) {
@@ -243,6 +264,7 @@ command_init ()
 
   g_bsa_level = G_BSA_LEVEL;
   g_sbsa_level = G_SBSA_LEVEL;
+  g_pcbsa_level = G_PCBSA_LEVEL;
 
 
   // Options with Values
@@ -258,14 +280,21 @@ command_init ()
 
     if (ShellCommandLineGetFlag (ParamPackage, L"-fr")) {
       if (ShellCommandLineGetFlag (ParamPackage, L"-sbsa")) {
-        {
-          g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
-          g_sbsa_level = SBSA_MAX_LEVEL_SUPPORTED + 1;
-        }
+        g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
+        g_sbsa_level = SBSA_MAX_LEVEL_SUPPORTED + 1;
         if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
         {
           g_bsa_only_level = g_bsa_level;
           g_sbsa_only_level = g_sbsa_level;
+        }
+      }
+      else if (ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa")) {
+        g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
+        g_pcbsa_level = PCBSA_MAX_LEVEL_SUPPORTED + 1;
+        if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
+        {
+          g_bsa_only_level = g_bsa_level;
+          g_pcbsa_only_level = g_pcbsa_level;
         }
       }
       else {
@@ -290,6 +319,22 @@ command_init ()
         }
         if (ShellCommandLineGetFlag (ParamPackage, L"-only")) {
             g_sbsa_only_level = g_sbsa_level;
+        }
+    }
+    else if (ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa")) {
+        g_pcbsa_level = StrDecimalToUintn(CmdLineArg);
+        if (g_pcbsa_level > PCBSA_MAX_LEVEL_SUPPORTED) {
+          Print(L"PCBSA Level %d is not supported.\n", g_pcbsa_level);
+          HelpMsg();
+          return SHELL_INVALID_PARAMETER;
+        }
+        if (g_pcbsa_level < PCBSA_MIN_LEVEL_SUPPORTED) {
+          Print(L"PCBSA Level %d is not supported.\n", g_pcbsa_level);
+          HelpMsg();
+          return SHELL_INVALID_PARAMETER;
+        }
+        if (ShellCommandLineGetFlag (ParamPackage, L"-only")) {
+            g_pcbsa_only_level = g_pcbsa_level;
         }
     }
     else {
@@ -458,6 +503,16 @@ command_init ()
   }
 
   if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {
+    ;
+  }
+
+  if (ShellCommandLineGetFlag (ParamPackage, L"-skip-dp-nic-ms")) {
+    g_pcie_skip_dp_nic_ms = TRUE;
+  } else {
+    g_pcie_skip_dp_nic_ms = FALSE;
+  }
+
+  if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {
     g_pcie_p2p = TRUE;
   } else {
     g_pcie_p2p = FALSE;
@@ -487,6 +542,10 @@ command_init ()
     ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
 
 #define SBSA_LEVEL_PRINT_FORMAT(level, only) ((level > SBSA_MAX_LEVEL_SUPPORTED) ? \
+    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
+    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
+
+#define PC_BSA_LEVEL_PRINT_FORMAT(level, only) ((level > PCBSA_MAX_LEVEL_SUPPORTED) ? \
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
     ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
 
@@ -690,6 +749,19 @@ createRas2InfoTable(
 }
 
 VOID
+createTpm2InfoTable(
+)
+{
+  UINT64 *Tpm2InfoTable;
+
+  Tpm2InfoTable = val_aligned_alloc(SIZE_4K, TPM2_INFO_TBL_SZ);
+
+  val_tpm2_create_info_table(Tpm2InfoTable);
+}
+
+
+
+VOID
 freeBsaAcsMem()
 {
   val_pe_free_info_table();
@@ -710,6 +782,11 @@ freeBsaAcsMem()
       val_ras2_free_info_table();
       val_pcc_free_info_table();
       val_free_shared_mem();
+  }
+
+  if (g_build_pcbsa) {
+      val_tpm2_free_info_table();
+      val_srat_free_info_table();
   }
 }
 
@@ -732,7 +809,7 @@ execute_tests()
     g_bsa_level = 0;
 
   val_print(ACS_PRINT_TEST, "(Print level is %2d)\n\n", g_print_level);
-  val_print(ACS_PRINT_TEST, "\n Creating Platform Information Tables\n", 0);
+  val_print(ACS_PRINT_TEST, "\n       Creating Platform Information Tables\n", 0);
 
 
   Status = createPeInfoTable();
@@ -766,6 +843,11 @@ execute_tests()
       createRasInfoTable();
   }
 
+  if (g_build_pcbsa) {
+      createTpm2InfoTable();
+      createSratInfoTable();
+  }
+
   val_allocate_shared_mem();
 
   FlushImage();
@@ -783,6 +865,23 @@ execute_tests()
                                    (g_sbsa_level > SBSA_MAX_LEVEL_SUPPORTED) ? 0 : g_sbsa_level);
 
       val_sbsa_execute_tests(g_sbsa_level);
+  }
+
+  if (g_build_pcbsa) {
+
+      val_print(ACS_PRINT_ERR, "\n      *** BSA tests complete. Running PC BSA Tests. ***\n\n", 0);
+      val_print(ACS_PRINT_ERR, "\n\n PC BSA Architecture Compliance Suite\n", 0);
+      val_print(ACS_PRINT_ERR, "    Version %d.", PC_BSA_ACS_MAJOR_VER);
+      val_print(ACS_PRINT_ERR, "%d.", PC_BSA_ACS_MINOR_VER);
+      val_print(ACS_PRINT_ERR, "%d\n", PC_BSA_ACS_SUBMINOR_VER);
+
+      val_print(ACS_PRINT_TEST, PC_BSA_LEVEL_PRINT_FORMAT(g_pcbsa_level, g_pcbsa_only_level),
+                                   (g_pcbsa_level > PCBSA_MAX_LEVEL_SUPPORTED) ? 0 : g_pcbsa_level);
+
+      if (g_pcbsa_only_level)
+          g_pcbsa_level = 0;
+
+      val_pcbsa_execute_tests(g_pcbsa_level);
   }
 
   /* Initialise exception vector, so any unexpected exception gets handled by default
@@ -804,7 +903,12 @@ print_test_status:
     ShellCloseFile(&g_dtb_log_file_handle);
   }
 
-  val_print(ACS_PRINT_ERR, "\n      *** SBSA tests complete. Reset the system. ***\n\n", 0);
+  if (g_build_sbsa)
+      val_print(ACS_PRINT_ERR, "\n      *** SBSA tests complete. Reset the system. ***\n\n", 0);
+  else if (g_build_pcbsa)
+      val_print(ACS_PRINT_ERR, "\n      *** PC BSA tests complete. Reset the system. ***\n\n", 0);
+  else
+      val_print(ACS_PRINT_ERR, "\n      *** BSA tests complete. Reset the system. ***\n\n", 0);
 
   if (g_acs_log_file_handle) {
     ShellCloseFile(&g_acs_log_file_handle);

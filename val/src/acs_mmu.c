@@ -237,7 +237,7 @@ static uint32_t log2_func(uint64_t value)
     return 0;
 }
 
-#ifdef TARGET_BM_BOOT
+#ifdef TARGET_BAREMETAL
 /**
  * @brief Setup page table for image regions and device regions
  * @param void
@@ -341,4 +341,4 @@ uint32_t val_enable_mmu(void)
 
     return ACS_STATUS_PASS;
 }
-#endif // TARGET_BM_BOOT
+#endif // TARGET_BAREMETAL

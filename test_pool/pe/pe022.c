@@ -19,24 +19,82 @@
 #include "val/include/acs_pe.h"
 
 #define TEST_NUM   (ACS_PE_TEST_NUM_BASE  +  22)
-#define TEST_RULE  "B_PE_23, B_PE_24"
-#define TEST_DESC  "Check EL3 implementation              "
+#define TEST_RULE  "B_PE_23"
+#define TEST_DESC  "Check for EL3 AArch64 support         "
 
+#define TEST_NUM1   (ACS_PE_TEST_NUM_BASE  +  63)
+#define TEST_RULE1  "B_PE_24"
+#define TEST_DESC1  "Check for Secure state implementation "
+
+/* This test checks for EL3 Aarch64 implementation */
 static
 void
-payload()
+payload_check_el3_support()
 {
-  uint64_t data = 0;
+
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+  /* EL3   : bits [15:12] */
+  uint32_t feat_el3 = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR0_EL1), 12, 15);
 
-  data = val_pe_reg_read(ID_AA64PFR0_EL1);
-
-  if (data & 0xF000) //bits 15:12 for EL3 support
+  /* Check if PE implements EL3 AArch64 execution state, ID_AA64PFR0_EL1[15:12] should be non-zero
+     value */
+  if (feat_el3)
 	val_set_status(index, RESULT_PASS(TEST_NUM, 1));
   else
 	val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
 
   return;
+}
+
+/* This test checks for  Secure state implementation */
+static
+void
+payload_check_secure_state_support()
+{
+  /* Get index of current PE for log reporting */
+  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+  /* Raw 64-bit value from ID_AA64PFR0_EL1 */
+  uint64_t data  = val_pe_reg_read(ID_AA64PFR0_EL1);
+
+  /* Extract bitfields of ID_AA64PFR0_EL1 */
+  /* RME   : bits [55:52] */
+  uint32_t feat_rme      = VAL_EXTRACT_BITS(data, 52, 55);
+  /* SEL2  : bits [39:36] */
+  uint32_t feat_sel2     = VAL_EXTRACT_BITS(data, 36, 39);
+  /* EL3   : bits [15:12] */
+  uint32_t feat_el3      = VAL_EXTRACT_BITS(data, 12, 15);
+  /* EL2   : bits [11:8]  (non-zero  EL2 present) */
+  uint32_t el2_present   = VAL_EXTRACT_BITS(data,  8, 11);
+
+
+  if (!(feat_rme) && feat_el3) {
+      /* If EL2 and Secure state (provided by FEAT_EL3) is present then SEL2 must be present */
+      if (el2_present) {
+        if (feat_sel2) {
+            val_set_status(index, RESULT_PASS(TEST_NUM1, 1));
+            return;
+        } else {
+            val_set_status(index, RESULT_FAIL(TEST_NUM1, 1));
+            return;
+        }
+      }
+      /* If execution reach here then EL2 not present Secure state implemented by FEAT_EL3 alone */
+      val_set_status(index, RESULT_PASS(TEST_NUM1, 2));
+      return;
+  /* if RME present, check if SEL2 supported if EL2 present */
+  } else if (el2_present) {
+    if (feat_sel2) {
+        val_set_status(index, RESULT_PASS(TEST_NUM1, 3));
+        return;
+    } else {
+        val_set_status(index, RESULT_FAIL(TEST_NUM1, 2));
+        return;
+    }
+  } else {
+      val_set_status(index, RESULT_FAIL(TEST_NUM1, 3));
+      return;
+  }
 
 }
 
@@ -48,7 +106,7 @@ pe022_entry(uint32_t num_pe)
 
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_payload(TEST_NUM, num_pe, payload_check_el3_support, 0);
 
   /* get the result from all PE and check for failure */
   status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
@@ -58,3 +116,20 @@ pe022_entry(uint32_t num_pe)
   return status;
 }
 
+uint32_t
+pe063_entry(uint32_t num_pe)
+{
+
+  uint32_t status = ACS_STATUS_FAIL;
+
+  status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_payload(TEST_NUM1, num_pe, payload_check_secure_state_support, 0);
+
+  /* get the result from all PE and check for failure */
+  status = val_check_for_error(TEST_NUM1, num_pe, TEST_RULE1);
+
+  val_report_status(0, ACS_END(TEST_NUM1), NULL);
+
+  return status;
+}

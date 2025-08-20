@@ -247,11 +247,7 @@ pal_print_raw(uint64_t addr, char *string, uint64_t data)
 void
 pal_mem_free(void *Buffer)
 {
-#ifndef TARGET_BM_BOOT
-  free(Buffer);
-#else
   pal_mem_free_aligned(Buffer);
-#endif
 }
 
 uint64_t
@@ -270,11 +266,7 @@ pal_mem_get_shared_addr()
 void
 pal_mem_free_shared()
 {
-#ifndef TARGET_BM_BOOT
-  free ((void *)gSharedMemory);
-#else
   pal_mem_free_aligned((void *)gSharedMemory);
-#endif
 }
 
 /**
@@ -288,13 +280,8 @@ pal_mem_free_shared()
 void *
 pal_mem_alloc(uint32_t Size)
 {
-
-#ifndef TARGET_BM_BOOT
-  return malloc(Size);
-#else
   uint32_t alignment = 0x08;
   return (void *)mem_alloc(alignment, Size);
-#endif
 }
 
 /**
@@ -308,10 +295,6 @@ pal_mem_alloc(uint32_t Size)
 void *
 pal_mem_calloc(uint32_t num, uint32_t Size)
 {
-
-#ifndef TARGET_BM_BOOT
-  return calloc(num, Size);
-#else
   void* ptr;
   uint32_t alignment = 0x08;
 
@@ -322,8 +305,6 @@ pal_mem_calloc(uint32_t num, uint32_t Size)
     pal_mem_set(ptr, num * Size, 0);
   }
   return ptr;
-#endif
-
 }
 
 

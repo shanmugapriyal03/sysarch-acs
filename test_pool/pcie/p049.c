@@ -21,9 +21,10 @@
 #include "p049_data.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 49)
-#define TEST_DESC  "Check Type 0 config header rules      "
-#define TEST_RULE  "RE_REG_1, IE_REG_1"
+#define TEST_DESC  "Check config header rule: iEP_EP      "
+#define TEST_RULE  "IE_REG_1"
 
+/* This test covers bit-field entries for registers of iEP_EP type devices*/
 static
 void
 payload(void)

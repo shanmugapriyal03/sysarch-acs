@@ -138,12 +138,10 @@ uint32_t e010_entry(void);
 uint32_t e011_entry(void);
 uint32_t e012_entry(void);
 uint32_t e013_entry(void);
-
 uint32_t e014_entry(void);
 uint32_t e015_entry(void);
 uint32_t e016_entry(void);
 uint32_t e017_entry(void);
-uint32_t e018_entry(void);
 uint32_t e019_entry(void);
 uint32_t e020_entry(void);
 uint32_t e021_entry(void);
@@ -156,5 +154,14 @@ uint32_t e027_entry(void);
 uint32_t e028_entry(void);
 uint32_t e029_entry(void);
 uint32_t e030_entry(void);
+uint32_t e031_entry(void);
+uint32_t e032_entry(void);
+uint32_t e033_entry(void);
+uint32_t e034_entry(void);
+uint32_t e035_entry(void);
+uint32_t e036_entry(void);
+uint32_t e037_entry(void);
+uint32_t e038_entry(void);
+uint32_t e039_entry(void);
 
 #endif

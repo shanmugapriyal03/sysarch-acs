@@ -32,7 +32,7 @@ extern uint32_t g_print_level;
 #define PCIE_CAP_NOT_FOUND      0x10000010  /* The specified capability was not found */
 #define PCIE_UNKNOWN_RESPONSE   0xFFFFFFFF  /* Function not found or UR response from completer */
 
-#ifdef TARGET_BM_BOOT
+#ifdef TARGET_BAREMETAL
 void pal_uart_print(int log, const char *fmt, ...);
 void *mem_alloc(size_t alignment, size_t size);
 #define print(verbose, string, ...) \

@@ -28,6 +28,11 @@
 #define SBSA_ACS_MINOR_VER       2
 #define SBSA_ACS_SUBMINOR_VER    3
 
+/* PC BSA Release versions */
+#define PC_BSA_ACS_MAJOR_VER     0
+#define PC_BSA_ACS_MINOR_VER     8
+#define PC_BSA_ACS_SUBMINOR_VER  0
+
 /* DRTM Release versions */
 #define DRTM_ACS_MAJOR_VER      0
 #define DRTM_ACS_MINOR_VER      7
@@ -50,6 +55,10 @@
 #define G_SBSA_LEVEL             4
 #define SBSA_MIN_LEVEL_SUPPORTED 3
 #define SBSA_MAX_LEVEL_SUPPORTED 7
+
+#define G_PCBSA_LEVEL             1
+#define PCBSA_MIN_LEVEL_SUPPORTED 1
+#define PCBSA_MAX_LEVEL_SUPPORTED 1
 
 #define SIZE_4K                 0x1000
 
@@ -93,7 +102,8 @@
                                        /*[24 B Each + 8 B Header]*/
 #define PCC_INFO_TBL_SZ         262144 /*Supports maximum of 234 PCC info entries*/
                                        /*[112 B Each + 4B Header]*/
-
+#define TPM2_INFO_TBL_SZ        256   /* Supports maximum of 10 TPM2 info entries */
+                                      /* [24 B each: 3 x uint64_t] + 16 B Header */
 
 #define BSA_LEVEL_PRINT_FORMAT(level, only) ((level > BSA_MAX_LEVEL_SUPPORTED) ? \
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \

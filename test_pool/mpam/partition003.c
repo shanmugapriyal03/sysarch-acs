@@ -36,9 +36,9 @@ typedef struct {
     uint8_t cpor_partition_percent;  //as function of max cpor cache size
     uint8_t cache_percent;      //as function of max ccap & cpor cache size
     uint8_t config_enable;
-} test_config_t;
+} payload_config_t;
 
-static test_config_t test_config_data[] = {
+static payload_config_t test_config_data[] = {
     {"Check for 75% CCAP & 75% CPOR partition size", 75, 75, 75, TRUE},
     {"Check for 75% CCAP & 25% CPOR partition size", 75, 25, 75, TRUE}
 };
@@ -133,8 +133,8 @@ static void payload(void)
     mpam2_el2_temp = mpam2_el2;
 
 
-    for (cfg_index = 0; cfg_index < sizeof(test_config_data)/sizeof(test_config_t); cfg_index++) {
-
+    for (cfg_index = 0; cfg_index < sizeof(test_config_data)/sizeof(payload_config_t); cfg_index++)
+    {
       test_partid = test_partid + cfg_index;
       /* Clear the PARTID_D & PMG_D bits in mpam2_el2 before writing to them */
       mpam2_el2 = CLEAR_BITS_M_TO_N(mpam2_el2,

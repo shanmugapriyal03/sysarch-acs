@@ -24,9 +24,17 @@
 #include "val/include/acs_exerciser.h"
 #include "val/include/val_interface.h"
 
-#define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 21)
-#define TEST_DESC  "Arrival order & Gathering Check       "
-#define TEST_RULE  "RE_ORD_1, RE_ORD_2, IE_ORD_1, IE_ORD_2"
+static const
+test_config_t test_entries[] = {
+    { ACS_EXERCISER_TEST_NUM_BASE + 21, "Arrival order & Gathering Check: RCiEP", "RE_ORD_1"},
+    { ACS_EXERCISER_TEST_NUM_BASE + 31, "Arrival order & Gathering Check: iEP  ", "IE_ORD_1"}
+};
+
+/* Declare and define struct - passed as argument to payload */
+typedef struct {
+    uint32_t dev_type1;
+    uint32_t test_num;
+} test_data_t;
 
 /* 0 means read transction, 1 means write transaction */
 static uint32_t transaction_order[] = {1, 1, 0, 1, 0, 0, 0, 0};
@@ -270,12 +278,12 @@ static void barspace_test_sequence(uint64_t *baseptr, uint32_t instance)
 
 static
 void
-cfgspace_transactions_order_check(void)
+cfgspace_transactions_order_check(test_data_t *test_data)
 {
   uint32_t instance;
   uint32_t bdf;
   char *baseptr;
-  uint32_t cid_offset;
+  uint32_t cid_offset, dp_type;
   uint64_t bdf_addr;
 
   /* Read the number of excerciser cards */
@@ -289,6 +297,12 @@ cfgspace_transactions_order_check(void)
 
     /* Get exerciser bdf */
     bdf = val_exerciser_get_bdf(instance);
+    dp_type = val_pcie_device_port_type(bdf);
+
+    /* Check entry is RCiEP/ iEP. Else move to next BDF. */
+    if (dp_type != test_data->dev_type1)
+        continue;
+
     val_print(ACS_PRINT_DEBUG, "\n       Exerciser BDF - 0x%x", bdf);
 
     /* If exerciser doesn't have PCI_CAP skip the bdf */
@@ -328,12 +342,13 @@ cfgspace_transactions_order_check(void)
 
 static
 void
-barspace_transactions_order_check(void)
+barspace_transactions_order_check(test_data_t *test_data)
 {
   uint32_t instance;
   exerciser_data_t e_data;
   char *baseptr;
   uint32_t status;
+  uint32_t bdf, dp_type;
 
   /* Read the number of excerciser cards */
   instance = val_exerciser_get_info(EXERCISER_NUM_CARDS);
@@ -342,6 +357,14 @@ barspace_transactions_order_check(void)
 
     /* if init fail moves to next exerciser */
     if (val_exerciser_init(instance))
+        continue;
+
+    /* Get exerciser bdf */
+    bdf = val_exerciser_get_bdf(instance);
+    dp_type = val_pcie_device_port_type(bdf);
+
+    /* Check entry is RCiEP/ iEP. Else move to next BDF. */
+    if (dp_type != test_data->dev_type1)
         continue;
 
     /* Get BAR 0 details for this instance */
@@ -383,24 +406,26 @@ barspace_transactions_order_check(void)
 
 static
 void
-payload(void)
+payload(void *arg)
 {
   uint32_t pe_index;
+  test_data_t *test_data = (test_data_t *)arg;
+  run_flag = 0;
 
   pe_index = val_pe_get_index_mpid (val_pe_get_mpid());
 
-  cfgspace_transactions_order_check();
-  barspace_transactions_order_check();
+  cfgspace_transactions_order_check(test_data);
+  barspace_transactions_order_check(test_data);
 
   if (!run_flag) {
-      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
       return;
   }
 
   if (fail_cnt)
-      val_set_status(pe_index, RESULT_FAIL(TEST_NUM, fail_cnt));
+      val_set_status(pe_index, RESULT_FAIL(test_data->test_num, fail_cnt));
   else
-      val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
+      val_set_status(pe_index, RESULT_PASS(test_data->test_num, 01));
 }
 
 uint32_t
@@ -408,15 +433,35 @@ e021_entry(void)
 {
   uint32_t num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[0].test_num, .dev_type1 = (uint32_t)RCiEP};
 
-  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
+  status = val_initialize_test(test_entries[0].test_num, test_entries[0].desc, num_pe);
   if (status != ACS_STATUS_SKIP)
-      val_run_test_payload(TEST_NUM, num_pe, payload, 0);
+      val_run_test_configurable_payload(&data, payload);
 
   /* Get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  status = val_check_for_error(test_entries[0].test_num, num_pe, test_entries[0].rule);
 
-  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
+  val_report_status(0, ACS_END(test_entries[0].test_num), test_entries[0].rule);
+
+  return status;
+}
+
+uint32_t
+e031_entry(void)
+{
+  uint32_t num_pe = 1;
+  uint32_t status = ACS_STATUS_FAIL;
+  test_data_t data = {.test_num = test_entries[1].test_num, .dev_type1 = (uint32_t)iEP_EP};
+
+  status = val_initialize_test(test_entries[1].test_num, test_entries[1].desc, num_pe);
+  if (status != ACS_STATUS_SKIP)
+      val_run_test_configurable_payload(&data, payload);
+
+  /* Get the result from all PE and check for failure */
+  status = val_check_for_error(test_entries[1].test_num, num_pe, test_entries[1].rule);
+
+  val_report_status(0, ACS_END(test_entries[1].test_num), test_entries[1].rule);
 
   return status;
 }

@@ -37,12 +37,14 @@ uint64_t  g_stack_pointer;
 uint64_t  g_exception_ret_addr;
 uint64_t  g_ret_addr;
 uint32_t  g_wakeup_timeout;
+bool      g_pcie_skip_dp_nic_ms = 0;
 
 uint32_t  g_sw_view[3] = {1, 1, 1}; //Operating System, Hypervisor, Platform Security
 uint32_t  *g_skip_test_num;
 uint32_t  *g_execute_tests;
 uint32_t  *g_execute_modules;
 uint32_t  g_build_sbsa = 0;
+uint32_t  g_build_pcbsa = 0;
 uint32_t  g_its_init = 0;
 
 extern uint32_t g_skip_array[];
@@ -225,15 +227,13 @@ ShellAppMainbsa(
       g_print_level = ACS_PRINT_ERR;
   }
 
-#ifdef TARGET_BM_BOOT
-  /* Write page tables */
+  /* Create MMU page tables before enabling the MMU at EL2 */
   if (val_setup_mmu())
       return ACS_STATUS_FAIL;
 
   /* Enable Stage-1 MMU */
   if (val_enable_mmu())
       return ACS_STATUS_FAIL;
-#endif
 
   g_bsa_level = PLATFORM_OVERRIDE_BSA_LEVEL;
 
@@ -254,7 +254,7 @@ ShellAppMainbsa(
   if (g_bsa_run_only)
       g_bsa_only_level = g_bsa_level;
 
-  g_print_mmio = FALSE;
+  g_print_mmio = 0;
   g_wakeup_timeout = 1;
 
   //
