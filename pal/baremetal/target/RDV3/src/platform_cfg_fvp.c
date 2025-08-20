@@ -38,7 +38,7 @@
 
     Tests run = g_test_array + g_module_array - Tests under skip array
 */
-uint32_t  g_skip_array[]   = {1524};
+uint32_t  g_skip_array[]   = {};
 uint32_t  g_test_array[]   = {};
 uint32_t  g_module_array[] = {};
 

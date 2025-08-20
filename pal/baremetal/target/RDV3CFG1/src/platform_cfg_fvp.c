@@ -41,7 +41,7 @@
 #ifdef BSA
 uint32_t  g_skip_array[]   = {830};  /* Tests to skip for BSA ACS on BM RDV3CFG1 */
 #else
-uint32_t  g_skip_array[]   = {858, 1524}; /* Tests to skip for SBSA ACS on BM RDV3CFG1 */
+uint32_t  g_skip_array[]   = {858}; /* Tests to skip for SBSA ACS on BM RDV3CFG1 */
 #endif
 
 uint32_t  g_test_array[]   = {};
