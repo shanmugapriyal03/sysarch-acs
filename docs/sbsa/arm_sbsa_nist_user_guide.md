@@ -43,7 +43,7 @@ Note:<br />
 
 ####    1.2 Build environment
 ##### If the build environment is Linux, perform the following steps:
-1.  export GCC49_AARCH64_PREFIX= GCC13.2 toolchain path pointing to /bin/aarch64-linux-gnu- in case of x86 machine.<br /> For an AArch64 build it should point to /usr/bin/
+1.  export GCC_AARCH64_PREFIX= GCC13.2 toolchain path pointing to /bin/aarch64-linux-gnu- in case of x86 machine.<br /> For an AArch64 build it should point to /usr/bin/
 2.  export PACKAGES_PATH= path pointing to edk2-libc
 3.  source edksetup.sh
 4.  make -C BaseTools/Source/C
@@ -51,7 +51,7 @@ Note:<br />
 
 #### 1.3 Build output
 
-The EFI executable file is generated at <edk2_path>/Build/Shell/DEBUG_GCC49/AARCH64/SbsaNist.efi
+The EFI executable file is generated at <edk2_path>/Build/Shell/DEBUG_GCC/AARCH64/SbsaNist.efi
 `
 
 **Directory structure of SBSA ACS**
