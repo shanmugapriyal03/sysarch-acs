@@ -1,9 +1,6 @@
 name: SYSARCH-ACS CI (reusable)
 
 on:
-  push:
-    branches:
-      - "**"
   workflow_call:
     inputs:
       edk2-ref:
@@ -35,9 +32,9 @@ jobs:
   # MATRIX: UEFI
   #######################################################################
   uefi:
-  
+    if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.name }}
-    runs-on: [self-hosted, linux, aarch64]
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -79,12 +76,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y git build-essential nasm wget xz-utils
 
-      - name: Checkout sysarch-acs repository
-        uses: actions/checkout@v4
-        with:
-          path: 'edk2/ShellPkg/Application/sysarch-acs'
-
-      - name: Clone edk2 and edk2-libc
+      - name: Download edk2 and its submodules
         run: |
           git clone --recursive https://github.com/tianocore/edk2
           cd edk2
@@ -92,16 +84,22 @@ jobs:
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
-      - name: Use manually built GCC 15.2.1
-        run: |
-          export PATH=$HOME/gcc-15.2.1-install/bin:$PATH
-          echo "GCC version:" && gcc --version
+      - name: Checkout sysarch-acs repository
+        uses: actions/checkout@v4
+        with:
+          path: 'edk2/ShellPkg/Application/sysarch-acs'
 
-      - name: Build ${{ matrix.name }} with GCC 15.2.1
+      - name: Download Arm GCC cross-compiler (aarch64-linux-gnu)
         run: |
-          export PATH=$HOME/gcc-15.2.1-install/bin:$PATH
-          export GCC5_AARCH64_PREFIX=""
+          mkdir -p /opt/cross
+          cd /opt/cross
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+          tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+
+      - name: Build ${{ matrix.name }}
+        run: |
           cd edk2
+          export GCC_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
           export PACKAGES_PATH=$PWD/edk2-libc
           source edksetup.sh
           make -C BaseTools/Source/C
@@ -207,4 +205,3 @@ jobs:
           name: ${{ matrix.name }} Kernel Module and App
           path: ${{ github.workspace }}/linux-${{ matrix.short }}/*
           if-no-files-found: error
-
