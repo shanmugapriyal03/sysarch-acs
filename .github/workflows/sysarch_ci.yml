@@ -1,6 +1,9 @@
 name: SYSARCH-ACS CI (reusable)
 
 on:
+  push:
+    branches:
+      - "**"
   workflow_call:
     inputs:
       edk2-ref:
