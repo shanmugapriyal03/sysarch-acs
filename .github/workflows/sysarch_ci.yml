@@ -3,6 +3,11 @@ name: SYSARCH-ACS CI (reusable)
 on:
   workflow_call:
     inputs:
+      toolchain:
+        description: "Choose toolchain: 'arm' or 'gcc15'"
+        required: false
+        type: string
+        default: "arm"
       edk2-ref:
         description: "edk2 ref/branch/tag to checkout"
         required: false
@@ -89,17 +94,61 @@ jobs:
         with:
           path: 'edk2/ShellPkg/Application/sysarch-acs'
 
-      - name: Download Arm GCC cross-compiler (aarch64-linux-gnu)
+      - name: Setup toolchain (${{ inputs.toolchain }})
         run: |
-          mkdir -p /opt/cross
-          cd /opt/cross
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
-          tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+          if [[ "${{ inputs.toolchain }}" == "arm" ]]; then
+            echo "🔧 Downloading Arm prebuilt toolchain..."
+            mkdir -p /opt/cross
+            cd /opt/cross
+            wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+            tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
+            echo "GCC5_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
+
+          elif [[ "${{ inputs.toolchain }}" == "gcc15" ]]; then
+            echo "🔍 Checking for existing GCC 15..."
+            INSTALL=$HOME/gcc15-cross/install
+
+            if [ -x "$INSTALL/bin/aarch64-none-elf-gcc" ]; then
+              echo "✅ GCC 15 already installed at $INSTALL"
+            else
+              echo "🔨 Building GCC 15.2.1 from source..."
+              sudo apt-get update
+              sudo apt-get install -y build-essential gawk bison flex texinfo \
+                libgmp-dev libmpfr-dev libmpc-dev libisl-dev zlib1g-dev git curl
+
+              SRC=$HOME/gcc15-cross/src
+              BUILD=$HOME/gcc15-cross/build
+              mkdir -p "$SRC" "$BUILD" "$INSTALL"
+
+              cd "$SRC"
+              curl -LO https://ftpmirror.gnu.org/binutils/binutils-2.42.tar.xz
+              tar -xf binutils-2.42.tar.xz
+
+              mkdir -p "$BUILD/binutils" && cd "$BUILD/binutils"
+              "$SRC/binutils-2.42/configure" --target=aarch64-none-elf --prefix="$INSTALL" --disable-nls --disable-werror
+              make -j$(nproc) && make install
+
+              cd "$SRC"
+              git clone https://gcc.gnu.org/git/gcc.git
+              cd gcc && git checkout releases/gcc-15 && ./contrib/download_prerequisites
+
+              mkdir -p "$BUILD/gcc" && cd "$BUILD/gcc"
+              "$SRC/gcc/configure" --target=aarch64-none-elf --prefix="$INSTALL" \
+                --enable-languages=c,c++ --without-headers --disable-nls --disable-multilib
+              make -j$(nproc) all-gcc && make install-gcc
+              make -j$(nproc) all-target-libgcc && make install-target-libgcc
+            fi
+
+            echo "$INSTALL/bin" >> $GITHUB_PATH
+            echo "GCC5_AARCH64_PREFIX=$INSTALL/bin/aarch64-none-elf-" >> $GITHUB_ENV
+          else
+            echo "::error ::Invalid toolchain selected: '${{ inputs.toolchain }}'"
+            exit 1
+          fi
 
       - name: Build ${{ matrix.name }}
         run: |
           cd edk2
-          export GCC_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
           export PACKAGES_PATH=$PWD/edk2-libc
           source edksetup.sh
           make -C BaseTools/Source/C
@@ -110,98 +159,4 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }}
-          if-no-files-found: error
-
-  #######################################################################
-  # MATRIX: BAREMETAL
-  #######################################################################
-  baremetal:
-    if: ${{ inputs.run-baremetal }}
-    name: Baremetal • ${{ matrix.name }}
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: BSA (RDN2)
-            make_target: bsa
-            out_relpath: bsa_build/output/bsa.bin
-            artifact: Bsa_baremetal_RDN2.bin
-          - name: SBSA (RDN2)
-            make_target: sbsa
-            out_relpath: sbsa_build/output/sbsa.bin
-            artifact: Sbsa_baremetal_RDN2.bin
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Clean build dir
-        run: rm -rf build
-
-      - name: Download Arm GCC cross-compiler (aarch64-elf)
-        run: |
-          mkdir -p /opt/cross
-          cd /opt/cross
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
-          tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
-
-      - name: Compile ${{ matrix.name }}
-        run: |
-          export CROSS_COMPILE=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
-          mkdir build
-          cd build
-          cmake ../ -G "Unix Makefiles" -DTARGET=RDN2
-          make ${{ matrix.make_target }}
-
-      - name: Upload ${{ matrix.artifact }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact }}
-          path: build/${{ matrix.out_relpath }}
-          if-no-files-found: error
-
-  #######################################################################
-  # MATRIX: LINUX
-  #######################################################################
-  linux:
-    if: ${{ inputs.run-linux }}
-    name: Linux • ${{ matrix.name }}
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: BSA
-            short: bsa
-            ko: bsa_acs.ko
-            app: bsa_app
-          - name: SBSA
-            short: sbsa
-            ko: sbsa_acs.ko
-            app: sbsa_app
-          - name: PC-BSA
-            short: pcbsa
-            ko: pcbsa_acs.ko
-            app: pcbsa_app
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Linux ACS build script
-        run: |
-          cd ..
-          wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/master/acs-drv/files/build.sh
-          chmod +x build.sh
-
-      - name: Build Linux ACS (then select ${{ matrix.name }})
-        run: |
-          cd ..
-          ./build.sh
-          mkdir -p "$GITHUB_WORKSPACE/linux-${{ matrix.short }}"
-          cp build/${{ matrix.ko }}  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-          cp build/${{ matrix.app }} "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-
-      - name: Upload ${{ matrix.name }} artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.name }} Kernel Module and App
-          path: ${{ github.workspace }}/linux-${{ matrix.short }}/*
           if-no-files-found: error
