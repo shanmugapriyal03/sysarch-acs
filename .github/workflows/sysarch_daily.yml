@@ -1,8 +1,6 @@
-name: SYSARCH-ACS Daily
+name: SYSARCH-ACS Daily (Test GCC15 UEFI Only)
 
 on:
-  schedule:
-    - cron: "0 22 * * *"   # daily 22:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -11,6 +9,7 @@ jobs:
     with:
       edk2-ref: edk2-stable202505
       run-uefi: true
-      run-baremetal: true
-      run-linux: true
+      run-baremetal: false
+      run-linux: false
     secrets: inherit
+
