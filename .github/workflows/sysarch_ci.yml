@@ -39,7 +39,7 @@ jobs:
   uefi:
     if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on :  [self-hosted]
     strategy:
       fail-fast: false
       matrix:
