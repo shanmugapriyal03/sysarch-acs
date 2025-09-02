@@ -1,10 +1,10 @@
 name: SYSARCH-ACS CI (reusable)
 
 on:
-  workflow_call:
-    push:
-     branches:
+  push:
+    branches:
       - "**"
+  workflow_call:
     inputs:
       edk2-ref:
         description: "edk2 ref/branch/tag to checkout"
