@@ -35,7 +35,7 @@ jobs:
   # MATRIX: UEFI
   #######################################################################
   uefi:
-    if: ${{ inputs.run-uefi }}
+    #if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.name }}
     runs-on: ubuntu-22.04
     strategy:
