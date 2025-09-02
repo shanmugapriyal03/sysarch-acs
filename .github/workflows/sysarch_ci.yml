@@ -39,7 +39,7 @@ jobs:
   uefi:
     if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.name }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -110,7 +110,7 @@ jobs:
       - name: Setup toolchain (${{ inputs.toolchain }})
         run: |
           if [[ "${{ inputs.toolchain }}" == "arm" ]]; then
-            echo "🔧 Downloading Arm prebuilt toolchain..."
+            echo "Downloading Arm prebuilt toolchain..."
             mkdir -p /opt/cross
             cd /opt/cross
             wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
@@ -118,13 +118,13 @@ jobs:
             echo "GCC5_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
 
           elif [[ "${{ inputs.toolchain }}" == "gcc15" ]]; then
-            echo "🔍 Checking for existing GCC 15..."
+            echo "Checking for existing GCC 15..."
             INSTALL=$HOME/gcc15-linux-gnu/install
 
             if [ -x "$INSTALL/bin/aarch64-none-linux-gnu-gcc" ]; then
-              echo "✅ GCC 15 already installed at $INSTALL"
+              echo "GCC 15 already installed at $INSTALL"
             else
-              echo "🔨 Building GCC 15.2.1 from source..."
+              echo "Building GCC 15.2.1 from source..."
               SRC=$HOME/gcc15-linux-gnu/src
               BUILD=$HOME/gcc15-linux-gnu/build
               SYSROOT=$HOME/gcc15-linux-gnu/sysroot
