@@ -88,7 +88,7 @@ jobs:
 
       - name: Download edk2 and its submodules
         run: |
-          git clone --recursive https://github.com/tianocore/edk2
+          rm -rf edk2 && git clone --recursive https://github.com/tianocore/edk2
           cd edk2
           git checkout "${{ inputs.edk2-ref }}"
           cd ..
