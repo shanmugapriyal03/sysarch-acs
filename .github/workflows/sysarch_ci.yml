@@ -39,7 +39,7 @@ jobs:
   uefi:
     if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.name }}
-    runs-on :  [self-hosted]
+    runs-on : ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -88,7 +88,7 @@ jobs:
 
       - name: Download edk2 and its submodules
         run: |
-          rm -rf edk2 && git clone --recursive https://github.com/tianocore/edk2
+          git clone --recursive https://github.com/tianocore/edk2
           cd edk2
           git checkout "${{ inputs.edk2-ref }}"
           cd ..
@@ -182,3 +182,97 @@ jobs:
           path: edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }}
           if-no-files-found: error
 
+
+  #######################################################################
+  # MATRIX: BAREMETAL
+  #######################################################################
+  baremetal:
+    if: ${{ inputs.run-baremetal }}
+    name: Baremetal • ${{ matrix.name }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: BSA (RDN2)
+            make_target: bsa
+            out_relpath: bsa_build/output/bsa.bin
+            artifact: Bsa_baremetal_RDN2.bin
+          - name: SBSA (RDN2)
+            make_target: sbsa
+            out_relpath: sbsa_build/output/sbsa.bin
+            artifact: Sbsa_baremetal_RDN2.bin
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clean build dir
+        run: rm -rf build
+
+      - name: Download Arm GCC cross-compiler (aarch64-elf)
+        run: |
+          mkdir -p /opt/cross
+          cd /opt/cross
+          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
+          tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
+
+      - name: Compile ${{ matrix.name }}
+        run: |
+          export CROSS_COMPILE=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
+          mkdir build
+          cd build
+          cmake ../ -G "Unix Makefiles" -DTARGET=RDN2
+          make ${{ matrix.make_target }}
+
+      - name: Upload ${{ matrix.artifact }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: build/${{ matrix.out_relpath }}
+          if-no-files-found: error
+
+  #######################################################################
+  # MATRIX: LINUX
+  #######################################################################
+  linux:
+    if: ${{ inputs.run-linux }}
+    name: Linux • ${{ matrix.name }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: BSA
+            short: bsa
+            ko: bsa_acs.ko
+            app: bsa_app
+          - name: SBSA
+            short: sbsa
+            ko: sbsa_acs.ko
+            app: sbsa_app
+          - name: PC-BSA
+            short: pcbsa
+            ko: pcbsa_acs.ko
+            app: pcbsa_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Linux ACS build script
+        run: |
+          cd ..
+          wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/master/acs-drv/files/build.sh
+          chmod +x build.sh
+
+      - name: Build Linux ACS (then select ${{ matrix.name }})
+        run: |
+          cd ..
+          ./build.sh
+          mkdir -p "$GITHUB_WORKSPACE/linux-${{ matrix.short }}"
+          cp build/${{ matrix.ko }}  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+          cp build/${{ matrix.app }} "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+
+      - name: Upload ${{ matrix.name }} artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }} Kernel Module and App
+          path: ${{ github.workspace }}/linux-${{ matrix.short }}/*
+          if-no-files-found: error
