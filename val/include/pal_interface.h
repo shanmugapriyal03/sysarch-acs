@@ -102,11 +102,6 @@
   typedef UINT64  dma_addr_t;
   typedef BOOLEAN bool;
   
-  //#if defined __STDC_VERSION__ && __STDC_VERSION__ > 201710L
-  /* bool, true and false are keywords.  */
-  //#else
-   // typedef BOOLEAN bool;
-  //#endif
 
   #define MAX_SID  32
   #define MMU_PGT_IAS    48
