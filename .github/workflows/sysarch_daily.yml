@@ -13,4 +13,3 @@ jobs:
       run-baremetal: true
       run-linux: true
     secrets: inherit
-
