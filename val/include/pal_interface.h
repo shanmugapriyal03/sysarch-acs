@@ -89,6 +89,7 @@
 
 #ifdef TARGET_UEFI
   #include "../../pal/include/platform_override.h"
+  //#include <stdbool.h>
   typedef INT8    int8_t;
   typedef INT32   int32_t;
   typedef INT64   int64_t;
@@ -101,7 +102,6 @@
   typedef UINT64  addr_t;
   typedef UINT64  dma_addr_t;
   typedef BOOLEAN bool;
-  
 
   #define MAX_SID  32
   #define MMU_PGT_IAS    48
@@ -295,7 +295,7 @@ typedef struct {
 } GIC_ITS_INFO;
 
 void     pal_gic_create_info_table(GIC_INFO_TABLE *gic_info_table);
-uint32_t pal_gic_install_isr(uint32_t int_id, void (*isr)(void));
+uint32_t pal_gic_install_isr(uint32_t int_id, void (*isr) (void));
 void pal_gic_end_of_interrupt(uint32_t int_id);
 uint32_t pal_gic_request_irq(unsigned int irq_num, unsigned int mapped_irq_num, void *isr);
 void pal_gic_free_irq(unsigned int irq_num, unsigned int mapped_irq_num);
