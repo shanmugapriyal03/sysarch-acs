@@ -60,13 +60,13 @@ jobs:
   uefi:
     needs: setup
     if: ${{ inputs.run-uefi }}
-    name: UEFI • ${{ matrix.toolchain }} • ${{ matrix.name }}
+    name: UEFI • ${{ matrix.toolchain }} • ${{ matrix.target.name }}
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
         toolchain: ${{ fromJson(needs.setup.outputs.toolchain-matrix) }}
-        include:
+        target:
           - name: BSA ACPI
             arg: bsa
             outfile: Bsa.efi
@@ -190,27 +190,29 @@ jobs:
             exit 1
           fi
 
-      - name: Build ${{ matrix.name }}
+      - name: Build ${{ matrix.target.name }}
         run: |
           cd edk2
           export PACKAGES_PATH="$PWD/edk2-libc"
           source edksetup.sh
           make -C BaseTools/Source/C
-          source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh ${{ matrix.arg }}
+          source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh ${{ matrix.target.arg }}
 
       - name: Move output to toolchain folder
         run: |
           mkdir -p "artifacts/${{ matrix.toolchain }}"
-          cp "edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }}" "artifacts/${{ matrix.toolchain }}/${{ matrix.artifact }}"
+          cp "edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.target.outfile }}" "artifacts/${{ matrix.toolchain }}/${{ matrix.target.artifact }}"
 
-      - name: Upload ${{ matrix.artifact }}
+      - name: Upload ${{ matrix.target.artifact }}
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact }}
+          name: ${{ matrix.toolchain }}-${{ matrix.target.artifact }}
           path: artifacts/${{ matrix.toolchain }}/
           if-no-files-found: error
 
-  #######################################################################
+		  
+		  
+  ######################################################################
   # MATRIX: BAREMETAL
   #######################################################################
   baremetal:
@@ -294,8 +296,8 @@ jobs:
           cd ..
           ./build.sh
           mkdir -p "$GITHUB_WORKSPACE/linux-${{ matrix.short }}"
-          cp "build/${{ matrix.ko }}"  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-          cp "build/${{ matrix.app }}" "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+          cp build/${{ matrix.ko }}  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+          cp build/${{ matrix.app }} "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
 
       - name: Upload ${{ matrix.name }} artifacts
         uses: actions/upload-artifact@v4
