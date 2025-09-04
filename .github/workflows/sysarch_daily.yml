@@ -10,7 +10,7 @@ jobs:
       edk2-ref: edk2-stable202505
       toolchain: arm
       run-uefi: true
-      run-baremetal: false
-      run-linux: false
+      run-baremetal: true
+      run-linux: true
     secrets: inherit
 
