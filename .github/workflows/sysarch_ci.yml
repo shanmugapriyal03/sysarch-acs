@@ -44,11 +44,11 @@ jobs:
           input=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
 
           if [[ "$input" == "arm-dev,gcc" || "$input" == "gcc,arm-dev" || "$input" == "both" ]]; then
-            echo "matrix=[\"arm-dev\",\"gcc\"]" >> $GITHUB_OUTPUT
+            echo "matrix=[\"arm-dev\",\"gcc\"]" >> "$GITHUB_OUTPUT"
           elif [[ "$input" == "arm-dev" ]]; then
-            echo "matrix=[\"arm-dev\"]" >> $GITHUB_OUTPUT
+            echo "matrix=[\"arm-dev\"]" >> "$GITHUB_OUTPUT"
           elif [[ "$input" == "gcc" ]]; then
-            echo "matrix=[\"gcc\"]" >> $GITHUB_OUTPUT
+            echo "matrix=[\"gcc\"]" >> "$GITHUB_OUTPUT"
           else
             echo "::error ::Invalid toolchain input: '$input'"
             exit 1
@@ -61,7 +61,7 @@ jobs:
     needs: setup
     if: ${{ inputs.run-uefi }}
     name: UEFI • ${{ matrix.toolchain }} • ${{ matrix.name }}
-    runs-on : ubuntu-22.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -120,7 +120,7 @@ jobs:
       - name: Checkout sysarch-acs repository
         uses: actions/checkout@v4
         with:
-          path: 'edk2/ShellPkg/Application/sysarch-acs'
+          path: edk2/ShellPkg/Application/sysarch-acs
 
       - name: Cache GCC toolchain (gcc)
         if: ${{ matrix.toolchain == 'gcc' }}
@@ -138,20 +138,20 @@ jobs:
             cd /opt/cross
             wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
             tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
-            echo "GCC_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
+            echo "GCC_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> "$GITHUB_ENV"
 
           elif [[ "${{ matrix.toolchain }}" == "gcc" ]]; then
             echo "Checking for existing GCC source-built toolchain..."
-            INSTALL=$HOME/gcc-linux-gnu/install
+            INSTALL="$HOME/gcc-linux-gnu/install"
 
             if [ -x "$INSTALL/bin/aarch64-none-linux-gnu-gcc" ]; then
               echo "GCC already installed at $INSTALL"
             else
-              echo "Building GCC from source (gcc15)..."
-              SRC=$HOME/gcc-linux-gnu/src
-              BUILD=$HOME/gcc-linux-gnu/build
-              SYSROOT=$HOME/gcc-linux-gnu/sysroot
-              SYSROOT_PATH=$SYSROOT/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc
+              echo "Building GCC from source (e.g. gcc15)..."
+              SRC="$HOME/gcc-linux-gnu/src"
+              BUILD="$HOME/gcc-linux-gnu/build"
+              SYSROOT="$HOME/gcc-linux-gnu/sysroot"
+              SYSROOT_PATH="$SYSROOT/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc"
 
               mkdir -p "$SRC" "$BUILD" "$INSTALL" "$SYSROOT"
               cd "$SYSROOT"
@@ -167,7 +167,7 @@ jobs:
 
               mkdir -p "$BUILD/binutils" && cd "$BUILD/binutils"
               "$SRC/binutils-2.42/configure" --target=aarch64-none-linux-gnu --prefix="$INSTALL" --disable-nls --disable-werror
-              make -j$(nproc) && make install
+              make -j"$(nproc)" && make install
 
               mkdir -p "$BUILD/gcc" && cd "$BUILD/gcc"
               "$SRC/gcc/configure" \
@@ -179,29 +179,29 @@ jobs:
                 --disable-nls \
                 --with-sysroot="$SYSROOT_PATH"
 
-              make -j$(nproc) all-gcc && make install-gcc
-              make -j$(nproc) all-target-libgcc && make install-target-libgcc
+              make -j"$(nproc)" all-gcc && make install-gcc
+              make -j"$(nproc)" all-target-libgcc && make install-target-libgcc
             fi
 
-            echo "$INSTALL/bin" >> $GITHUB_PATH
-            echo "GCC_AARCH64_PREFIX=$INSTALL/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
+            echo "$INSTALL/bin" >> "$GITHUB_PATH"
+            echo "GCC_AARCH64_PREFIX=$INSTALL/bin/aarch64-none-linux-gnu-" >> "$GITHUB_ENV"
           else
             echo "::error ::Invalid toolchain selected: '${{ matrix.toolchain }}'"
             exit 1
           fi
-		  
-	  - name: Build ${{ matrix.name }}
+
+      - name: Build ${{ matrix.name }}
         run: |
           cd edk2
-          export PACKAGES_PATH=$PWD/edk2-libc
+          export PACKAGES_PATH="$PWD/edk2-libc"
           source edksetup.sh
           make -C BaseTools/Source/C
           source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh ${{ matrix.arg }}
 
       - name: Move output to toolchain folder
         run: |
-          mkdir -p artifacts/${{ matrix.toolchain }}
-          cp edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }} artifacts/${{ matrix.toolchain }}/${{ matrix.artifact }}
+          mkdir -p "artifacts/${{ matrix.toolchain }}"
+          cp "edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }}" "artifacts/${{ matrix.toolchain }}/${{ matrix.artifact }}"
 
       - name: Upload ${{ matrix.artifact }}
         uses: actions/upload-artifact@v4
@@ -209,9 +209,8 @@ jobs:
           name: ${{ matrix.artifact }}
           path: artifacts/${{ matrix.toolchain }}/
           if-no-files-found: error
-		  
-		  
-  ######################################################################
+
+  #######################################################################
   # MATRIX: BAREMETAL
   #######################################################################
   baremetal:
@@ -295,8 +294,8 @@ jobs:
           cd ..
           ./build.sh
           mkdir -p "$GITHUB_WORKSPACE/linux-${{ matrix.short }}"
-          cp build/${{ matrix.ko }}  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-          cp build/${{ matrix.app }} "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+          cp "build/${{ matrix.ko }}"  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
+          cp "build/${{ matrix.app }}" "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
 
       - name: Upload ${{ matrix.name }} artifacts
         uses: actions/upload-artifact@v4
