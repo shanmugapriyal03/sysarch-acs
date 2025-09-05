@@ -74,12 +74,21 @@ typedef enum {
 /*These are the states a test can be in */
 #define TEST_START_VAL   0x1
 #define TEST_END_VAL     0x2
-#define TEST_PASS_VAL    0x4
-#define TEST_FAIL_VAL    0x8
-#define TEST_SKIP_VAL    0x9
-#define TEST_PENDING_VAL 0xA
-#define TEST_WARN_VAL    0xB
-#define TEST_PARTIAL_COV 0xC
+#define TEST_PENDING_VAL 0x3
+/******************************************************************************
+ * The numeric values below are ordered by severity.
+ * DO NOT reassign or change them, as code relies on the fact that
+ * higher values represent worse outcomes (used in consolidated status).
+ ******************************************************************************/
+#define TEST_PASS_VAL      0x4
+#define TEST_PARTIAL_COV   0x5
+#define TEST_WARN_VAL      0x6
+#define TEST_SKIP_VAL      0x7
+#define TEST_FAIL_VAL      0x8
+
+/* Test support defines */
+#define TEST_NOT_SUPPORTED 0x0
+#define TEST_SUPPORTED     0x1
 
 #define CPU_NUM_BIT  32
 #define CPU_NUM_MASK 0xFFFFFFFF
@@ -137,7 +146,9 @@ typedef enum {
     TEST_FAIL = TEST_FAIL_VAL,
     TEST_SKIP = TEST_SKIP_VAL,
     TEST_WARN = TEST_WARN_VAL,
-    TEST_STATUS_UNKNOWN
+    TEST_NS   = TEST_NOT_SUPPORTED,
+    TEST_PART_COV = TEST_PARTIAL_COV,
+    TEST_STATUS_UNKNOWN = 0xFFFFFFFF
 } test_status_t;
 
 uint8_t

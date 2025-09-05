@@ -326,10 +326,10 @@ val_check_skip_module(uint32_t module_base)
 uint32_t
 val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
 {
-
-  uint32_t i;
+/* Test header and skip logic is implemented by rule bases orchestrator */
+#ifndef COMPILE_RB_EXE
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-
+  uint32_t i;
   g_override_skip = 0;
 
   for (i = 0; i < num_pe; i++)
@@ -368,6 +368,7 @@ val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
 
   val_print(ACS_PRINT_ERR, "%4d : ", test_num); //Always print this
   val_print(ACS_PRINT_TEST, desc, 0);
+#endif
   val_report_status(0, ACS_START(test_num), NULL);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
 
@@ -582,6 +583,7 @@ val_run_test_configurable_payload(void *arg, void (*payload)(void *))
 
   @return     Success or on failure - status of the last failed PE
  **/
+#ifndef COMPILE_RB_EXE
 uint32_t
 val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid)
 {
@@ -632,7 +634,40 @@ val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid)
 
   return ACS_STATUS_FAIL;
 }
+#else
+uint32_t
+val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid)
+{
+  (void)ruleid;
+  (void)test_num;
 
+  uint32_t i;
+  uint32_t overall_status;
+  uint32_t status = TEST_FAIL_VAL;
+  uint32_t my_index = val_pe_get_index_mpid(val_pe_get_mpid());
+
+  if (num_pe == 1) {
+      status = val_get_status(my_index);
+      status = (status >> STATE_BIT) & STATE_MASK;
+      return status;
+  } else {
+      /* Start with least severe status */
+      overall_status = TEST_PASS_VAL;
+      for (i = 0; i < num_pe; i++) {
+          status = val_get_status(i);
+          status = (status >> STATE_BIT) & STATE_MASK;
+          // DEBUG_PRINT
+          // val_print(ACS_PRINT_ERR, "\n PE index = %d", i);
+          // val_print(ACS_PRINT_ERR, " status = 0x%x", status);
+          /* Overwrite status if higher severity status found*/
+          if (status > overall_status) {
+              overall_status = status;
+          }
+      }
+      return overall_status;
+  }
+}
+#endif
 /**
   @brief  Clean and Invalidate the Data cache line containing
           the input address tag

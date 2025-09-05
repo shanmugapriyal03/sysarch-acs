@@ -760,7 +760,7 @@
 
 #define DVSEC_CTRL      0x08
 #define PASID           0x1B
-#define PCIE            0x01
+#define PCI_E           0x01
 #define DVSEC           0x23
 
 /* PCI/PCIe express extended capability structure's

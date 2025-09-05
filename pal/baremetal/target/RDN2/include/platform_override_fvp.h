@@ -810,7 +810,7 @@
 #define DVSEC_CTRL      0x8
 #define PCI_EXT_CAP_ID  0x10
 #define PASID           0x1B
-#define PCIE            0x1
+#define PCI_E           0x1
 #define PCI             0x0
 #define DVSEC           0x0023
 #define AER             0x0001

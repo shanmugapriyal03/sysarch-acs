@@ -37,8 +37,7 @@ ifeq ($(ACS), bsa)
                      $(TEST_POOL)/memory_map/m004.o 
 else  ifeq ($(ACS), sbsa)
     obj-m += sbsa_acs_test.o
-    sbsa_acs_test-objs += $(TEST_POOL)/pcie/p043.o \
-        $(TEST_POOL)/pcie/p045.o \
+    sbsa_acs_test-objs += $(TEST_POOL)/pcie/p045.o \
         $(TEST_POOL)/pcie/p046.o \
         $(TEST_POOL)/pcie/p091.o \
         $(TEST_POOL)/pcie/p094.o \

@@ -1,0 +1,308 @@
+/** @file
+ * Copyright (c) 2025, Arm Limited or its affiliates. All rights reserved.
+ * SPDX-License-Identifier : Apache-2.0
+
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+**/
+
+#include "rule_based_execution.h"
+#include "include/acs_common.h"
+#include "include/val_interface.h"
+#include "include/acs_pe.h"
+
+extern uint8_t g_current_pal;
+extern rule_test_map_t rule_test_map[RULE_ID_SENTINEL];
+extern alias_rule_map_t alias_rule_map[];
+extern test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL];
+/* Access selections from app */
+extern RULE_ID_e *g_skip_rule_list;
+extern uint32_t   g_skip_rule_count;
+extern uint32_t  *g_execute_modules;
+extern uint32_t   g_num_modules;
+extern uint32_t  *g_skip_modules;
+extern uint32_t   g_num_skip_modules;
+
+/**
+ * @brief Check PAL support for a rule and report if unsupported.
+ *
+ * Evaluates the rule's platform_bitmask against the current PAL and prints
+ * an aligned rule header with an explanatory message when unsupported.
+ *
+ * - If `platform_bitmask == 0`, prints ":NOT COVERED BY ACS".
+ * - Otherwise, prints ":NOT SUPPORTED IN CURRENT PAL".
+ *
+ * @param rule_id Rule identifier to check.
+ * @return TEST_SUPPORTED if the rule is supported on this PAL and should
+ *         run; TEST_NOT_SUPPORTED to skip.
+ */
+static uint32_t check_rule_support(RULE_ID_e rule_id)
+{
+    uint8_t plat_bitmask = rule_test_map[rule_id].platform_bitmask;
+
+   // val_print(ACS_PRINT_ERR, "\n plat_bitmask %x", plat_bitmask);
+
+    if (!(g_current_pal & plat_bitmask)) {
+        /* Report if rule is not supported by ACS across all available PALs*/
+        // if (plat_bitmask == 0) {
+        //     //TODOval_print(ACS_PRINT_TEST, ":NOT COVERED BY ACS", 0);
+        // } else {
+        //     //TODOval_print(ACS_PRINT_TEST, ":NOT SUPPORTED IN CURRENT PAL", 0);
+        //     /* TODO: add logic and print to say which pal to run for compliance */
+        // }
+        return TEST_NOT_SUPPORTED;
+    }
+
+    return TEST_SUPPORTED; /* supported on current PAL */
+}
+
+/**
+ * @brief Filter the provided rule list in place based on CLI selections.
+ *
+ * Applies the following filters to the rule list, compacting it in-place while
+ * preserving the original relative order of rules kept:
+ * - Rules listed in -skip (g_skip_rule_list) are removed.
+ * - Rules whose module matches any in -skipmodule (g_skip_modules) are removed.
+ * - If -m (g_execute_modules) is provided and non-empty, only rules whose module
+ *   is in that list are kept.
+ *
+ * No new memory is allocated. Elements beyond the returned count remain
+ * unchanged but are considered out of range by callers.
+ *
+ * @param rule_list Pointer to the array of rule IDs to filter.
+ * @param list_size Number of elements in the input list.
+ * @return New count of rules after filtering.
+ */
+uint32_t filter_rule_list_by_cli(RULE_ID_e *rule_list, uint32_t list_size)
+{
+    uint32_t out;
+    uint32_t i;
+    uint32_t si;
+    uint32_t mi;
+    RULE_ID_e rule;
+    bool skip;
+    MODULE_NAME_e module;
+    bool found;
+
+    if (rule_list == NULL || list_size == 0)
+        return 0;
+
+    out = 0;
+    for (i = 0; i < list_size; i++) {
+        rule = rule_list[i];
+        skip = 0;
+
+        /* Skip explicit rule IDs provided via -skip */
+        if (!skip && g_skip_rule_count > 0 && g_skip_rule_list != NULL) {
+            for (si = 0; si < g_skip_rule_count; si++) {
+                if (g_skip_rule_list[si] == rule) {
+                    skip = 1;
+                    break;
+                }
+            }
+        }
+
+        module = rule_test_map[rule].module_id;
+
+        /* Skip rules belonging to modules listed in -skipmodule */
+        if (!skip && g_num_skip_modules > 0 && g_skip_modules != NULL) {
+            for (mi = 0; mi < g_num_skip_modules; mi++) {
+                if (g_skip_modules[mi] == (uint32_t)module) {
+                    skip = 1;
+                    break;
+                }
+            }
+        }
+
+        /* If -m provided, keep only selected modules */
+        if (!skip && g_num_modules > 0 && g_execute_modules != NULL) {
+            found = 0;
+            for (mi = 0; mi < g_num_modules; mi++) {
+                if (g_execute_modules[mi] == (uint32_t)module) {
+                    found = 1;
+                    break; }
+            }
+            if (!found)
+                skip = 1;
+        }
+
+        if (!skip)
+            rule_list[out++] = rule;
+    }
+
+    /* :TODO If option -only <level> is set, skip the rule if it is part of other level */
+
+    /* :TODO If option -l <level> is set, skip the rule if it is part of level
+           greater than set level */
+
+    return out;
+}
+
+/**
+ * @brief Execute the provided list of rules and report status per rule.
+ *
+ * Assumes the list has already been filtered for CLI selections (-skip, -m,
+ * -skipmodule). Sorts for module-wise execution, checks PAL support, and for
+ * alias rules executes their base rules while aggregating status. Records and
+ * prints status per rule.
+ *
+ * @param rule_list Pointer to the array of rule IDs to execute.
+ * @param list_size Number of elements in the list.
+ */
+void
+run_tests(RULE_ID_e *rule_list, uint32_t list_size)
+{
+
+    uint32_t i, j;
+    uint32_t alias_rule_map_index;
+    uint32_t module_init_status;
+    uint32_t rule_test_status;
+    uint32_t base_rule_status;
+    uint32_t precheck_status;
+    bool test_ns_flag;
+    uint32_t num_pe;
+    RULE_ID_e base_rule_id;
+    MODULE_NAME_e curr_module_id;
+    RULE_ID_e *base_rule_list;
+
+    val_print(ACS_PRINT_ERR, "\n-------------------- Running tests --------------------", 0);
+    /* Initialize per-rule status map to TEST_STATUS_UNKNOWN for this run */
+    rule_status_map_reset();
+
+    /* quick sort the rule list so that it is module wise as in RULE_ID_e typedef definition */
+    quick_sort_rule_list(rule_list, list_size);
+
+    for (i = 0 ; i < list_size; i++) {
+
+        /* Fetch data on current rule */
+        curr_module_id = rule_test_map[rule_list[i]].module_id;
+        /* Get number of PEs in the system */
+        num_pe = val_pe_get_num();
+
+        /* Print rule header */
+        print_rule_test_start(rule_list[i], 0);
+
+        /* Get the module and check if any prerequisite initialisation pending */
+        // TODO: implement module init functions for every module
+        // module_init_status = check_module_init(curr_module_id);
+        module_init_status = 0;
+        if (module_init_status) {
+            val_print(ACS_PRINT_ERR, " failed to do module init for Module ID: 0x%x",
+                      curr_module_id);
+            continue;
+        }
+
+        /* Report rule ids not supported by ACS or doesnt have mapping rule_test_map */
+        if (check_rule_support(rule_list[i]) == TEST_NOT_SUPPORTED) {
+            rule_test_status = TEST_NS;
+            goto report_status;
+        }
+
+        /* Check if rule id is alias, if yes do the table walk to find base rules */
+        if (rule_test_map[rule_list[i]].flag == ALIAS_RULE) {
+            /* Get base rules for the alias rule */
+            /* Use the actual rule id value, not loop index */
+            alias_rule_map_index = alias_rule_map_get_index(rule_list[i]);
+
+            /* Validate lookup result before dereferencing the map */
+            if (alias_rule_map_index == INVALID_IDX) {
+                val_print(ACS_PRINT_ERR, " alias map index not found for rule id: 0x%x",
+                          rule_list[i]);
+                /* Skip executing base rules for an unknown alias */
+                continue;
+            }
+
+            /* If a precheck exists then use rule_test_map.test_entry_id to mention enum to entry
+               function to do the precheck, if NULL_ENTRY then consider no precheck for
+               the ALIAS */
+            if (rule_test_map[rule_list[i]].test_entry_id != NULL_ENTRY) {
+                precheck_status =
+                    test_entry_func_table[rule_test_map[rule_list[i]].test_entry_id](num_pe);
+
+                /* If precheck fails, report alias rule status as SKIP as it wont be applicable */
+                if (precheck_status == TEST_FAIL) {
+                    rule_test_status = TEST_SKIP;
+                    goto report_status;
+                }
+            }
+
+            /* reset rule test status to least critical */
+            rule_test_status = TEST_STATUS_UNKNOWN;
+            /* init a flag to track partial coverage */
+            test_ns_flag = 0;
+            /* convenience alias to the base rule list for this alias */
+            base_rule_list = alias_rule_map[alias_rule_map_index].base_rule_list;
+
+            /* Run the base rules required by the alias*/
+            for (j = 0; j < alias_rule_map[alias_rule_map_index].rule_count ; j++) {
+                /* Print base rule header */
+                print_rule_test_start(base_rule_list[j], 1);
+
+                /* Check if test for the base rule is present in current PAL */
+                if (check_rule_support(base_rule_list[j]) == TEST_NOT_SUPPORTED) {
+                    /* set a flag to track partial coverage */
+                    test_ns_flag = 1;
+                    base_rule_status = TEST_NS;
+                    /* record base rule status */
+                    rule_status_map[base_rule_list[j]] = base_rule_status;
+                    print_rule_test_status(base_rule_list[j], base_rule_status);
+                    continue;
+                }
+
+                /* Run the base rule */
+                base_rule_id = alias_rule_map[alias_rule_map_index].base_rule_list[j];
+                /* :TODO do we need to check for module again ? */
+                base_rule_status =
+                    test_entry_func_table[rule_test_map[base_rule_id].test_entry_id](num_pe);
+                /* report status of base rule run */
+                /* record base rule status */
+                rule_status_map[base_rule_id] = base_rule_status;
+                print_rule_test_status(base_rule_list[j], base_rule_status);
+                /* update overall alias rule status */
+                if ((base_rule_status > rule_test_status)
+                                      || (rule_test_status == TEST_STATUS_UNKNOWN)) {
+                    rule_test_status = base_rule_status;
+                }
+            }
+
+            /* Post-check: if any base rule was not supported but overall
+               status is PASS, mark the alias as partial coverage. */
+            if (test_ns_flag && (rule_test_status == TEST_PASS)) {
+                rule_test_status = TEST_PART_COV;
+            }
+
+            /* Record and print overall alias rule status now and move to next rule */
+            rule_status_map[rule_list[i]] = rule_test_status;
+            print_rule_test_status(rule_list[i], rule_test_status);
+            continue;
+
+            /* :TODO post check for alias rule ? */
+        } else if (rule_test_map[rule_list[i]].flag == BASE_RULE) {
+            /* Check if test for the base rule is present in current PAL */
+            if (check_rule_support(rule_list[i]) == TEST_NOT_SUPPORTED) {
+                rule_test_status = TEST_NS;
+                goto report_status;
+            }
+
+            /* Base rule would have single test entry, could be wrapper too */
+            rule_test_status =
+                test_entry_func_table[rule_test_map[rule_list[i]].test_entry_id](num_pe);
+
+        }
+report_status:
+        /* Record and print overall rule status */
+        rule_status_map[rule_list[i]] = rule_test_status;
+        print_rule_test_status(rule_list[i], rule_test_status);
+
+    }
+    val_print(ACS_PRINT_TEST, "\n-------------------- Suite run complete --------------------", 0);
+}

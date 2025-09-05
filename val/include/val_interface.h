@@ -41,6 +41,13 @@
 
 #define VAL_EXTRACT_BITS(data, start, end) ((data >> start) & ((1ul << (end-start+1))-1))
 
+/* Module init operation type enum */
+typedef enum {
+    INIT_OP_INIT,
+    INIT_OP_TEARDOWN,
+    INIT_OP_SENTINEL /* Keep last */
+} INIT_OP_e;
+
 /* the following macros are defined by edk2 headers in case of UEFI env. Required only for BM */
 #ifdef TARGET_BAREMETAL
 #define BIT0  (1)
