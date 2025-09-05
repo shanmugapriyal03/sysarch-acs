@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       toolchain:
-        description: "Choose toolchain: 'arm-dev', 'gcc', or 'both'"
+        description: "Choose toolchain: 'arm' or 'gcc15'"
         required: false
         type: string
-        default: "arm-dev"
+        default: "arm"
       edk2-ref:
         description: "edk2 ref/branch/tag to checkout"
         required: false
@@ -33,40 +33,17 @@ on:
         required: false
 
 jobs:
-  setup:
-    runs-on: ubuntu-22.04
-    outputs:
-      toolchain-matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - id: set-matrix
-        run: |
-          input="${{ inputs.toolchain }}"
-          input=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-
-          if [[ "$input" == "arm-dev,gcc" || "$input" == "gcc,arm-dev" || "$input" == "both" ]]; then
-            echo "matrix=[\"arm-dev\",\"gcc\"]" >> "$GITHUB_OUTPUT"
-          elif [[ "$input" == "arm-dev" ]]; then
-            echo "matrix=[\"arm-dev\"]" >> "$GITHUB_OUTPUT"
-          elif [[ "$input" == "gcc" ]]; then
-            echo "matrix=[\"gcc\"]" >> "$GITHUB_OUTPUT"
-          else
-            echo "::error ::Invalid toolchain input: '$input'"
-            exit 1
-          fi
-
   #######################################################################
   # MATRIX: UEFI
   #######################################################################
   uefi:
-    needs: setup
     if: ${{ inputs.run-uefi }}
-    name: UEFI • ${{ matrix.toolchain }} • ${{ matrix.target.name }}
-    runs-on: ubuntu-22.04
+    name: UEFI • ${{ matrix.name }}
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        toolchain: ${{ fromJson(needs.setup.outputs.toolchain-matrix) }}
-        target:
+        include:
           - name: BSA ACPI
             arg: bsa
             outfile: Bsa.efi
@@ -120,38 +97,38 @@ jobs:
       - name: Checkout sysarch-acs repository
         uses: actions/checkout@v4
         with:
-          path: edk2/ShellPkg/Application/sysarch-acs
+          path: 'edk2/ShellPkg/Application/sysarch-acs'
 
-      - name: Cache GCC toolchain (gcc)
-        if: ${{ matrix.toolchain == 'gcc' }}
+      - name: Cache GCC15 toolchain
+        if: ${{ inputs.toolchain == 'gcc15' }}
         uses: actions/cache@v4
         with:
           path: |
-            ~/gcc-linux-gnu/install
-          key: gcc-linux-gnu-${{ runner.os }}-${{ runner.arch }}-v1
+            ~/gcc15-linux-gnu/install
+          key: gcc15-linux-gnu-${{ runner.os }}-${{ runner.arch }}-v1
 
-      - name: Setup toolchain (${{ matrix.toolchain }})
+      - name: Setup toolchain (${{ inputs.toolchain }})
         run: |
-          if [[ "${{ matrix.toolchain }}" == "arm-dev" ]]; then
-            echo "Downloading Arm GCC cross-compiler..."
+          if [[ "${{ inputs.toolchain }}" == "arm" ]]; then
+            echo "🔧 Downloading Arm prebuilt toolchain..."
             mkdir -p /opt/cross
             cd /opt/cross
             wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
             tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu.tar.xz
-            echo "GCC_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> "$GITHUB_ENV"
+            echo "GCC5_AARCH64_PREFIX=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
 
-          elif [[ "${{ matrix.toolchain }}" == "gcc" ]]; then
-            echo "Checking for existing GCC source-built toolchain..."
-            INSTALL="$HOME/gcc-linux-gnu/install"
+          elif [[ "${{ inputs.toolchain }}" == "gcc15" ]]; then
+            echo "🔍 Checking for existing GCC 15..."
+            INSTALL=$HOME/gcc15-linux-gnu/install
 
             if [ -x "$INSTALL/bin/aarch64-none-linux-gnu-gcc" ]; then
-              echo "GCC already installed at $INSTALL"
+              echo "✅ GCC 15 already installed at $INSTALL"
             else
-              echo "Building GCC from source (e.g. gcc15)..."
-              SRC="$HOME/gcc-linux-gnu/src"
-              BUILD="$HOME/gcc-linux-gnu/build"
-              SYSROOT="$HOME/gcc-linux-gnu/sysroot"
-              SYSROOT_PATH="$SYSROOT/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc"
+              echo "🔨 Building GCC 15.2.1 from source..."
+              SRC=$HOME/gcc15-linux-gnu/src
+              BUILD=$HOME/gcc15-linux-gnu/build
+              SYSROOT=$HOME/gcc15-linux-gnu/sysroot
+              SYSROOT_PATH=$SYSROOT/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu/aarch64-none-linux-gnu/libc
 
               mkdir -p "$SRC" "$BUILD" "$INSTALL" "$SYSROOT"
               cd "$SYSROOT"
@@ -167,7 +144,7 @@ jobs:
 
               mkdir -p "$BUILD/binutils" && cd "$BUILD/binutils"
               "$SRC/binutils-2.42/configure" --target=aarch64-none-linux-gnu --prefix="$INSTALL" --disable-nls --disable-werror
-              make -j"$(nproc)" && make install
+              make -j$(nproc) && make install
 
               mkdir -p "$BUILD/gcc" && cd "$BUILD/gcc"
               "$SRC/gcc/configure" \
@@ -179,128 +156,29 @@ jobs:
                 --disable-nls \
                 --with-sysroot="$SYSROOT_PATH"
 
-              make -j"$(nproc)" all-gcc && make install-gcc
-              make -j"$(nproc)" all-target-libgcc && make install-target-libgcc
+              make -j$(nproc) all-gcc && make install-gcc
+              make -j$(nproc) all-target-libgcc && make install-target-libgcc
             fi
 
-            echo "$INSTALL/bin" >> "$GITHUB_PATH"
-            echo "GCC_AARCH64_PREFIX=$INSTALL/bin/aarch64-none-linux-gnu-" >> "$GITHUB_ENV"
+            echo "$INSTALL/bin" >> $GITHUB_PATH
+            echo "GCC5_AARCH64_PREFIX=$INSTALL/bin/aarch64-none-linux-gnu-" >> $GITHUB_ENV
           else
-            echo "::error ::Invalid toolchain selected: '${{ matrix.toolchain }}'"
+            echo "::error ::Invalid toolchain selected: '${{ inputs.toolchain }}'"
             exit 1
           fi
 
-      - name: Build ${{ matrix.target.name }}
+      - name: Build ${{ matrix.name }}
         run: |
           cd edk2
-          export PACKAGES_PATH="$PWD/edk2-libc"
+          export PACKAGES_PATH=$PWD/edk2-libc
           source edksetup.sh
           make -C BaseTools/Source/C
-          source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh ${{ matrix.target.arg }}
+          source ShellPkg/Application/sysarch-acs/tools/scripts/acsbuild.sh ${{ matrix.arg }}
 
-      - name: Move output to toolchain folder
-        run: |
-          mkdir -p "artifacts/${{ matrix.toolchain }}"
-          cp "edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.target.outfile }}" "artifacts/${{ matrix.toolchain }}/${{ matrix.target.artifact }}"
-
-      - name: Upload ${{ matrix.target.artifact }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.toolchain }}-${{ matrix.target.artifact }}
-          path: artifacts/${{ matrix.toolchain }}/
-          if-no-files-found: error
-
-
-#######################################################################
-  # MATRIX: BAREMETAL
-  #######################################################################
-  baremetal:
-    if: ${{ inputs.run-baremetal }}
-    name: Baremetal • ${{ matrix.name }}
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: BSA (RDN2)
-            make_target: bsa
-            out_relpath: bsa_build/output/bsa.bin
-            artifact: Bsa_baremetal_RDN2.bin
-          - name: SBSA (RDN2)
-            make_target: sbsa
-            out_relpath: sbsa_build/output/sbsa.bin
-            artifact: Sbsa_baremetal_RDN2.bin
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Clean build dir
-        run: rm -rf build
-
-      - name: Download Arm GCC cross-compiler (aarch64-elf)
-        run: |
-          mkdir -p /opt/cross
-          cd /opt/cross
-          wget https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
-          tar -xf arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf.tar.xz
-
-      - name: Compile ${{ matrix.name }}
-        run: |
-          export CROSS_COMPILE=/opt/cross/arm-gnu-toolchain-14.3.rel1-x86_64-aarch64-none-elf/bin/aarch64-none-elf-
-          mkdir build
-          cd build
-          cmake ../ -G "Unix Makefiles" -DTARGET=RDN2
-          make ${{ matrix.make_target }}
-
-      - name: Upload ${{ matrix.artifact }}
+      - name: Upload artifact (${{ matrix.artifact }})
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: build/${{ matrix.out_relpath }}
+          path: edk2/Build/Shell/DEBUG_GCC/AARCH64/${{ matrix.outfile }}
           if-no-files-found: error
 
-  #######################################################################
-  # MATRIX: LINUX
-  #######################################################################
-  linux:
-    if: ${{ inputs.run-linux }}
-    name: Linux • ${{ matrix.name }}
-    runs-on: ubuntu-22.04
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: BSA
-            short: bsa
-            ko: bsa_acs.ko
-            app: bsa_app
-          - name: SBSA
-            short: sbsa
-            ko: sbsa_acs.ko
-            app: sbsa_app
-          - name: PC-BSA
-            short: pcbsa
-            ko: pcbsa_acs.ko
-            app: pcbsa_app
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Download Linux ACS build script
-        run: |
-          cd ..
-          wget https://gitlab.arm.com/linux-arm/linux-acs/-/raw/master/acs-drv/files/build.sh
-          chmod +x build.sh
-
-      - name: Build Linux ACS (then select ${{ matrix.name }})
-        run: |
-          cd ..
-          ./build.sh
-          mkdir -p "$GITHUB_WORKSPACE/linux-${{ matrix.short }}"
-          cp build/${{ matrix.ko }}  "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-          cp build/${{ matrix.app }} "$GITHUB_WORKSPACE/linux-${{ matrix.short }}/"
-
-      - name: Upload ${{ matrix.name }} artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.name }} Kernel Module and App
-          path: ${{ github.workspace }}/linux-${{ matrix.short }}/*
-          if-no-files-found: error
