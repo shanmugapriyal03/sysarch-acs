@@ -19,6 +19,7 @@
 #include "include/acs_common.h"
 #include "include/val_interface.h"
 #include "include/acs_pe.h"
+#include "include/acs_memory.h"
 
 extern uint8_t g_current_pal;
 extern rule_test_map_t rule_test_map[RULE_ID_SENTINEL];
@@ -82,7 +83,7 @@ static uint32_t check_rule_support(RULE_ID_e rule_id)
  * @param list_size Number of elements in the input list.
  * @return New count of rules after filtering.
  */
-uint32_t filter_rule_list_by_cli(RULE_ID_e *rule_list, uint32_t list_size)
+uint32_t filter_rule_list_by_cli(RULE_ID_e **rule_list, uint32_t list_size)
 {
     uint32_t out;
     uint32_t i;
@@ -92,13 +93,94 @@ uint32_t filter_rule_list_by_cli(RULE_ID_e *rule_list, uint32_t list_size)
     bool skip;
     MODULE_NAME_e module;
     bool found;
+    /* Pointers to lookup tables for selected arch (if any) */
+    const bsa_rule_entry_t  *bsa_tbl = NULL;
+    const sbsa_rule_entry_t *sbsa_tbl = NULL;
+    const pcbsa_rule_entry_t *pcbsa_tbl = NULL;
+    uint32_t tbl_count = 0;
 
-    if (rule_list == NULL || list_size == 0)
+    /* if pointer is NULL, API misuse return */
+    if (rule_list == NULL)
+        return 0;
+
+    /* If architecture is selected (-a), merge its rules into the list, deduped */
+    if (g_arch_selection != ARCH_NONE) {
+        uint32_t add_count = 0;
+
+        if (g_arch_selection == ARCH_BSA) {
+            /* count BSA entries */
+            while (bsa_rule_list[add_count].rule_id != RULE_ID_SENTINEL)
+                add_count++;
+            bsa_tbl = bsa_rule_list;
+        } else if (g_arch_selection == ARCH_SBSA) {
+            while (sbsa_rule_list[add_count].rule_id != RULE_ID_SENTINEL)
+                add_count++;
+            sbsa_tbl = sbsa_rule_list;
+        } else if (g_arch_selection == ARCH_PCBSA) {
+            while (pcbsa_rule_list[add_count].rule_id != RULE_ID_SENTINEL)
+                add_count++;
+            pcbsa_tbl = pcbsa_rule_list;
+        }
+
+        if (add_count > 0) {
+            /* Allocate a new buffer sized for worst-case unique merge */
+            RULE_ID_e *old_list = *rule_list;
+            uint32_t old_count = list_size;
+            RULE_ID_e *new_list = (RULE_ID_e *)val_memory_alloc((old_count + add_count)
+                                   * sizeof(RULE_ID_e));
+            if (new_list != NULL) {
+                /* Copy existing */
+                for (i = 0; i < old_count; i++) new_list[i] = old_list[i];
+                uint32_t new_count = old_count;
+                /* Append unique entries from table */
+                if (bsa_tbl) {
+                    for (i = 0; i < add_count; i++) {
+                        RULE_ID_e rid = bsa_tbl[i].rule_id;
+                        if (!rule_in_list(rid, new_list, new_count))
+                            new_list[new_count++] = rid;
+                    }
+                } else if (sbsa_tbl) {
+                    for (i = 0; i < add_count; i++) {
+                        RULE_ID_e rid = sbsa_tbl[i].rule_id;
+                        if (!rule_in_list(rid, new_list, new_count))
+                            new_list[new_count++] = rid;
+                    }
+                } else if (pcbsa_tbl) {
+                    for (i = 0; i < add_count; i++) {
+                        RULE_ID_e rid = pcbsa_tbl[i].rule_id;
+                        if (!rule_in_list(rid, new_list, new_count))
+                            new_list[new_count++] = rid;
+                    }
+                }
+
+                /* Free old buffer (if allocated via VAL) and update pointer */
+                if (old_list)
+                    val_memory_free(old_list);
+                *rule_list = new_list;
+                list_size = new_count;
+            }
+        }
+
+        /* Also capture the selected table pointer and count for filtering by level */
+        if (g_arch_selection == ARCH_BSA) {
+            bsa_tbl = bsa_rule_list;
+            while (bsa_tbl[tbl_count].rule_id != RULE_ID_SENTINEL) tbl_count++;
+        } else if (g_arch_selection == ARCH_SBSA) {
+            sbsa_tbl = sbsa_rule_list;
+            while (sbsa_tbl[tbl_count].rule_id != RULE_ID_SENTINEL) tbl_count++;
+        } else if (g_arch_selection == ARCH_PCBSA) {
+            pcbsa_tbl = pcbsa_rule_list;
+            while (pcbsa_tbl[tbl_count].rule_id != RULE_ID_SENTINEL) tbl_count++;
+        }
+    }
+
+    /* if rule list is NULL no filtering required */
+    if (*rule_list == NULL || list_size == 0)
         return 0;
 
     out = 0;
     for (i = 0; i < list_size; i++) {
-        rule = rule_list[i];
+        rule = (*rule_list)[i];
         skip = 0;
 
         /* Skip explicit rule IDs provided via -skip */
@@ -135,14 +217,85 @@ uint32_t filter_rule_list_by_cli(RULE_ID_e *rule_list, uint32_t list_size)
                 skip = 1;
         }
 
+        /* Level-based filtering and software view filtering (BSA) */
+        if (!skip && g_arch_selection != ARCH_NONE) {
+            if (g_level_filter_mode != LVL_FILTER_NONE ||
+                (g_arch_selection == ARCH_BSA && g_bsa_sw_view_mask != 0)) {
+                /* Find rule in the selected arch table */
+                bool found_entry = 0;
+                if (bsa_tbl) {
+                    for (uint32_t ti = 0; ti < tbl_count; ti++) {
+                        if (bsa_tbl[ti].rule_id == rule) {
+                            found_entry = 1;
+                            /* Software view filter if requested: keep if any selected */
+                            if (g_bsa_sw_view_mask != 0) {
+                                uint32_t bit = (1u << (uint32_t)bsa_tbl[ti].sw_view);
+                                if ((g_bsa_sw_view_mask & bit) == 0) {
+                                    skip = 1;
+                                    break;
+                                }
+                            }
+                            /* Level filtering */
+                            if (g_level_filter_mode == LVL_FILTER_FR) {
+                                /* Treat FR mode as MAX up to FR */
+                                if ((uint32_t)bsa_tbl[ti].level > (uint32_t)BSA_LEVEL_FR)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_ONLY) {
+                                if ((uint32_t)bsa_tbl[ti].level != g_level_value)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_MAX) {
+                                if ((uint32_t)bsa_tbl[ti].level > g_level_value)
+                                    skip = 1;
+                            }
+                            break;
+                        }
+                    }
+                } else if (sbsa_tbl) {
+                    for (uint32_t ti = 0; ti < tbl_count; ti++) {
+                        if (sbsa_tbl[ti].rule_id == rule) {
+                            found_entry = 1;
+                            if (g_level_filter_mode == LVL_FILTER_FR) {
+                                /* Treat FR mode as MAX up to FR */
+                                if ((uint32_t)sbsa_tbl[ti].level > (uint32_t)SBSA_LEVEL_FR)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_ONLY) {
+                                if ((uint32_t)sbsa_tbl[ti].level != g_level_value)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_MAX) {
+                                if ((uint32_t)sbsa_tbl[ti].level > g_level_value)
+                                    skip = 1;
+                            }
+                            break;
+                        }
+                    }
+                } else if (pcbsa_tbl) {
+                    for (uint32_t ti = 0; ti < tbl_count; ti++) {
+                        if (pcbsa_tbl[ti].rule_id == rule) {
+                            found_entry = 1;
+                            if (g_level_filter_mode == LVL_FILTER_FR) {
+                                /* Treat FR mode as MAX up to FR */
+                                if ((uint32_t)pcbsa_tbl[ti].level > (uint32_t)PCBSA_LEVEL_FR)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_ONLY) {
+                                if ((uint32_t)pcbsa_tbl[ti].level != g_level_value)
+                                    skip = 1;
+                            } else if (g_level_filter_mode == LVL_FILTER_MAX) {
+                                if ((uint32_t)pcbsa_tbl[ti].level > g_level_value)
+                                    skip = 1;
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                /* If not found in table, conservatively skip or keep? Keep by default */
+                (void)found_entry; /* silence unused if not used */
+            }
+        }
+
         if (!skip)
-            rule_list[out++] = rule;
+            (*rule_list)[out++] = rule;
     }
-
-    /* :TODO If option -only <level> is set, skip the rule if it is part of other level */
-
-    /* :TODO If option -l <level> is set, skip the rule if it is part of level
-           greater than set level */
 
     return out;
 }

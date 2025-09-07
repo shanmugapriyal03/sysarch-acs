@@ -368,11 +368,10 @@ val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
 
   val_print(ACS_PRINT_ERR, "%4d : ", test_num); //Always print this
   val_print(ACS_PRINT_TEST, desc, 0);
+  g_acs_tests_total++;
 #endif
   val_report_status(0, ACS_START(test_num), NULL);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
-
-  g_acs_tests_total++;
 
   return ACS_STATUS_PASS;
 }

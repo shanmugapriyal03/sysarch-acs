@@ -23,6 +23,28 @@ extern uint32_t alias_rule_map_count;
 extern alias_rule_map_t alias_rule_map[];
 
 /**
+ * @brief Check if a rule ID exists in a list.
+ *
+ * Linear scan of the first `count` entries of `list` to see if any equals
+ * `rid`.
+ *
+ * @param rid   Rule ID to find.
+ * @param list  Rule ID array to scan.
+ * @param count Number of valid entries in `list`.
+ * @return 1 if found; 0 otherwise.
+ */
+bool rule_in_list(RULE_ID_e rid, const RULE_ID_e *list, uint32_t count)
+{
+    if (!list || count == 0)
+        return 0;
+    for (uint32_t i = 0; i < count; i++) {
+        if (list[i] == rid)
+            return 1;
+    }
+    return 0;
+}
+
+/**
  * @brief Bounded ASCII string length.
  *
  * Counts characters in a NUL-terminated ASCII string up to a maximum bound

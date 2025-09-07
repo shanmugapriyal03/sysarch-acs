@@ -29,30 +29,17 @@
 #include "val/src/rule_based_execution.h"
 #include "acs.h"
 
-extern VOID* g_acs_log_file_handle;
-extern VOID* g_dtb_log_file_handle;
-extern  UINT32 g_sw_view[3];
 /* Use rule string map from VAL to translate -r inputs */
 extern char8_t *rule_id_string[RULE_ID_SENTINEL];
 /* Use module string map from VAL to translate -m inputs */
 extern char8_t *module_name_string[MODULE_ID_SENTINEL];
 
-UINT32  g_pcbsa_level;
-UINT32  g_pcbsa_only_level = 0;
 UINT32  g_pcie_p2p;
 UINT32  g_pcie_cache_present;
 bool    g_pcie_skip_dp_nic_ms = 0;
-UINT32  g_bsa_level;
-UINT32  g_bsa_only_level = 0;
-UINT32  g_sbsa_level;
-UINT32  g_sbsa_only_level = 0;
 UINT32  g_print_level;
-UINT32  g_sw_view[3] = {1, 1, 1}; //Operating System, Hypervisor, Platform Security
 UINT32  *g_skip_test_num;
 UINT32  g_num_skip;
-UINT32  g_acs_tests_total;
-UINT32  g_acs_tests_pass;
-UINT32  g_acs_tests_fail;
 UINT64  g_stack_pointer;
 UINT64  g_exception_ret_addr;
 UINT64  g_ret_addr;
@@ -62,9 +49,7 @@ UINT32  g_build_pcbsa = 0;
 UINT32  g_print_mmio;
 UINT32  g_curr_module;
 UINT32  g_enable_module;
-UINT32  *g_execute_tests;
 UINT32  g_crypto_support = TRUE;
-UINT32  g_num_tests = 0;
 UINT32  *g_execute_modules;
 UINT32  g_num_modules = 0;
 UINT32  *g_skip_modules;
@@ -74,16 +59,19 @@ UINT32  g_sys_last_lvl_cache;
    of EL1 phy and virt timer, Below command line option is added only for debug
    purpose to complete BSA run on these systems */
 UINT32  g_el1physkip = FALSE;
-
 SHELL_FILE_HANDLE g_acs_log_file_handle;
 SHELL_FILE_HANDLE g_dtb_log_file_handle;
-
 /* Storage for parsed rule IDs from -r */
 static RULE_ID_e *g_rule_list;
 static UINT32     g_rule_count;
 /* Storage for parsed skip rule IDs from -skip (global for cross-file access) */
 RULE_ID_e *g_skip_rule_list = NULL;
 UINT32     g_skip_rule_count = 0;
+/* Rule-based execution: arch and filtering selections (-a, -l/-only/-fr, -hyp/-os/-ps) */
+uint32_t g_arch_selection    = ARCH_NONE;
+uint32_t g_level_filter_mode = LVL_FILTER_NONE;
+uint32_t g_level_value       = 0;
+uint32_t g_bsa_sw_view_mask  = 0;
 
 /* Minimal ASCII string equality check to avoid extra deps */
 static BOOLEAN ascii_streq(const CHAR8 *a, const CHAR8 *b)
@@ -111,14 +99,6 @@ static BOOLEAN w_ascii_streq_caseins(const CHAR16 *a, const CHAR16 *b)
   return (*a == L'\0' && *b == L'\0');
 }
 
-/* Check if a rule already exists in a list (first count entries) */
-static BOOLEAN rule_in_list(RULE_ID_e rid, const RULE_ID_e *list, UINT32 count)
-{
-  for (UINT32 i = 0; i < count; i++) {
-    if (list[i] == rid) return TRUE;
-  }
-  return FALSE;
-}
 
 /* Map a wide token to MODULE_NAME_e and append to list if capacity allows.
    Accepts only module names that match module_name_string[] (no numeric IDs). */
@@ -402,7 +382,7 @@ HelpMsg (
   VOID
   )
 {
-  Print (L"\nUsage: Bsa.efi [-v <n>] | [-l <n>] | [-only] | [-fr] | [-f <filename>] | "
+  Print (L"\nUsage: Bsa.efi [-v <n>] | [-f <filename>] | "
          "[-skip <n>] | [-m <n>]\n"
          "Options:\n"
          "-v      Verbosity of the prints\n"
@@ -413,11 +393,6 @@ HelpMsg (
          "              PERIPHERAL 6, Watchdog 7, PCIe 8, Exerciser 9   ...\n"
          "              E.g., To enable mmio prints for PE and TIMER pass -v 104\n"
          "-mmio   Pass this flag to enable pal_mmio_read/write prints, use with -v 1\n"
-         "-l      Level of compliance to be tested for\n"
-         "        As per BSA specification, Valid level is 1\n"
-         "-only   To only run tests belonging to a specific level of compliance\n"
-         "        -l (level) or -fr option needs to be specified for using this flag\n"
-         "-fr     Should be passed without level option to run future requirement tests\n"
          "-f      Name of the log file to record the test results in\n"
          "-skip   Rule ID(s) to be skipped (comma-separated, like -r)\n"
          "        Example: -skip B_PE_01,B_GIC_02\n"
@@ -427,28 +402,28 @@ HelpMsg (
          "-cache  Pass this flag to indicate that if the test system supports PCIe address translation cache\n"
          "-timeout  Set timeout multiple for wakeup tests\n"
          "        1 - min value  5 - max value\n"
-         "-os     Enable the execution of operating system tests\n"
-         "-hyp    Enable the execution of hypervisor tests\n"
-         "-ps     Enable the execution of platform security tests\n"
          "-dtb    Enable the execution of dtb dump\n"
          "-a      Architecture selection: 'bsa', 'sbsa', or 'pcbsa'\n"
-         "-pc-bsa Enable PC BSA requirements for bsa binary\n"
+         "        -a bsa    Use full BSA rule checklist \n"
+         "        -a sbsa   Use full SBSA rule checklist \n"
+         "        -a pcbsa  Use full PC BSA rule checklist \n"
+         "-l <n>  Max level to include (per-arch).\n"
+         "        Defaults: bsa=1, sbsa=4, pcbsa=1.\n"
+         "-only <n>  Include only rules at level <n> (per-arch).\n"
+         "-fr     Run rules up to the FR level (per-arch).\n"
+         "-hyp|-os|-ps  Software view filter (BSA only; can be combined).\n"
          "-el1physkip Skips EL1 register checks\n"
+         "-slc    Provide system last level cache type\n"
+         "        1 - PPTT PE-side cache,  2 - HMAT mem-side cache\n"
          "-skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
          "-r      Rule selection: comma-separated IDs or a rules file\n"
          "        Examples: -r B_PE_01,B_PE_02,B_GIC_01\n"
          "                  -r rules.txt  (file may mix commas/newlines; lines starting with # are comments)\n"
-         "        -a bsa    Use full BSA rule checklist (ignores -r)\n"
-         "        -a sbsa   Use full SBSA rule checklist (ignores -r)\n"
-         "        -a pcbsa  Use full PC BSA rule checklist (ignores -r)\n"
   );
 }
 
 STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-v", TypeValue},    // -v    # Verbosity of the Prints. 1 shows all prints, 5 shows Errors
-  {L"-l", TypeValue},    // -l    # Level of compliance to be tested for.
-  {L"-only", TypeValue},    // -only # To only run tests for a Specific level of compliance.
-  {L"-fr", TypeValue},    // -fr   # To run BSA ACS till BSA Future Requirement tests
   {L"-f", TypeValue},    // -f    # Name of the log file to record the test results in.
   {L"-skip", TypeValue}, // -skip # test(s) to skip execution
   {L"-skip-dp-nic-ms", TypeFlag}, // Skip tests for DisplayPort, Network, and Mass Storage devices
@@ -458,17 +433,20 @@ STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-timeout", TypeValue}, // -timeout # Set timeout multiple for wakeup tests
   {L"-help", TypeFlag},  // -help # help : info about commands
   {L"-h", TypeFlag},     // -h    # help : info about commands
-  {L"-os", TypeFlag},    // -os   # Binary Flag to enable the execution of operating system tests.
-  {L"-hyp", TypeFlag},   // -hyp  # Binary Flag to enable the execution of hypervisor tests.
-  {L"-ps", TypeFlag},    // -ps   # Binary Flag to enable the execution of platform security tests.
   {L"-dtb", TypeValue},  // -dtb  # Binary Flag to enable dtb dump
   {L"-a", TypeValue},    // -a    # Architecture selector: bsa | sbsa
-  {L"-pc-bsa", TypeFlag},  // -pc-bsa # Enable PC SBA requirements for bsa binary\n"
+  {L"-l", TypeValue},    // -l    # Max level to run (per-arch)
+  {L"-only", TypeValue}, // -only # Run only the given level
+  {L"-fr", TypeFlag},    // -fr   # Run rules up to the FR level (per-arch)
+  {L"-hyp", TypeFlag},   // -hyp  # BSA software view filter: Hypervisor
+  {L"-os", TypeFlag},    // -os   # BSA software view filter: OS
+  {L"-ps", TypeFlag},    // -ps   # BSA software view filter: Platform Services
   {L"-no_crypto_ext", TypeFlag},  // -no_crypto_ext  # Skip tests which have export restrictions
   {L"-mmio", TypeFlag}, // -mmio # Enable pal_mmio prints
   {L"-el1physkip", TypeFlag}, // -el1physkip # Skips EL1 register checks
   {L"-r", TypeValue},        // -r    # Comma-separated Rule IDs for rule-based execution
   {L"-skipmodule", TypeValue}, // -skipmodule # Comma-separated module names to skip
+  {L"-slc", TypeValue},    // -slc  # system last level cache type
   {NULL, TypeMax}
   };
 
@@ -489,10 +467,15 @@ command_init ()
   CHAR16             *ProbParam;
   UINT32             Status;
   UINT32             ReadVerbosity;
+  CONST CHAR16       *ArchArg;
+  BOOLEAN             has_l;
+  BOOLEAN             has_only;
+  BOOLEAN             has_fr;
+  BOOLEAN             has_hyp;
+  BOOLEAN             has_os;
+  BOOLEAN             has_ps;
 
-  //
-  // Process Command Line arguments
-  //
+  /* Process Command Line arguments */
   Status = ShellInitialize();
   Status = ShellCommandLineParse (ParamList, &ParamPackage, &ProbParam, TRUE);
   if (Status) {
@@ -503,7 +486,7 @@ command_init ()
   }
 
   /* Validate -a argument if provided */
-  CONST CHAR16 *ArchArg = ShellCommandLineGetValue(ParamPackage, L"-a");
+  ArchArg = ShellCommandLineGetValue(ParamPackage, L"-a");
   if (ArchArg != NULL) {
     if (!(w_ascii_streq_caseins(ArchArg, L"bsa") ||
           w_ascii_streq_caseins(ArchArg, L"sbsa") ||
@@ -512,7 +495,55 @@ command_init ()
       HelpMsg();
       return SHELL_INVALID_PARAMETER;
     }
+  /* Record arch selection for orchestrator to expand */
+  if (w_ascii_streq_caseins(ArchArg, L"bsa"))
+    g_arch_selection = ARCH_BSA;
+  else if (w_ascii_streq_caseins(ArchArg, L"sbsa"))
+    g_arch_selection = ARCH_SBSA;
+  else if (w_ascii_streq_caseins(ArchArg, L"pcbsa"))
+    g_arch_selection = ARCH_PCBSA;
   }
+
+  /* Parse level selection flags (-l, -only, -fr). They are mutually exclusive. */
+  has_l    = ShellCommandLineGetFlag(ParamPackage, L"-l");
+  has_only = ShellCommandLineGetFlag(ParamPackage, L"-only");
+  has_fr   = ShellCommandLineGetFlag(ParamPackage, L"-fr");
+  if ((has_l ? 1:0) + (has_only?1:0) + (has_fr?1:0) > 1) {
+    Print(L"-l, -only, and -fr cannot be combined. Use only one.\n");
+    return SHELL_INVALID_PARAMETER;
+  }
+  if (has_l) {
+    CmdLineArg = ShellCommandLineGetValue(ParamPackage, L"-l");
+    if (CmdLineArg == NULL) {
+      Print(L"Invalid parameter passed for -l\n");
+      return SHELL_INVALID_PARAMETER;
+    }
+    g_level_filter_mode = LVL_FILTER_MAX;
+    g_level_value = (UINT32)StrDecimalToUintn(CmdLineArg);
+  } else if (has_only) {
+    CmdLineArg = ShellCommandLineGetValue(ParamPackage, L"-only");
+    if (CmdLineArg == NULL) {
+      Print(L"Invalid parameter passed for -only\n");
+      return SHELL_INVALID_PARAMETER;
+    }
+    g_level_filter_mode = LVL_FILTER_ONLY;
+    g_level_value = (UINT32)StrDecimalToUintn(CmdLineArg);
+  } else if (has_fr) {
+    g_level_filter_mode = LVL_FILTER_FR;
+    g_level_value = 0;
+  } else {
+    g_level_filter_mode = LVL_FILTER_NONE; /* will set default later if -a selected */
+  }
+
+  /* Parse software view flags (BSA only). They can be combined. */
+  has_hyp = ShellCommandLineGetFlag(ParamPackage, L"-hyp");
+  has_os  = ShellCommandLineGetFlag(ParamPackage, L"-os");
+  has_ps  = ShellCommandLineGetFlag(ParamPackage, L"-ps");
+  g_bsa_sw_view_mask = 0;
+  if (has_hyp) g_bsa_sw_view_mask |= (1u << SW_HYP);
+  if (has_os)  g_bsa_sw_view_mask |= (1u << SW_OS);
+  if (has_ps)  g_bsa_sw_view_mask |= (1u << SW_PS);
+
   if (ShellCommandLineGetFlag (ParamPackage, L"-skip")) {
     CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-skip");
     if (CmdLineArg == NULL)
@@ -535,7 +566,7 @@ command_init ()
         if (EFI_ERROR(EStatus))
         {
           Print(L"Allocate memory for -skip failed\n", 0);
-          return 0;
+          return ACS_STATUS_ERR;
         }
       }
 
@@ -564,7 +595,7 @@ command_init ()
     }
   }
 
-  // Options with Values
+  /* Parse -timeout */
   CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-timeout");
   if (CmdLineArg == NULL) {
     g_wakeup_timeout = 1;
@@ -575,7 +606,7 @@ command_init ()
         g_wakeup_timeout = 5;
     }
 
-    // Options with Values
+  /* Parse verbosity level */
   CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-v");
   if (CmdLineArg == NULL) {
     g_print_level = G_PRINT_LEVEL;
@@ -597,119 +628,7 @@ command_init ()
     g_print_mmio = FALSE;
   }
 
-  g_bsa_level = G_BSA_LEVEL;
-  g_sbsa_level = G_SBSA_LEVEL;
-  g_pcbsa_level = G_PCBSA_LEVEL;
-
-
-  // Options with Values
-  CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-l");
-  if (CmdLineArg == NULL) {
-
-    if ((ShellCommandLineGetFlag (ParamPackage, L"-only")) &&
-         !(ShellCommandLineGetFlag (ParamPackage, L"-fr"))) {
-         Print(L" Only option(-only) have to be passed along with Level option (-l)\n", 0);
-         HelpMsg();
-         return SHELL_INVALID_PARAMETER;
-    }
-
-    if (ShellCommandLineGetFlag (ParamPackage, L"-fr")) {
-      if (ArchArg && w_ascii_streq_caseins(ArchArg, L"sbsa")) {
-        g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
-        g_sbsa_level = SBSA_MAX_LEVEL_SUPPORTED + 1;
-        if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
-        {
-          g_bsa_only_level = g_bsa_level;
-          g_sbsa_only_level = g_sbsa_level;
-        }
-      }
-      else if (ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa")) {
-        g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
-        g_pcbsa_level = PCBSA_MAX_LEVEL_SUPPORTED + 1;
-        if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
-        {
-          g_bsa_only_level = g_bsa_level;
-          g_pcbsa_only_level = g_pcbsa_level;
-        }
-      }
-      else {
-      g_bsa_level = BSA_MAX_LEVEL_SUPPORTED + 1;
-      g_sbsa_level = SBSA_MAX_LEVEL_SUPPORTED + 1;
-      if (ShellCommandLineGetFlag (ParamPackage, L"-only"))
-        g_bsa_only_level = g_bsa_level;
-      }
-    }
-  } else {
-    if (ArchArg && w_ascii_streq_caseins(ArchArg, L"sbsa")) {
-        g_sbsa_level = StrDecimalToUintn(CmdLineArg);
-        if (g_sbsa_level > SBSA_MAX_LEVEL_SUPPORTED) {
-          Print(L"SBSA Level %d is not supported.\n", g_sbsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (g_sbsa_level < SBSA_MIN_LEVEL_SUPPORTED) {
-          Print(L"SBSA Level %d is not supported.\n", g_sbsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (ShellCommandLineGetFlag (ParamPackage, L"-only")) {
-            g_sbsa_only_level = g_sbsa_level;
-        }
-    }
-    else if (ShellCommandLineGetFlag (ParamPackage, L"-pc-bsa")) {
-        g_pcbsa_level = StrDecimalToUintn(CmdLineArg);
-        if (g_pcbsa_level > PCBSA_MAX_LEVEL_SUPPORTED) {
-          Print(L"PCBSA Level %d is not supported.\n", g_pcbsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (g_pcbsa_level < PCBSA_MIN_LEVEL_SUPPORTED) {
-          Print(L"PCBSA Level %d is not supported.\n", g_pcbsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (ShellCommandLineGetFlag (ParamPackage, L"-only")) {
-            g_pcbsa_only_level = g_pcbsa_level;
-        }
-    }
-    else {
-        g_bsa_level = StrDecimalToUintn(CmdLineArg);
-        if (g_bsa_level > BSA_MAX_LEVEL_SUPPORTED) {
-          Print(L"BSA Level %d is not supported.\n", g_bsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (g_bsa_level < BSA_MIN_LEVEL_SUPPORTED) {
-          Print(L"BSA Level %d is not supported.\n", g_bsa_level);
-          HelpMsg();
-          return SHELL_INVALID_PARAMETER;
-        }
-        if (ShellCommandLineGetFlag (ParamPackage, L"-only")) {
-            g_bsa_only_level = g_bsa_level;
-        }
-    }
-  }
-
-  // Options with Flags
-   if (ShellCommandLineGetFlag (ParamPackage, L"-os")
-       || ShellCommandLineGetFlag (ParamPackage, L"-hyp")
-       || ShellCommandLineGetFlag (ParamPackage, L"-ps")) {
-       g_sw_view[G_SW_OS]  = 0;
-       g_sw_view[G_SW_HYP] = 0;
-       g_sw_view[G_SW_PS]  = 0;
-
-       if (ShellCommandLineGetFlag (ParamPackage, L"-os"))
-           g_sw_view[G_SW_OS] = 1;
-
-       if (ShellCommandLineGetFlag (ParamPackage, L"-hyp"))
-           g_sw_view[G_SW_HYP] = 1;
-
-       if (ShellCommandLineGetFlag (ParamPackage, L"-ps"))
-           g_sw_view[G_SW_PS] = 1;
-  }
-
-
-    // Options with Values
+  /* -f logfile option */
   CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-f");
   if (CmdLineArg == NULL) {
     g_acs_log_file_handle = NULL;
@@ -734,7 +653,7 @@ command_init ()
     }
   }
 
-    // If user has pass dtb flag, then dump the dtb in file
+  /* If user has pass dtb flag, then dump the dtb in file */
   CmdLineArg  = ShellCommandLineGetValue(ParamPackage, L"-dtb");
   if (CmdLineArg == NULL) {
     g_dtb_log_file_handle = NULL;
@@ -749,13 +668,15 @@ command_init ()
     }
   }
 
-  // Options with Flags
-  if ((ShellCommandLineGetFlag (ParamPackage, L"-help")) || (ShellCommandLineGetFlag (ParamPackage, L"-h"))){
+  /* Help message */
+  if ((ShellCommandLineGetFlag (ParamPackage, L"-help")) ||
+      (ShellCommandLineGetFlag (ParamPackage, L"-h"))) {
      HelpMsg();
-     return 0;
+     /* returning ACS_STATUS_ERR to block execution of tests */
+     return ACS_STATUS_ERR;
   }
 
-  // Options with Flags
+  /* no_crypto_ext */
   if ((ShellCommandLineGetFlag (ParamPackage, L"-no_crypto_ext")))
      g_crypto_support = FALSE;
 
@@ -838,7 +759,7 @@ command_init ()
           if (EFI_ERROR(RS)) {
               Print(L"Failed to read rules file %s\n", CmdLineArg);
               if (Combined) gBS->FreePool(Combined);
-              return 0;
+              return ACS_STATUS_ERR;
           }
 
           CHAR16 *wtext = NULL; UINTN wlen = 0;
@@ -847,20 +768,18 @@ command_init ()
           if (EFI_ERROR(RS)) {
               Print(L"Failed to decode rules file %s\n", CmdLineArg);
               if (Combined) gBS->FreePool(Combined);
-              return 0;
+              return ACS_STATUS_ERR;
           }
 
           /* Count tokens and allocate list */
           UINT32 max_tokens = count_rule_tokens_in_text(wtext, wlen);
           if (max_tokens > 0) {
-              EFI_STATUS EStatus = gBS->AllocatePool(EfiBootServicesData,
-                                       max_tokens * sizeof(RULE_ID_e),
-                                       (VOID **)&g_rule_list);
-              if (EFI_ERROR(EStatus)) {
+              g_rule_list = (RULE_ID_e *)val_memory_alloc(max_tokens * sizeof(RULE_ID_e));
+              if (g_rule_list == NULL) {
                   Print(L"Allocate memory for -r failed\n");
                   gBS->FreePool(wtext);
                   if (Combined) gBS->FreePool(Combined);
-                  return 0;
+                  return ACS_STATUS_ERR;
               }
           }
 
@@ -879,13 +798,11 @@ command_init ()
                   max_tokens++;
           }
           if (max_tokens > 0) {
-              EFI_STATUS EStatus = gBS->AllocatePool(EfiBootServicesData,
-                                       max_tokens * sizeof(RULE_ID_e),
-                                       (VOID **)&g_rule_list);
-              if (EFI_ERROR(EStatus)) {
+              g_rule_list = (RULE_ID_e *)val_memory_alloc(max_tokens * sizeof(RULE_ID_e));
+              if (g_rule_list == NULL) {
                   Print(L"Allocate memory for -r failed\n");
                   if (Combined) gBS->FreePool(Combined);
-                  return 0;
+                  return ACS_STATUS_ERR;
               }
           }
           UINTN start = 0; g_rule_count = 0;
@@ -922,111 +839,28 @@ command_init ()
   }
 
   /* Decide default architecture selection: if neither -r nor -a given, default to -a bsa */
-  BOOLEAN DefaultToBsa = FALSE;
   if ((ArchArg == NULL) && (g_rule_count == 0)) {
-      DefaultToBsa = TRUE;
       Print(L"No -r or -a specified; defaulting to -a bsa\n");
+      g_arch_selection = ARCH_BSA;
   }
 
-  /* If -a bsa (or defaulted): merge all BSA rules from lookup table into the rule list */
-  if ((ArchArg && w_ascii_streq_caseins(ArchArg, L"bsa")) || DefaultToBsa) {
-      /* Count entries in bsa_rule_list until sentinel */
-      UINT32 count = 0;
-      while (bsa_rule_list[count].rule_id != RULE_ID_SENTINEL) {
-          count++;
-      }
-      if (count == 0) {
-          Print(L"No BSA rules in lookup table; skipping -a bsa\n");
-      } else {
-          /* Merge BSA rules into existing list, deduplicating */
-          RULE_ID_e *old_list = g_rule_list;
-          UINT32 old_count = g_rule_count;
-          EFI_STATUS EStatus = gBS->AllocatePool(EfiBootServicesData,
-                                   (old_count + count) * sizeof(RULE_ID_e),
-                                   (VOID **)&g_rule_list);
-          if (EFI_ERROR(EStatus)) {
-              Print(L"Allocate memory for -a bsa failed\n");
-              g_rule_list = old_list; /* preserve old on failure */
-              return 0;
-          }
-          /* Copy existing */
-          for (UINT32 i = 0; i < old_count; i++) g_rule_list[i] = old_list[i];
-          UINT32 new_count = old_count;
-          /* Append unique from table */
-          for (UINT32 i = 0; i < count; i++) {
-              RULE_ID_e rid = bsa_rule_list[i].rule_id;
-              if (!rule_in_list(rid, g_rule_list, new_count)) g_rule_list[new_count++] = rid;
-          }
-          if (old_list) gBS->FreePool(old_list);
-          g_rule_count = new_count;
-      }
+  /* Validate software view usage: only allowed for BSA selection */
+  if (g_bsa_sw_view_mask != 0 && g_arch_selection != ARCH_BSA) {
+      Print(L"-hyp/-os/-ps are valid only with -a bsa.\n");
+      return SHELL_INVALID_PARAMETER;
   }
 
-  /* If -a sbsa: merge all SBSA rules from lookup table into the rule list */
-  if (ArchArg && w_ascii_streq_caseins(ArchArg, L"sbsa")) {
-      /* Count entries in sbsa_rule_list until sentinel */
-      UINT32 count = 0;
-      while (sbsa_rule_list[count].rule_id != RULE_ID_SENTINEL) {
-          count++;
-      }
-      if (count == 0) {
-          Print(L"No SBSA rules in lookup table; skipping -a sbsa\n");
-      } else {
-          /* Merge SBSA rules into existing list, deduplicating */
-          RULE_ID_e *old_list = g_rule_list;
-          UINT32 old_count = g_rule_count;
-          EFI_STATUS EStatus = gBS->AllocatePool(EfiBootServicesData,
-                                   (old_count + count) * sizeof(RULE_ID_e),
-                                   (VOID **)&g_rule_list);
-          if (EFI_ERROR(EStatus)) {
-              Print(L"Allocate memory for -a sbsa failed\n");
-              g_rule_list = old_list; /* preserve old on failure */
-              return 0;
-          }
-          /* Copy existing */
-          for (UINT32 i = 0; i < old_count; i++) g_rule_list[i] = old_list[i];
-          UINT32 new_count = old_count;
-          /* Append unique from table */
-          for (UINT32 i = 0; i < count; i++) {
-              RULE_ID_e rid = sbsa_rule_list[i].rule_id;
-              if (!rule_in_list(rid, g_rule_list, new_count)) g_rule_list[new_count++] = rid;
-          }
-          if (old_list) gBS->FreePool(old_list);
-          g_rule_count = new_count;
-      }
-  }
-
-  /* If -a pcbsa: merge all PC BSA rules from lookup table into the rule list */
-  if (ArchArg && w_ascii_streq_caseins(ArchArg, L"pcbsa")) {
-      /* Count entries in pcbsa_rule_list until sentinel */
-      UINT32 count = 0;
-      while (pcbsa_rule_list[count].rule_id != RULE_ID_SENTINEL) {
-          count++;
-      }
-      if (count == 0) {
-          Print(L"No PC BSA rules in lookup table; skipping -a pcbsa\n");
-      } else {
-          /* Merge PC BSA rules into existing list, deduplicating */
-          RULE_ID_e *old_list = g_rule_list;
-          UINT32 old_count = g_rule_count;
-          EFI_STATUS EStatus = gBS->AllocatePool(EfiBootServicesData,
-                                   (old_count + count) * sizeof(RULE_ID_e),
-                                   (VOID **)&g_rule_list);
-          if (EFI_ERROR(EStatus)) {
-              Print(L"Allocate memory for -a pcbsa failed\n");
-              g_rule_list = old_list; /* preserve old on failure */
-              return 0;
-          }
-          /* Copy existing */
-          for (UINT32 i = 0; i < old_count; i++) g_rule_list[i] = old_list[i];
-          UINT32 new_count = old_count;
-          /* Append unique from table */
-          for (UINT32 i = 0; i < count; i++) {
-              RULE_ID_e rid = pcbsa_rule_list[i].rule_id;
-              if (!rule_in_list(rid, g_rule_list, new_count)) g_rule_list[new_count++] = rid;
-          }
-          if (old_list) gBS->FreePool(old_list);
-          g_rule_count = new_count;
+  /* If no level filter explicitly set, apply defaults based on arch selection */
+  if (g_level_filter_mode == LVL_FILTER_NONE && g_arch_selection != ARCH_NONE) {
+      if (g_arch_selection == ARCH_BSA) {
+          g_level_filter_mode = LVL_FILTER_MAX;
+          g_level_value = BSA_LEVEL_1;
+      } else if (g_arch_selection == ARCH_SBSA) {
+          g_level_filter_mode = LVL_FILTER_MAX;
+          g_level_value = SBSA_LEVEL_4;
+      } else if (g_arch_selection == ARCH_PCBSA) {
+          g_level_filter_mode = LVL_FILTER_MAX;
+          g_level_value = PCBSA_LEVEL_1;
       }
   }
 
@@ -1052,7 +886,7 @@ command_init ()
                                 (VOID **) &g_execute_modules);
           if (EFI_ERROR(est)) {
               Print(L"Allocate memory for -m failed\n", 0);
-              return 0;
+              return ACS_STATUS_ERR;
           }
 
           /* Parse CSV of module names */
@@ -1113,7 +947,7 @@ command_init ()
                                 (VOID **) &g_skip_modules);
           if (EFI_ERROR(est)) {
               Print(L"Allocate memory for -skipmodule failed\n", 0);
-              return 0;
+              return ACS_STATUS_ERR;
           }
 
           g_num_skip_modules = 0;
@@ -1152,10 +986,6 @@ command_init ()
       }
   }
 
-  if (ShellCommandLineGetFlag (ParamPackage, L"-p2p")) {
-    ;
-  }
-
   if (ShellCommandLineGetFlag (ParamPackage, L"-skip-dp-nic-ms")) {
     g_pcie_skip_dp_nic_ms = TRUE;
   } else {
@@ -1177,27 +1007,10 @@ command_init ()
   if (ShellCommandLineGetFlag (ParamPackage, L"-el1physkip")) {
     g_el1physkip = TRUE;
   }
-  //
-  // Initialize global counters
-  //
-  g_acs_tests_total = 0;
-  g_acs_tests_pass  = 0;
-  g_acs_tests_fail  = 0;
 
   return(0);
 }
 
-#define BSA_LEVEL_PRINT_FORMAT(level, only) ((level > BSA_MAX_LEVEL_SUPPORTED) ? \
-    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
-    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
-
-#define SBSA_LEVEL_PRINT_FORMAT(level, only) ((level > SBSA_MAX_LEVEL_SUPPORTED) ? \
-    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
-    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
-
-#define PC_BSA_LEVEL_PRINT_FORMAT(level, only) ((level > PCBSA_MAX_LEVEL_SUPPORTED) ? \
-    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
-    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
 
 STATIC VOID FlushImage (VOID)
 {
@@ -1439,18 +1252,10 @@ execute_tests()
   VOID               *branch_label;
   UINT32             Status;
 
-  val_print(ACS_PRINT_TEST, "\n\n BSA Architecture Compliance Suite", 0);
-  val_print(ACS_PRINT_TEST, "\n          Version %d.", BSA_ACS_MAJOR_VER);
-  val_print(ACS_PRINT_TEST, "%d.", BSA_ACS_MINOR_VER);
-  val_print(ACS_PRINT_TEST, "%d\n", BSA_ACS_SUBMINOR_VER);
-
-
-  val_print(ACS_PRINT_TEST, BSA_LEVEL_PRINT_FORMAT(g_bsa_level, g_bsa_only_level),
-                                   (g_bsa_level > BSA_MAX_LEVEL_SUPPORTED) ? 0 : g_bsa_level);
-
-  if (g_bsa_only_level)
-    g_bsa_level = 0;
-
+  val_print(ACS_PRINT_TEST, "\n\nSystem Architecture Compliance Suite", 0);
+  val_print(ACS_PRINT_TEST, "\n          Version %d.", 1);
+  val_print(ACS_PRINT_TEST, "%d.", 0);
+  val_print(ACS_PRINT_TEST, "%d\n", 0);
   val_print(ACS_PRINT_TEST, "(Print level is %2d)\n\n", g_print_level);
   val_print(ACS_PRINT_TEST, "\n       Creating Platform Information Tables\n", 0);
 
@@ -1469,6 +1274,12 @@ execute_tests()
       return Status;
   }
 
+  /* Initialise exception vector, so any unexpected exception gets handled by default
+  BSA exception handler */
+  branch_label = &&exit_acs;
+  val_pe_context_save(AA64ReadSp(), (uint64_t)branch_label);
+  val_pe_initialize_default_exception_handler(val_pe_default_esr);
+
   createTimerInfoTable();
   createWatchdogInfoTable();
   createPcieVirtInfoTable();
@@ -1484,18 +1295,18 @@ execute_tests()
   createRasInfoTable();
   createTpm2InfoTable();
 
-
   val_allocate_shared_mem();
-
   FlushImage();
 
-  /* If user provided -r rules, run rule-based executor and return */
-  if (g_rule_count > 0 && g_rule_list != NULL) {
-    /* Apply CLI filters (-skip, -m, -skipmodule) to the parsed list */
-    g_rule_count = filter_rule_list_by_cli(g_rule_list, g_rule_count);
+  /* Build and run rule-based selection if -r provided or -a selected (default BSA) */
+  if ((g_rule_count > 0 && g_rule_list != NULL) || (g_arch_selection != ARCH_NONE)) {
+    /* Merge arch rules if any, then apply CLI filters (-skip, -m, -skipmodule) */
+    g_rule_count = filter_rule_list_by_cli(&g_rule_list, g_rule_count);
+    if (g_rule_count == 0 || g_rule_list == NULL)
+      goto exit_acs;
 
     /* Print all rule IDs to be executed after filtering for verification */
-    val_print(ACS_PRINT_TEST, "\nSelected rules (-r): ", 0);
+    val_print(ACS_PRINT_TEST, "\nSelected rules: ", 0);
     for (UINT32 i = 0; i < g_rule_count; i++) {
       RULE_ID_e rid = g_rule_list[i];
       if (rid < RULE_ID_SENTINEL && rule_id_string[rid] != NULL) {
@@ -1560,64 +1371,13 @@ execute_tests()
     return 0;
   }
 
-  val_bsa_execute_tests(g_sw_view);
-
-  if (g_build_sbsa) {
-
-      val_print(ACS_PRINT_ERR, "\n      *** BSA tests complete. Running SBSA Tests. ***\n\n\n", 0);
-      val_print(ACS_PRINT_ERR, "\n\n SBSA Architecture Compliance Suite\n", 0);
-      val_print(ACS_PRINT_ERR, "    Version %d.", SBSA_ACS_MAJOR_VER);
-      val_print(ACS_PRINT_ERR, "%d.", SBSA_ACS_MINOR_VER);
-      val_print(ACS_PRINT_ERR, "%d\n", SBSA_ACS_SUBMINOR_VER);
-
-      val_print(ACS_PRINT_TEST, SBSA_LEVEL_PRINT_FORMAT(g_sbsa_level, g_sbsa_only_level),
-                                   (g_sbsa_level > SBSA_MAX_LEVEL_SUPPORTED) ? 0 : g_sbsa_level);
-
-      val_sbsa_execute_tests(g_sbsa_level);
-  }
-
-  if (g_build_pcbsa) {
-
-      val_print(ACS_PRINT_ERR, "\n      *** BSA tests complete. Running PC BSA Tests. ***\n\n", 0);
-      val_print(ACS_PRINT_ERR, "\n\n PC BSA Architecture Compliance Suite\n", 0);
-      val_print(ACS_PRINT_ERR, "    Version %d.", PC_BSA_ACS_MAJOR_VER);
-      val_print(ACS_PRINT_ERR, "%d.", PC_BSA_ACS_MINOR_VER);
-      val_print(ACS_PRINT_ERR, "%d\n", PC_BSA_ACS_SUBMINOR_VER);
-
-      val_print(ACS_PRINT_TEST, PC_BSA_LEVEL_PRINT_FORMAT(g_pcbsa_level, g_pcbsa_only_level),
-                                   (g_pcbsa_level > PCBSA_MAX_LEVEL_SUPPORTED) ? 0 : g_pcbsa_level);
-
-      if (g_pcbsa_only_level)
-          g_pcbsa_level = 0;
-
-      val_pcbsa_execute_tests(g_pcbsa_level);
-  }
-
-  /* Initialise exception vector, so any unexpected exception gets handled by default
-     BSA exception handler */
-  branch_label = &&print_test_status;
-  val_pe_context_save(AA64ReadSp(), (uint64_t)branch_label);
-  val_pe_initialize_default_exception_handler(val_pe_default_esr);
-
-print_test_status:
-  val_print(ACS_PRINT_ERR, "\n     -------------------------------------------------------\n", 0);
-  val_print(ACS_PRINT_ERR, "     Total Tests run  = %4d", g_acs_tests_total);
-  val_print(ACS_PRINT_ERR, "  Tests Passed  = %4d", g_acs_tests_pass);
-  val_print(ACS_PRINT_ERR, "  Tests Failed = %4d\n", g_acs_tests_fail);
-  val_print(ACS_PRINT_ERR, "     -------------------------------------------------------\n", 0);
+exit_acs:
 
   freeBsaAcsMem();
 
   if (g_dtb_log_file_handle) {
     ShellCloseFile(&g_dtb_log_file_handle);
   }
-
-  if (g_build_sbsa)
-      val_print(ACS_PRINT_ERR, "\n      *** SBSA tests complete. Reset the system. ***\n\n", 0);
-  else if (g_build_pcbsa)
-      val_print(ACS_PRINT_ERR, "\n      *** PC BSA tests complete. Reset the system. ***\n\n", 0);
-  else
-      val_print(ACS_PRINT_ERR, "\n      *** BSA tests complete. Reset the system. ***\n\n", 0);
 
   if (g_acs_log_file_handle) {
     ShellCloseFile(&g_acs_log_file_handle);

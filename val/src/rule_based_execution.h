@@ -794,6 +794,24 @@ typedef enum {
     PLATFORM_LINUX     = 1 << 2   // 0x04
 } PLATFORM_e;
 
+/* Architecture selection for rule expansion via -a */
+typedef enum {
+    ARCH_NONE = 0,
+    ARCH_BSA,
+    ARCH_SBSA,
+    ARCH_PCBSA
+} ARCH_SEL_e;
+
+extern uint32_t g_arch_selection;
+
+/* Level filter mode for CLI selection */
+typedef enum {
+    LVL_FILTER_NONE = 0,
+    LVL_FILTER_MAX,   /* keep rules with level <= g_level_value */
+    LVL_FILTER_ONLY,  /* keep rules with level == g_level_value */
+    LVL_FILTER_FR     /* keep rules with level <= *_LEVEL_FR */
+} LEVEL_FILTER_MODE_e;
+
 /* ----------------------------  Struct  Definations --------------------------------------------*/
 
 typedef uint32_t (*test_entry_fn_t)(uint32_t);
@@ -845,6 +863,7 @@ uint32_t alias_rule_map_get_index(RULE_ID_e alias_rule_id);
 void     print_rule_test_start(uint32_t rule_enum, uint32_t indent);
 void     print_rule_test_status(uint32_t rule_enum, uint32_t status);
 void     rule_status_map_reset(void);
+bool     rule_in_list(RULE_ID_e rid, const RULE_ID_e *list, uint32_t count);
 
 /* ---------------------------- Externs ---------------------------- */
 extern uint32_t rule_status_map[RULE_ID_SENTINEL];
@@ -855,9 +874,14 @@ extern uint32_t   g_skip_rule_count;
 extern const bsa_rule_entry_t bsa_rule_list[];
 extern const sbsa_rule_entry_t sbsa_rule_list[];
 extern const pcbsa_rule_entry_t pcbsa_rule_list[];
+/* Global selections configured by the app (unified_main.c) */
+extern uint32_t g_level_filter_mode;  /* LEVEL_FILTER_MODE_e */
+extern uint32_t g_level_value;        /* numeric value interpreted per-arch */
+/* BSA-only software view selector bitmask; 0 means no filtering */
+extern uint32_t g_bsa_sw_view_mask; /* bit (1<<SW_OS | 1<<SW_HYP | 1<<SW_PS) */
 
 /* ------------------------------------ VAL APIs ------------------------------------------------*/
-uint32_t filter_rule_list_by_cli(RULE_ID_e *rule_list, uint32_t list_size);
+uint32_t filter_rule_list_by_cli(RULE_ID_e **rule_list, uint32_t list_size);
 void run_tests(RULE_ID_e *rule_list, uint32_t list_size);
 
 #endif /* __RULE_BASED_EXE_H__ */
