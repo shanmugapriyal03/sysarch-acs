@@ -30,10 +30,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
      /* ID_AA64DFR0_EL1.PMSVer bits 32 to 35 indicate the implementation of
         Statistical Profiling extension */

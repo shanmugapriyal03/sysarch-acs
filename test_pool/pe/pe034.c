@@ -27,10 +27,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 5) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     if (!g_crypto_support) {
         val_print_primary_pe(ACS_PRINT_DEBUG, "\n       Crypto extension not supported",

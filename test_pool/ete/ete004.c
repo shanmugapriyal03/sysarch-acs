@@ -37,10 +37,6 @@ static void payload(void)
     uint64_t traced_timestamp_2 = 0;
     uint64_t traced_timestamp_3 = 0;
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     dfr0_value = val_pe_reg_read(ID_AA64DFR0_EL1);
 

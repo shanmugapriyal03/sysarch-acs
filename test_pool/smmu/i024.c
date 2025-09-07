@@ -31,10 +31,6 @@ static void payload(void)
   uint32_t num_smmu;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-  if (g_sbsa_level < 8) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   num_smmu = val_smmu_get_info(SMMU_NUM_CTRL, 0);
 

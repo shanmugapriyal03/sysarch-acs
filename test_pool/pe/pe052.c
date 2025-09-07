@@ -28,10 +28,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* ID_AA64ISAR1_EL1.BF16[47:44] = 0b0001 indicate FEAT_BF16 support
     and 0b0010 indicates FEAT_EBF16 (which implements BF16 extension)*/

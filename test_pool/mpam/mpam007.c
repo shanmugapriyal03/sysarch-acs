@@ -49,10 +49,6 @@ static void payload(void)
     uint64_t desc1;
     uint64_t desc2;
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* If PE not implements FEAT_MPAM, FAIL the test */
     if (!((VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR0_EL1), 40, 43) > 0) ||

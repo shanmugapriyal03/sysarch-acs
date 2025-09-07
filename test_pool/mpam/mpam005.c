@@ -39,10 +39,6 @@ static void payload(void)
     uint64_t peri_count;
     uint64_t peripheral_base;
 
-   if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     msc_node_cnt = val_mpam_get_msc_count();
     val_print(ACS_PRINT_DEBUG, "\n       MSC count = %d", msc_node_cnt);

@@ -29,10 +29,6 @@ static void payload(void)
     uint64_t int_id = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* Check for GICC TRBE GISV Interrupt is PPI */
     int_id = val_pe_get_gicc_trbe_interrupt(index);

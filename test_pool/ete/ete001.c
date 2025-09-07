@@ -29,10 +29,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* ID_AA64DFR0_EL1.TraceVer, bits [7:4] non-zero value indicate FEAT_ETE support */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64DFR0_EL1), 4, 7);

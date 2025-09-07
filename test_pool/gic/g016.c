@@ -30,10 +30,6 @@ payload(void)
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t num_non_gic = 0;
 
-  if (g_sbsa_level < 5) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   num_non_gic = val_get_num_nongic_ctrl();
 

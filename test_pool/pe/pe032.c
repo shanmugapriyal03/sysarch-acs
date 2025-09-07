@@ -58,13 +58,8 @@ static void payload(void)
                  VAL_EXTRACT_BITS(data2, 8, 11));
     }
 
-    if (g_sbsa_level < 5) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    } else {
-        /* Pointer signing is mandatory, Check for pointer signing using standard arm algorithm */
-        check_pointer_signing_algorithm(index, data1, data2);
-    }
+    /* Check for pointer signing using standard arm algorithm */
+    check_pointer_signing_algorithm(index, data1, data2);
 }
 
 uint32_t pe032_entry(uint32_t num_pe)

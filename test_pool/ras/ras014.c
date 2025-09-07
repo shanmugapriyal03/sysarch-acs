@@ -39,10 +39,6 @@ static void payload(void)
   uint32_t test_skip = 1;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-  if (g_sbsa_level < 6) {
-    val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-    return;
-  }
 
   /* Get Number of RAS nodes */
   status = val_ras_get_info(RAS_INFO_NUM_NODES, 0, &num_node);

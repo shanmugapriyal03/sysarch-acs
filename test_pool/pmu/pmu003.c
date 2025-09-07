@@ -30,10 +30,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     data = val_pe_reg_read(ID_AA64DFR0_EL1);
     /* ID_AA64DFR0_EL1 bits 48 to 51 is MTPMU support.

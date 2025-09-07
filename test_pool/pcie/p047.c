@@ -41,11 +41,6 @@ static void payload(void)
     tbl_index = 0;
 
     index = val_pe_get_index_mpid(val_pe_get_mpid());
-    if (g_sbsa_level < 4) {
-        val_print (ACS_PRINT_DEBUG, "\n       Skipping test as SBSA level < 4  ", 0);
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return ;
-    }
 
 
     while (tbl_index < bdf_tbl_ptr->num_entries)

@@ -31,10 +31,6 @@ payload()
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t print_mhz = 0;
 
-  if (g_sbsa_level < 8) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   counter_freq = val_timer_get_info(TIMER_INFO_CNTFREQ, 0);
 

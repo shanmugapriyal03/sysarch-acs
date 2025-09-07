@@ -43,10 +43,6 @@ static void payload(void)
     uint32_t num_traffic_support;
     uint32_t cs_com = 0, node_index;
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 1));
-        return;
-    }
 
     pmu_node_count = val_pmu_get_info(PMU_NODE_COUNT, 0);
     val_print(ACS_PRINT_DEBUG, "\n       PMU NODES = %d", pmu_node_count);

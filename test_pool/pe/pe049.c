@@ -28,10 +28,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /*  ID_AA64MMFR0_EL1.ECV[63:60] = 0b0010 indicate Enhanced counter vitualization */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64MMFR0_EL1), 60, 63);

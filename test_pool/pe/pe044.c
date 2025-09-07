@@ -28,10 +28,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 6) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* Read ID_AA64PFR1_EL1.SSBS[7:4] = 0b0010 */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR1_EL1), 4, 7);

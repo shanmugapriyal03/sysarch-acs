@@ -30,10 +30,6 @@ void payload(void)
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
     uint32_t primary_pe_idx = val_pe_get_primary_index();
 
-    if (g_sbsa_level < 6) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* Read ID_AA64PFR0_EL1.SVE[35:32] = 0b0001 for SVE */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR0_EL1), 32, 35);

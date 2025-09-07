@@ -36,10 +36,6 @@ payload()
   uint32_t intid;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-  if (g_sbsa_level < 5) {
-      val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-      return;
-  }
 
   if (!g_el1physkip) {
    /* Check non-secure physical timer interrupt */

@@ -31,10 +31,6 @@ static void payload(void)
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
     uint32_t primary_index = val_pe_get_primary_index();
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* ID_AA64DFR0_EL1.TraceBuffer, bits [47:44] non-zero value indicate FEAT_TRBE support */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64DFR0_EL1), 44, 47);

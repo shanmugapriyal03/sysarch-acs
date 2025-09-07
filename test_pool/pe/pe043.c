@@ -29,10 +29,6 @@ static void payload(void)
     uint64_t data_csv3 = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 6) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* ID_AA64PFR0_EL1.CSV2[59:56] = 0b0010 or 0b0011 indicates Speculative use of Out of
        Ctxt Branch Targets and use of SCXTNUM_ELx registers */

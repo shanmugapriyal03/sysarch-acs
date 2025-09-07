@@ -32,10 +32,6 @@ static void payload(void)
     uint32_t test_fail = 0;
     uint64_t reg_trcidr;
 
-    if (g_sbsa_level < 8) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* ID_AA64DFR0_EL1.TraceVer, bits [7:4] non-zero value indicate FEAT_ETE support */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64DFR0_EL1), 4, 7);

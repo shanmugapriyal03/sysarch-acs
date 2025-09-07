@@ -56,10 +56,6 @@ static void payload(void)
     uint32_t storage_value2;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-   if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
    /* Check if PE implements FEAT_MPAM */
     if (!((VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64PFR0_EL1), 40, 43) > 0) ||

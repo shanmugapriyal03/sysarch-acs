@@ -28,10 +28,6 @@ static void payload(void)
     uint64_t data = 0;
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
 
-    if (g_sbsa_level < 6) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     /* Read ID_AA64ISAR1_EL1.SB[39:36] = 0b0001 For SB Speculation Barrier */
     data = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64ISAR1_EL1), 36, 39);

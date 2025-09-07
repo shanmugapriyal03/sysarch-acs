@@ -31,10 +31,6 @@ static void payload(void)
     uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
     uint32_t primary_pe_idx = val_pe_get_primary_index();
 
-    if (g_sbsa_level < 7) {
-        val_set_status(index, RESULT_SKIP(TEST_NUM, 01));
-        return;
-    }
 
     if (index == primary_pe_idx) {
         val_print(ACS_PRINT_DEBUG, "\n       ID_AA64ISAR1_EL1.APA[7:4]    = %llx",
