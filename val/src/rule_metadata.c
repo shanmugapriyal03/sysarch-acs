@@ -34,6 +34,7 @@
 #include "include/acs_ete.h"
 #include "include/acs_timer.h"
 #include "include/acs_peripherals.h"
+#include "include/acs_tpm.h"
 #include "include/test_wrappers.h"
 
 /*
@@ -1722,14 +1723,14 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
-        [P_L1GI_02] = {
+        [S_L3GI_02] = {
             .test_entry_id    = P046_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Check all MSI(X) vectors are LPIs",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI | PLATFORM_LINUX,
             .flag             = BASE_RULE,
         },
-        [P_L1PCI_2] = {
+        [S_L4PCI_2] = {
             .test_entry_id    = P087_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Check EA Capability",
@@ -2018,6 +2019,162 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
+
+    /* PC-BSA rule test mapping */
+        [P_L1GI_01] = {
+            .test_entry_id    = G012_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check GIC version",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PP_01] = {
+            .test_entry_id    = G014_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check All PPI Interrupt IDs",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1GI_03] = {
+            .test_entry_id    = INTERFACE010_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check GIC supports disabling LPIs",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1GI_04] = {
+            .test_entry_id    = INTERFACE011_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check GICR_PENDBASER when LPIs enabled",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1MM_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = MEM_MAP,
+            .rule_desc        = "NS-EL2 Stage-2 64KB Mapping Check",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE,
+        },
+        [P_L1PE_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check PE 4KB Granule Support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [P_L1PE_02] = {
+            .test_entry_id    = PE024_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check for 16-bit ASID support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_03] = {
+            .test_entry_id    = PE025_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check AARCH64 implementation",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_04] = {
+            .test_entry_id    = PE015_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check for FEAT_LSE support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_05] = {
+            .test_entry_id    = PE026_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check FEAT_LPA Requirements",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_06] = {
+            .test_entry_id    = PE028_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check DC CVAP support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_07] = {
+            .test_entry_id    = PE029_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check for 16-Bit VMID",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PE_08] = {
+            .test_entry_id    = PE030_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check for Virtual host extensions",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1SM_02] = {
+            .test_entry_id    = I008_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check Stage 1 SMMUv3 functionality",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1SM_03] = {
+            .test_entry_id    = I025_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check Stage 2 SMMUv3 functionality",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1SM_04] = {
+            .test_entry_id    = I020_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check SMMU Coherent Access Support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1SM_05] = {
+            .test_entry_id    = I022_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check if all DMA reqs behind SMMU",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L2WD_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = WATCHDOG,
+            .rule_desc        = "Non-secure Generic watchdog check",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE,
+        },
+        [P_L1TP_01] = {
+            .test_entry_id    = TPM001_ENTRY,
+            .module_id        = TPM,
+            .rule_desc        = "Check TPM Version",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1TP_03] = {
+            .test_entry_id    = TPM002_ENTRY,
+            .module_id        = TPM,
+            .rule_desc        = "Check TPM interface locality support",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1GI_02] = {
+            .test_entry_id    = P046_ENTRY,
+            .module_id        = PCIE,
+            .rule_desc        = "Check all MSI(X) vectors are LPIs",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [P_L1PCI_2] = {
+            .test_entry_id    = P087_ENTRY,
+            .module_id        = PCIE,
+            .rule_desc        = "Check EA Capability",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
     };
 
 /* Following structure maps test entry enums with entry function pointers
@@ -2145,8 +2302,8 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I028_ENTRY] = i028_entry,
     [I029_ENTRY] = i029_entry,
     [I030_ENTRY] = i030_entry,
-    // [INTERFACE010_ENTRY] = interface010_entry,
-    // [INTERFACE011_ENTRY] = interface011_entry,
+    [INTERFACE010_ENTRY] = interface010_entry,
+    [INTERFACE011_ENTRY] = interface011_entry,
     [ITS001_ENTRY] = its001_entry,
     [ITS002_ENTRY] = its002_entry,
     [ITS003_ENTRY] = its003_entry,
@@ -2344,8 +2501,8 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [T005_ENTRY] = t005_entry,
     [T006_ENTRY] = t006_entry,
     [T007_ENTRY] = t007_entry,
-    // [TPM001_ENTRY] = tpm001_entry,
-    // [TPM002_ENTRY] = tpm002_entry,
+    [TPM001_ENTRY] = tpm001_entry,
+    [TPM002_ENTRY] = tpm002_entry,
     // [U001_ENTRY] = u001_entry, // used in wrapper.
     // [U002_ENTRY] = u002_entry, // used in wrapper.
     // [U003_ENTRY] = u003_entry, // used in wrapper.
@@ -2701,6 +2858,7 @@ char8_t *module_name_string[MODULE_ID_SENTINEL] = {
     [PCIE]         = "PCIE",
     [MPAM]         = "MPAM",
     [ETE]          = "ETE",
+    [TPM]          = "TPM",
     [POWER_WAKEUP] = "POWER_WAKEUP",
 };
 
@@ -3131,6 +3289,7 @@ module_init_t module_init_status[MODULE_ID_SENTINEL] = {
     [PCIE]         = {NULL, 0}, //TODO
     [MPAM]         = {NULL, 1},
     [ETE]          = {NULL, 1},
+    [TPM]          = {NULL, 1},
     [POWER_WAKEUP] = {NULL, 1}
 };
 
@@ -3144,16 +3303,24 @@ module_init_t module_init_status[MODULE_ID_SENTINEL] = {
     uint8_t g_current_pal = PLATFORM_UEFI;
 #endif
 
-/* Base rule lists for alias rules */
-RULE_ID_e s_l3pr_01_rule_list[] = {B_PER_05};
-RULE_ID_e s_l3wd_01_rule_list[] = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05};
-RULE_ID_e b_wd_00_rule_list[]   = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05};
+/* BSA alias lists */
+RULE_ID_e b_wd_00_rule_list[]     = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05};
+/* SBSA alias lists */
+RULE_ID_e s_l3pr_01_rule_list[]   = {B_PER_05};
+RULE_ID_e s_l3wd_01_rule_list[]   = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05};
+/* PCBSA alias lists */
+RULE_ID_e p_l2wd_01_rule_list[]   = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05};
+RULE_ID_e p_l1mm_01_rule_list[]   = {S_L3MM_01, S_L3MM_02};
+RULE_ID_e p_l1pe_01_rule_list[]   = {B_PE_04, B_PE_19};
 // TODO update all alias rules in xbsa specs
 
 alias_rule_map_t alias_rule_map[] = {
-    {S_L3PR_01, s_l3pr_01_rule_list, sizeof(s_l3pr_01_rule_list) / sizeof(s_l3pr_01_rule_list[0])},
-    {S_L3WD_01, s_l3wd_01_rule_list, sizeof(s_l3wd_01_rule_list) / sizeof(s_l3wd_01_rule_list[0])},
-    {B_WD_00,   b_wd_00_rule_list,   sizeof(b_wd_00_rule_list)   / sizeof(b_wd_00_rule_list[0])},
+    {S_L3PR_01, s_l3pr_01_rule_list, sizeof(s_l3pr_01_rule_list)/sizeof(s_l3pr_01_rule_list[0])},
+    {S_L3WD_01, s_l3wd_01_rule_list, sizeof(s_l3wd_01_rule_list)/sizeof(s_l3wd_01_rule_list[0])},
+    {B_WD_00,   b_wd_00_rule_list,   sizeof(b_wd_00_rule_list)/sizeof(b_wd_00_rule_list[0])},
+    {P_L2WD_01, p_l2wd_01_rule_list, sizeof(p_l2wd_01_rule_list)/sizeof(p_l2wd_01_rule_list[0])},
+    {P_L1MM_01, p_l1mm_01_rule_list, sizeof(p_l1mm_01_rule_list)/sizeof(p_l1mm_01_rule_list[0])},
+    {P_L1PE_01, p_l1pe_01_rule_list, sizeof(p_l1pe_01_rule_list)/sizeof(p_l1pe_01_rule_list[0])},
 };
 
 uint32_t alias_rule_map_count = sizeof(alias_rule_map) / sizeof(alias_rule_map[0]);

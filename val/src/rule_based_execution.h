@@ -580,6 +580,8 @@ typedef enum {
     I016_ENTRY,
     I017_ENTRY,
     I030_ENTRY,
+    INTERFACE010_ENTRY,
+    INTERFACE011_ENTRY,
     I003_ENTRY,
     I004_ENTRY,
     I010_ENTRY,
@@ -725,6 +727,8 @@ typedef enum {
     ETE007_ENTRY,
     ETE008_ENTRY,
     ETE009_ENTRY,
+    TPM001_ENTRY,
+    TPM002_ENTRY,
     TEST_ENTRY_SENTINEL
 } TEST_ENTRY_ID_e;
 
@@ -744,6 +748,7 @@ typedef enum {
     PCIE,
     MPAM,
     ETE,
+    TPM,
     POWER_WAKEUP,
     MODULE_ID_SENTINEL /* need to be in last */
 } MODULE_NAME_e;
