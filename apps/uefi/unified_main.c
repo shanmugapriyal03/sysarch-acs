@@ -44,6 +44,8 @@ UINT64  g_stack_pointer;
 UINT64  g_exception_ret_addr;
 UINT64  g_ret_addr;
 UINT32  g_wakeup_timeout;
+/* Following g_build_* is retained to have compatibility with tests which use it, and used pass
+   on -a selection hint to tests in unified main */
 UINT32  g_build_sbsa = 0;
 UINT32  g_build_pcbsa = 0;
 UINT32  g_print_mmio;
@@ -498,10 +500,14 @@ command_init ()
   /* Record arch selection for orchestrator to expand */
   if (w_ascii_streq_caseins(ArchArg, L"bsa"))
     g_arch_selection = ARCH_BSA;
-  else if (w_ascii_streq_caseins(ArchArg, L"sbsa"))
+  else if (w_ascii_streq_caseins(ArchArg, L"sbsa")) {
     g_arch_selection = ARCH_SBSA;
-  else if (w_ascii_streq_caseins(ArchArg, L"pcbsa"))
+    g_build_sbsa = 1;
+  }
+  else if (w_ascii_streq_caseins(ArchArg, L"pcbsa")) {
     g_arch_selection = ARCH_PCBSA;
+    g_build_pcbsa = 1;
+  }
   }
 
   /* Parse level selection flags (-l, -only, -fr). They are mutually exclusive. */

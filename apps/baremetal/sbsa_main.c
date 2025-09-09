@@ -42,6 +42,8 @@ uint32_t  *g_execute_modules;
 uint32_t  g_sys_last_lvl_cache;
 uint32_t  g_its_init = 0;
 bool      g_pcie_skip_dp_nic_ms = 0;
+/* Set g_build_sbsa hint for test */
+uint32_t g_build_sbsa = 1;
 
 extern uint32_t g_skip_array[];
 extern uint32_t g_num_skip;
