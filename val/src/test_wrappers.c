@@ -28,398 +28,294 @@
 #include "include/acs_pe.h"
 #include "include/acs_exerciser.h"
 #include "include/test_wrappers.h"
+#include "rule_based_execution.h"
+
+extern test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL];
+
+/* Helper to execute test entries  */
+static uint32_t run_test_entries(TEST_ENTRY_ID_e *tst_entry_list, uint32_t num_pe)
+{
+    uint32_t i;
+    uint32_t entry_status = TEST_STATUS_UNKNOWN;
+    uint32_t rule_status = TEST_STATUS_UNKNOWN;
+
+    for (i = 0; tst_entry_list[i] != TEST_ENTRY_SENTINEL ; i++) {
+        if (test_entry_func_table[tst_entry_list[i]] != NULL) {
+            entry_status = test_entry_func_table[tst_entry_list[i]](num_pe);
+        } else {
+            /* If entry is NULL, then the entry is not supported in current PAL */
+            entry_status = TEST_PART_COV;
+        }
+
+        /* Update overall status for the rule */
+        if ((entry_status > rule_status) || (rule_status == TEST_STATUS_UNKNOWN)) {
+            rule_status = entry_status;
+        }
+    }
+
+    return rule_status;
+}
+
+/* PCIe-specific helpers to execute entry ID lists and merge results */
+static inline uint32_t max_status(uint32_t a, uint32_t b)
+{
+    return (a > b) ? a : b;
+}
+
+static uint32_t run_pcie_static_and_exerciser(TEST_ENTRY_ID_e *static_list,
+                                              TEST_ENTRY_ID_e *exr_list,
+                                              uint32_t num_pe)
+{
+    uint32_t static_status = run_test_entries(static_list, num_pe);
+    uint32_t exr_status    = run_test_entries(exr_list,   num_pe);
+
+    /* Report partial coverage if PCIe static tests PASS and excerciser tests SKIP */
+    if (static_status == TEST_PASS && exr_status == TEST_SKIP)
+        return TEST_PART_COV;
+
+    return max_status(static_status, exr_status);
+}
 
 /* B_PPI_00 */
 uint32_t
 b_ppi_00_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {G006_ENTRY, G007_ENTRY, G009_ENTRY,
+                                        G010_ENTRY, G011_ENTRY, TEST_ENTRY_SENTINEL};
 
-    status = g006_entry(num_pe);
-    status |= g007_entry(num_pe);
-    status |= g009_entry(num_pe);
-    status |= g010_entry(num_pe);
-    status |= g011_entry(num_pe);
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* B_WAK_03, B_WAK_07 */
 uint32_t
 b_wak_03_07_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    /* TODO: U006_ENTRY needs multi-PE interrupt handling support says comment in
+       bsa_executes_tests.c */
+    TEST_ENTRY_ID_e tst_entry_list[] = {U001_ENTRY, U002_ENTRY, U003_ENTRY,
+                                        U004_ENTRY, U005_ENTRY,
+                                        /* U006_ENTRY, */
+                                        TEST_ENTRY_SENTINEL};
 
-    status = u001_entry(num_pe);
-    status |= u002_entry(num_pe);
-    status |= u003_entry(num_pe);
-    status |= u004_entry(num_pe);
-    status |= u005_entry(num_pe);
-
-    /* TODO: Test needs multi-PE interrupt handling support says comment in bsa_executes_tests.c*/
-    /* status |= u006_entry(num_pe); */
-
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* S_L7MP_03 */
 uint32_t
 s_l7mp_03_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {MPAM002_ENTRY, MPAM006_ENTRY, MPAM007_ENTRY,
+                                        TEST_ENTRY_SENTINEL};
 
-    status = mpam002_entry(num_pe);
-    status |= mpam006_entry(num_pe);
-    status |= mpam007_entry(num_pe);
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* SYS_RAS_2 */
 uint32_t
 sys_ras_2_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {RAS011_ENTRY, RAS012_ENTRY, TEST_ENTRY_SENTINEL};
 
-    status = ras011_entry(num_pe);
-    status |= ras012_entry(num_pe);
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* Appendix I.6 */
 uint32_t
 appendix_i_6_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {V2M001_ENTRY, V2M003_ENTRY, TEST_ENTRY_SENTINEL};
 
-    status = v2m001_entry(num_pe);
-    status |= v2m003_entry(num_pe);
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* P_L1PE_01 */
 uint32_t
 p_l1pe_01_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {PE004_ENTRY, PE018_ENTRY, TEST_ENTRY_SENTINEL};
 
-    status = pe004_entry(num_pe);
-    status |= pe018_entry(num_pe);
-    return status;
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* IE_REG_1 */
 uint32_t
 ie_reg_1_entry(uint32_t num_pe)
 {
-    uint32_t status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P049_ENTRY, P059_ENTRY, TEST_ENTRY_SENTINEL};
 
-    status = p049_entry(num_pe);
-    status |= p059_entry(num_pe);
-    return status;
+   return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_IC_11 */
 uint32_t
 pci_ic_11_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p068_entry(num_pe);
-    exr_status = e007_entry(num_pe);
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P068_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E007_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_IN_04 */
 uint32_t
 pci_in_04_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p003_entry(num_pe);
-    status |= p072_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P003_ENTRY, P072_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_LI_02 */
 uint32_t
 pci_li_02_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    //TODO: revisit, need to deal with wrappers which has parts split across PALs
-    //status = p096_entry(num_pe);
-    status = ENCODE_STATUS(TEST_SKIP_VAL);
-
-    exr_status = e006_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P096_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E006_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_LI_03 */
 uint32_t
 pci_li_03_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p023_entry(num_pe);
-    status |= p078_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P023_ENTRY, P078_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_MSI_2 */
 uint32_t
 pci_msi_2_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    //TODO: revisit, need to deal with wrappers which has parts split across PALs
-    //status = p097_entry(num_pe);
-    status = ENCODE_STATUS(TEST_SKIP_VAL);
-
-    exr_status = e033_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P097_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E033_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_PP_04 */
 uint32_t
 pci_pp_04_entry(uint32_t num_pe)
 {
-    uint32_t exr_status;
-
-    exr_status = e001_entry(num_pe);
-    exr_status |= e002_entry(num_pe);
-
-    return exr_status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {E001_ENTRY, E002_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_PP_05 */
 uint32_t
 pci_pp_05_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p017_entry(num_pe);
-    status |= p018_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P017_ENTRY, P018_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* RE_REC_1 */
 uint32_t
 re_rec_1_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p053_entry(num_pe);
-    status |= p061_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P053_ENTRY, P061_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* RE_REG_1 */
 uint32_t
 re_reg_1_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p048_entry(num_pe);
-    status |= p058_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P048_ENTRY, P058_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* IE_REG_3 */
 uint32_t
 ie_reg_3_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p050_entry(num_pe);
-    status |= p060_entry(num_pe);
-    exr_status = e034_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P050_ENTRY, P060_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E034_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_IN_19 */
 uint32_t
 pci_in_19_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p030_entry(num_pe);
-    status |= p031_entry(num_pe);
-    status |= p032_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P030_ENTRY, P031_ENTRY, P032_ENTRY,
+                                        TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_LI_01 */
 uint32_t
 pci_li_01_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p006_entry(num_pe);
-    status |= p027_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P006_ENTRY, P027_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_MM_01 */
 uint32_t
 pci_mm_01_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p045_entry(num_pe);
-    status |= p103_entry(num_pe);
-    exr_status = e016_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P045_ENTRY, P103_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E016_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_MM_03 */
 uint32_t
 pci_mm_03_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    //TODO: revisit, need to deal with wrappers which has parts split across PALs
-    //status = p094_entry(num_pe);
-    //status = p0104_entry(num_pe);
-    status = ENCODE_STATUS(TEST_SKIP_VAL);
-
-    exr_status = e039_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P094_ENTRY, P104_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E039_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* RE_SMU_2 */
 uint32_t
 re_smu_2_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p028_entry(num_pe);
-    exr_status = e019_entry(num_pe);
-    exr_status |= e020_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P028_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E019_ENTRY, E020_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* IE_REG_2 */
 uint32_t
 ie_reg_2_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p054_entry(num_pe);
-    status |= p098_entry(num_pe);
-    status |= p065_entry(num_pe);
-    status |= p067_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P054_ENTRY, P098_ENTRY, P065_ENTRY, P067_ENTRY,
+                                        TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* IE_REG_4 */
 uint32_t
 ie_reg_4_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p051_entry(num_pe);
-    status |= p099_entry(num_pe);
-    status |= p066_entry(num_pe);
-    status |= p088_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P051_ENTRY, P099_ENTRY, P066_ENTRY, P088_ENTRY,
+                                        TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_IN_13 */
 uint32_t
 pci_in_13_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    status = p004_entry(num_pe);
-    status |= p005_entry(num_pe);
-    return status;
+    TEST_ENTRY_ID_e tst_entry_list[] = {P004_ENTRY, P005_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
 }
 
 /* PCI_IN_17 */
 uint32_t
 pci_in_17_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p036_entry(num_pe);
-    status |= p064_entry(num_pe);
-    status |= p071_entry(num_pe);
-    exr_status = e015_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = { P036_ENTRY, P064_ENTRY, P071_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E015_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
 /* PCI_IN_05 */
 uint32_t
 pci_in_05_entry(uint32_t num_pe)
 {
-    uint32_t status;
-    uint32_t exr_status;
-
-    status = p020_entry(num_pe);
-    status |= p022_entry(num_pe);
-    status |= p024_entry(num_pe);
-    status |= p025_entry(num_pe);
-    status |= p026_entry(num_pe);
-    status |= p033_entry(num_pe);
-    exr_status = e017_entry(num_pe);
-
-    /* If PCIe static checks passed, but exerciser part skipped maybe due to exerciser not present
-       report rule as partially covered */
-    if (IS_TEST_SKIP(exr_status) && IS_TEST_PASS(status)) {
-        return ENCODE_STATUS(TEST_PARTIAL_COV);
-    }
-
-    return status | exr_status;
+    TEST_ENTRY_ID_e p_list[] = {
+        P020_ENTRY, P022_ENTRY, P024_ENTRY, P025_ENTRY, P026_ENTRY, P033_ENTRY, TEST_ENTRY_SENTINEL
+    };
+    TEST_ENTRY_ID_e e_list[] = { E017_ENTRY, TEST_ENTRY_SENTINEL };
+    return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
