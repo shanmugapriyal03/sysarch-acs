@@ -36,6 +36,7 @@
 #define ACS_STATUS_PASS      0x0
 #define ACS_STATUS_NIST_PASS 0x1
 #define ACS_INVALID_INDEX    0xFFFFFFFF
+#define ACS_STATUS_UNKNOWN   0xFFFFFFFF
 
 #define NOT_IMPLEMENTED         0x4B1D  /* Feature or API not implemented */
 
