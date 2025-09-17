@@ -21,8 +21,7 @@
 #include "val/include/acs_wakeup.h"
 
 #define TEST_NUM  (ACS_WAKEUP_TEST_NUM_BASE + 2)
-#define TEST_RULE "B_WAK_01, B_WAK_02, B_WAK_03, B_WAK_04, B_WAK_05 \
-                    \n       B_WAK_06, B_WAK_07, B_WAK_10, B_WAK_11"
+#define TEST_RULE "B_WAK_03, B_WAK_07"
 #define TEST_DESC "Wake from EL1 VIR Timer Int           "
 
 extern uint32_t g_wakeup_timeout;
