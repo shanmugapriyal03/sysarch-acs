@@ -81,7 +81,7 @@ const pcbsa_rule_entry_t pcbsa_rule_list[] = {
 /* SBSA rule checklist based on Arm SBSA 7.2 specification */
 const sbsa_rule_entry_t sbsa_rule_list[] = {
     /* Level 3 */
-    // { S_L3_01,     SBSA_LEVEL_3 }, multi module alias support TODO
+    { S_L3_01,     SBSA_LEVEL_3 },
     { S_L3PE_01,   SBSA_LEVEL_3 },
     { S_L3PE_02,   SBSA_LEVEL_3 },
     { S_L3PE_03,   SBSA_LEVEL_3 },

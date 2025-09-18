@@ -395,8 +395,8 @@ run_tests(RULE_ID_e *rule_list, uint32_t list_size)
             /* convenience alias to the base rule list for this alias */
             base_rule_list = alias_rule_map[alias_rule_map_index].base_rule_list;
 
-            /* Run the base rules required by the alias*/
-            for (j = 0; j < alias_rule_map[alias_rule_map_index].rule_count ; j++) {
+            /* Run the base rules required by the alias; list is sentinel-terminated */
+            for (j = 0; base_rule_list[j] != RULE_ID_SENTINEL; j++) {
                 /* Print base rule header */
                 print_rule_test_start(base_rule_list[j], 1);
 
