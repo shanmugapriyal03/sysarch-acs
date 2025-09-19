@@ -65,7 +65,7 @@ UINT32  g_build_sbsa = 1;
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
     ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
 
-STATIC VOID FlushImage (VOID)
+VOID FlushImage (VOID)
 {
   EFI_LOADED_IMAGE_PROTOCOL   *ImageInfo;
   EFI_STATUS Status;
@@ -325,7 +325,7 @@ HelpMsg (
   );
 }
 
-STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
+CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-v"    , TypeValue},    // -v    # Verbosity of the Prints. 1 shows all prints, 5 shows Errors
   {L"-l"    , TypeValue},    // -l    # Level of compliance to be tested for.
   {L"-only" , TypeValue},    // -only # To only run tests for a Specific level of compliance.

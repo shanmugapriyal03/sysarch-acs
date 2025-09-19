@@ -63,7 +63,7 @@ UINT32  g_el1physkip = FALSE;
 
 SHELL_FILE_HANDLE g_acs_log_file_handle;
 
-STATIC VOID FlushImage (VOID)
+VOID FlushImage (VOID)
 {
   EFI_LOADED_IMAGE_PROTOCOL   *ImageInfo;
   EFI_STATUS Status;
@@ -232,7 +232,7 @@ HelpMsg (
   );
 }
 
-STATIC CONST SHELL_PARAM_ITEM ParamList[] = {
+CONST SHELL_PARAM_ITEM ParamList[] = {
   {L"-v", TypeValue},         // -v    # Verbosity of the Prints. 1 shows all prints, 5 shows Errors
   {L"-l", TypeValue},         // -l    # Level of compliance to be tested for.
   {L"-only", TypeValue},      // -only # To only run tests for a Specific level of compliance.

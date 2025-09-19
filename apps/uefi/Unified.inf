@@ -33,6 +33,8 @@
   ../
   ../../
   app.c
+  acs_globals.c
+  acs_helpers.c
   unified_main.c
   ../../test_pool/pe/pe001.c
   ../../test_pool/pe/pe002.c

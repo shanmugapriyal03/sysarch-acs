@@ -209,4 +209,4 @@
 
 [BuildOptions]
   GCC:*_*_*_ASM_FLAGS  =  -march=armv8.2-a
-  GCC:*_*_*_CC_FLAGS   = -g -gdwarf-4 -mstrict-align -march=armv8.2-a -O0 -DNOSWP -I${WORKSPACE}/ShellPkg/Application/sysarch-acs/mem_test/kvm-unit-tests/lib/arm64 -I${WORKSPACE}/ShellPkg/Application/sysarch-acs/mem_test/kvm-unit-tests/lib -DBSA_ACS -DENABLE_MEMTEST -DTARGET_UEFI
+  GCC:*_*_*_CC_FLAGS   = -g -gdwarf-4 -I${ACS_PATH}/val -mstrict-align -march=armv8.2-a -O0 -DNOSWP -I${WORKSPACE}/ShellPkg/Application/sysarch-acs/mem_test/kvm-unit-tests/lib/arm64 -I${WORKSPACE}/ShellPkg/Application/sysarch-acs/mem_test/kvm-unit-tests/lib -DBSA_ACS -DENABLE_MEMTEST -DTARGET_UEFI

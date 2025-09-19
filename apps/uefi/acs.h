@@ -18,6 +18,10 @@
 #ifndef __ACS_LEVEL_H__
 #define __ACS_LEVEL_H__
 
+#include <stdbool.h>
+#include <Library/ShellLib.h>
+#include "val/src/rule_based_execution.h"
+
 /* BSA Release versions */
 #define BSA_ACS_MAJOR_VER       1
 #define BSA_ACS_MINOR_VER       1
@@ -118,6 +122,64 @@ unsigned long __stack_chk_guard = 0xBAAAAAAD;
 unsigned long __stack_chk_fail =  0xBAAFAAAD;
 #endif
 
+/* Extern declarations */
+extern UINT32  g_pcie_p2p;
+extern UINT32  g_pcie_cache_present;
+extern bool    g_pcie_skip_dp_nic_ms;
+extern UINT32  g_print_level;
+extern UINT32  g_num_skip;
+extern UINT64  g_stack_pointer;
+extern UINT64  g_exception_ret_addr;
+extern UINT64  g_ret_addr;
+extern UINT32  g_wakeup_timeout;
+extern UINT32  g_build_sbsa;
+extern UINT32  g_build_pcbsa;
+extern UINT32  g_print_mmio;
+extern UINT32  g_curr_module;
+extern UINT32  g_enable_module;
+extern UINT32  g_crypto_support;
+extern UINT32 *g_execute_modules;
+extern UINT32  g_num_modules;
+extern UINT32 *g_skip_modules;
+extern UINT32  g_num_skip_modules;
+extern UINT32  g_sys_last_lvl_cache;
+extern UINT32  g_el1physkip;
+extern SHELL_FILE_HANDLE g_acs_log_file_handle;
+extern SHELL_FILE_HANDLE g_dtb_log_file_handle;
+extern RULE_ID_e *g_rule_list;
+extern UINT32     g_rule_count;
+extern RULE_ID_e *g_skip_rule_list;
+extern UINT32     g_skip_rule_count;
+extern uint32_t   g_arch_selection;
+extern uint32_t   g_level_filter_mode;
+extern uint32_t   g_level_value;
+extern uint32_t   g_bsa_sw_view_mask;
+extern CONST SHELL_PARAM_ITEM ParamList[];
+/* Use rule string map from VAL to translate -r inputs */
+extern char8_t *rule_id_string[RULE_ID_SENTINEL];
+/* Use module string map from VAL to translate -m inputs */
+extern char8_t *module_name_string[MODULE_ID_SENTINEL];
+
+/* Function declarations */
+void HelpMsg(VOID);
 uint32_t command_init(void);
+uint32_t createPeInfoTable(void);
+uint32_t createGicInfoTable(void);
+uint32_t createRasInfoTable(void);
+void     createTimerInfoTable(void);
+void     createWatchdogInfoTable(void);
+void     createPcieVirtInfoTable(void);
+void     createPeripheralInfoTable(void);
+void     createSmbiosInfoTable(void);
+void     createPmuInfoTable(void);
+void     createCacheInfoTable(void);
+void     createMpamInfoTable(void);
+void     createHmatInfoTable(void);
+void     createSratInfoTable(void);
+void     createPccInfoTable(void);
+void     createRas2InfoTable(void);
+void     createTpm2InfoTable(void);
+void     print_selection_summary(void);
+void     FlushImage(void);
 
 #endif
