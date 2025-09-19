@@ -187,6 +187,7 @@ const sbsa_rule_entry_t sbsa_rule_list[] = {
     { S_L8PE_05,   SBSA_LEVEL_FR },
     { S_L8PE_07,   SBSA_LEVEL_FR },
     { S_L8PE_08,   SBSA_LEVEL_FR },
+    { WNPXD,       SBSA_LEVEL_FR },
     { S_L8RME_1,   SBSA_LEVEL_FR },
     { S_L8SM_01,   SBSA_LEVEL_FR },
     { SYS_RAS_4,   SBSA_LEVEL_FR },

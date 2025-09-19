@@ -567,6 +567,14 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
             .test_num         = ACS_PE_TEST_NUM_BASE + 62,
         },
+        [WNPXD] = {
+            .test_entry_id    = PE065_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check for FEAT_PFAR support",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+            .test_num         = ACS_PE_TEST_NUM_BASE + 65,
+        },
     /* GIC */
         [B_GIC_01] = {
             .test_entry_id    = G001_ENTRY,
@@ -2814,6 +2822,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [PE062_ENTRY] = pe062_entry,
     [PE063_ENTRY] = pe063_entry,
     [PE064_ENTRY] = pe064_entry,
+    [PE065_ENTRY] = pe065_entry,
     [PE066_ENTRY] = pe066_entry,
 /* The following test entries are excluded from compilation for the BSA DT UEFI App, as they are
    not required for the BSA DT build. These tests invoke VAL APIs, which in turn call PAL APIs,
