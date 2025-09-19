@@ -103,6 +103,7 @@ typedef enum {
     S_L8PE_06,
     S_L8PE_07,
     S_L8PE_08,
+    WNPXD,
     S_L8RME_1,
     S_L8SHD_1,
 
@@ -571,6 +572,7 @@ typedef enum {
     PE064_ENTRY,
     PE061_ENTRY,
     PE062_ENTRY,
+    PE065_ENTRY,
     G001_ENTRY,
     G002_ENTRY,
     G003_ENTRY,

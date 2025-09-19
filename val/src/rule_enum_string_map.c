@@ -95,6 +95,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [S_L8PE_06]   = "S_L8PE_06",
     [S_L8PE_07]   = "S_L8PE_07",
     [S_L8PE_08]   = "S_L8PE_08",
+    [WNPXD]       = "WNPXD",
     [S_L8RME_1]   = "S_L8RME_1",
     [S_L8SHD_1]   = "S_L8SHD_1",
 
