@@ -84,7 +84,6 @@
   ../../test_pool/smmu/i011.c
   ../../test_pool/smmu/i012.c
   ../../test_pool/smmu/i013.c
-  ../../test_pool/smmu/i014.c
   ../../test_pool/smmu/i015.c
   ../../test_pool/smmu/i016.c
   ../../test_pool/smmu/i017.c
