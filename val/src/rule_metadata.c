@@ -2635,7 +2635,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I011_ENTRY] = i011_entry,
     [I012_ENTRY] = i012_entry,
     [I013_ENTRY] = i013_entry,
-    [I014_ENTRY] = i014_entry,
     [I015_ENTRY] = i015_entry, // used in wrapper
     [I016_ENTRY] = i016_entry,
     [I017_ENTRY] = i017_entry,
