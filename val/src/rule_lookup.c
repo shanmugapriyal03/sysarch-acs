@@ -133,7 +133,6 @@ const sbsa_rule_entry_t sbsa_rule_list[] = {
     { S_L6PE_07,   SBSA_LEVEL_6 },
     { S_L6PE_08,   SBSA_LEVEL_6 },
     { S_L6SM_02,   SBSA_LEVEL_6 },
-    { S_L6SM_03,   SBSA_LEVEL_6 },
     { S_L6SM_04,   SBSA_LEVEL_6 },
     { S_L6WD_01,   SBSA_LEVEL_6 },
     { S_RAS_01,    SBSA_LEVEL_6 },

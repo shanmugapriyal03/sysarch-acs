@@ -511,7 +511,6 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
       status |= i013_entry(num_pe);
-      status |= i014_entry(num_pe);
       status |= i015_entry(num_pe);
       status |= i016_entry(num_pe);
       status |= i017_entry(num_pe);
