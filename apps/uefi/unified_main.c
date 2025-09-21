@@ -29,80 +29,126 @@
 #include "val/src/rule_based_execution.h"
 #include "acs.h"
 
-
-/* CLI parameter table for Unified ACS */
+/* CLI parameter table for Unified ACS, for description refer HelpMsg */
 CONST SHELL_PARAM_ITEM ParamList[] = {
-    {L"-v", TypeValue},    // -v    # Verbosity of the Prints. 1 shows all prints, 5 shows Errors
-    {L"-f", TypeValue},    // -f    # Name of the log file to record the test results in.
-    {L"-skip", TypeValue}, // -skip # test(s) to skip execution
-    {L"-skip-dp-nic-ms", TypeFlag}, // Skip tests for DisplayPort, Network, and Mass Storage devices
-    {L"-m", TypeValue},    // -m    # Module to be run
-    {L"-p2p", TypeFlag},   // -p2p  # Peer-to-Peer is supported
-    {L"-cache", TypeFlag}, // -cache# PCIe address translation cache is supported
-    {L"-timeout", TypeValue}, // -timeout # Set timeout multiple for wakeup tests
-    {L"-help", TypeFlag},  // -help # help : info about commands
-    {L"-h", TypeFlag},     // -h    # help : info about commands
-    {L"-dtb", TypeValue},  // -dtb  # Binary Flag to enable dtb dump
-    {L"-a", TypeValue},    // -a    # Architecture selector: bsa | sbsa
-    {L"-l", TypeValue},    // -l    # Max level to run (per-arch)
-    {L"-only", TypeValue}, // -only # Run only the given level
-    {L"-fr", TypeFlag},    // -fr   # Run rules up to the FR level (per-arch)
-    {L"-hyp", TypeFlag},   // -hyp  # BSA software view filter: Hypervisor
-    {L"-os", TypeFlag},    // -os   # BSA software view filter: OS
-    {L"-ps", TypeFlag},    // -ps   # BSA software view filter: Platform Services
-    {L"-no_crypto_ext", TypeFlag},  // -no_crypto_ext  # Skip tests which have export restrictions
-    {L"-mmio", TypeFlag}, // -mmio # Enable pal_mmio prints
-    {L"-el1physkip", TypeFlag}, // -el1physkip # Skips EL1 register checks
-    {L"-r", TypeValue},        // -r    # Comma-separated Rule IDs for rule-based execution
-    {L"-skipmodule", TypeValue}, // -skipmodule # Comma-separated module names to skip
-    {L"-slc", TypeValue},    // -slc  # system last level cache type
+    {L"-a", TypeValue},
+    {L"-cache", TypeFlag},
+    {L"-dtb", TypeValue},
+    {L"-el1physkip", TypeFlag},
+    {L"-f", TypeValue},
+    {L"-fr", TypeFlag},
+    {L"-h", TypeFlag},
+    {L"-help", TypeFlag},
+    {L"-hyp", TypeFlag},
+    {L"-l", TypeValue},
+    {L"-m", TypeValue},
+    {L"-mmio", TypeFlag},
+    {L"-no_crypto_ext", TypeFlag},
+    {L"-only", TypeValue},
+    {L"-os", TypeFlag},
+    {L"-p2p", TypeFlag},
+    {L"-ps", TypeFlag},
+    {L"-r", TypeValue},
+    {L"-skip", TypeValue},
+    {L"-skip-dp-nic-ms", TypeFlag},
+    {L"-skipmodule", TypeValue},
+    {L"-slc", TypeValue},
+    {L"-timeout", TypeValue},
+    {L"-v", TypeValue},
     {NULL, TypeMax}
     };
 
-VOID HelpMsg (VOID)
+/* Limit chars to 75 chars for each new line in HelpMsg for neater print in standard consoles
+   and sorted in alphabetical order */
+VOID
+HelpMsg (VOID)
 {
-    Print (L"\nUsage: Bsa.efi [-v <n>] | [-f <filename>] | "
-        "[-skip <n>] | [-m <n>]\n"
+    Print (L"\nUsage: Unified.efi [options]\n"
         "Options:\n"
-        "-v      Verbosity of the prints\n"
-        "        1 prints all, 5 prints only the errors\n"
-        "        Note: pal_mmio prints can be enabled for specific modules by passing\n"
-        "              module numbers along with global verbosity level 1\n"
-        "              Module numbers are PE 0, MEM 1, GIC 2, SMMU 3, TIMER 4, WAKEUP 5   ...\n"
-        "              PERIPHERAL 6, Watchdog 7, PCIe 8, Exerciser 9   ...\n"
-        "              E.g., To enable mmio prints for PE and TIMER pass -v 104\n"
-        "-mmio   Pass this flag to enable pal_mmio_read/write prints, use with -v 1\n"
-        "-f      Name of the log file to record the test results in\n"
-        "-skip   Rule ID(s) to be skipped (comma-separated, like -r)\n"
-        "        Example: -skip B_PE_01,B_GIC_02\n"
-        "-m      If Module ID(s) set, will only run the specified module(s), all others will be skipped.\n"
-        "-no_crypto_ext  Pass this flag if cryptography extension not supported due to export restrictions\n"
-        "-p2p    Pass this flag to indicate that PCIe Hierarchy Supports Peer-to-Peer\n"
-        "-cache  Pass this flag to indicate that if the test system supports PCIe address translation cache\n"
-        "-timeout  Set timeout multiple for wakeup tests\n"
-        "        1 - min value  5 - max value\n"
-        "-dtb    Enable the execution of dtb dump\n"
         "-a      Architecture selection: 'bsa', 'sbsa', or 'pcbsa'\n"
         "        -a bsa    Use full BSA rule checklist \n"
         "        -a sbsa   Use full SBSA rule checklist \n"
         "        -a pcbsa  Use full PC BSA rule checklist \n"
-        "-l <n>  Max level to include (per-arch).\n"
-        "        Defaults: bsa=1, sbsa=4, pcbsa=1.\n"
-        "-only <n>  Include only rules at level <n> (per-arch).\n"
-        "-fr     Run rules up to the FR level (per-arch).\n"
-        "-hyp|-os|-ps  Software view filter (BSA only; can be combined).\n"
-        "-el1physkip Skips EL1 register checks\n"
+        "-cache  Pass this flag to indicate that if the test system supports\n"
+        "        PCIe address translation cache\n"
+        "-dtb    Pass this flag to dump DTB file (Device Tree Blob) \n"
+        "-el1physkip \n"
+        "        Skips EL1 register checks\n"
+        "        VE systems run ACS at EL1 and in some systems crash is observed\n"
+        "        during access of EL1 registers, this flag was introduced\n"
+        "        for debugging purposes only.\n"
+        "-f      Name of the log file to record the test results in\n"
+        "-fr     Run rules up to the Future requirements (FR) level.\n"
+        "        The flag will be validated against -a selected,\n"
+        "        e.g -a sbsa -fr will run tests required for SBSA compliance\n"
+        "        future requirements level (highest level). \n"
+        "-l <n>  Run compliance tests up till inputted level.\n"
+        "        Example: -l 4\n"
+        "        The level passed will be validated against -a selected,\n"
+        "        e.g -a sbsa -l 7 will run tests required for\n"
+        "            SBSA level 7 compliance.\n"
+        "-m      Run only the specified modules (comma-separated names).\n"
+        "        Accepted: PE, GIC, PERIPHERAL, MEM_MAP, PMU, RAS, SMMU,\n"
+        "                  TIMER, WATCHDOG, NIST, PCIE, MPAM, ETE, TPM, POWER_WAKEUP\n"
+        "        Example: -m PE,GIC,PCIE\n"
+        "-mmio   Pass this flag to enable pal_mmio_read/write prints, use with -v 1\n"
+        "-no_crypto_ext \n"
+        "        Pass this flag if cryptography extension not supported\n"
+        "        due to export restrictions\n"
+        "-only <n> \n"
+        "        Only run tests for rules at level <n> \n"
+        "        The level passed will be validated against -a selected, e.g -a \n"
+        "        sbsa -only 4 will run tests for rule ids specified for \n"
+        "        SBSA at level 4 of specification \n"
+        "-os|-hyp|-ps \n"
+        "        Software view filter (works with -a bsa only; can be combined).\n"
+        "        Pass -os  to run BSA Operating system software view tests.\n"
+        "        Pass -hyp to run BSA Hypervisior software view tests.\n"
+        "        Pass -ps  to run BSA Platform security software view tests.\n"
+        "-p2p    Pass this flag to indicate that PCIe Hierarchy Supports Peer-to-Peer\n"
+        "-r      Run tests for passed comma-separated Rule IDs or a rules file\n"
+        "        Examples: -r B_PE_01,B_PE_02,B_GIC_01\n"
+        "                  -r rules.txt  (file may mix commas/newlines; lines \n"
+        "                     starting with # are comments)\n"
         "-slc    Provide system last level cache type\n"
         "        1 - PPTT PE-side cache,  2 - HMAT mem-side cache\n"
-        "-skip-dp-nic-ms Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
-        "-r      Rule selection: comma-separated IDs or a rules file\n"
-        "        Examples: -r B_PE_01,B_PE_02,B_GIC_01\n"
-        "                  -r rules.txt  (file may mix commas/newlines; lines starting with # are comments)\n"
+        "-skip   Rule ID(s) to be skipped (comma-separated, like -r)\n"
+        "        Example: -skip B_PE_01,B_GIC_02\n"
+        "-skip-dp-nic-ms \n"
+        "        Skip PCIe tests for DisplayPort, Network, and Mass Storage devices\n"
+        "-timeout <n> \n"
+        "        Set timeout multiple for wakeup tests\n"
+        "        1 - min value  5 - max value, Defaults to 1 \n"
+        "-v <n>  Verbosity of the prints\n"
+        "        1 prints all, 5 prints only the errors\n"
     );
 }
 
+static VOID
+freeAcsMem(void)
+{
+    val_pe_free_info_table();
+    val_gic_free_info_table();
+    val_timer_free_info_table();
+    val_wd_free_info_table();
+    val_pcie_free_info_table();
+    val_iovirt_free_info_table();
+    val_peripheral_free_info_table();
+    val_smbios_free_info_table();
+    val_pmu_free_info_table();
+    val_cache_free_info_table();
+    val_mpam_free_info_table();
+    val_hmat_free_info_table();
+    val_srat_free_info_table();
+    val_ras2_free_info_table();
+    val_pcc_free_info_table();
+    val_tpm2_free_info_table();
+    val_free_shared_mem();
+}
+
 /* Apply default values to -a -l options if no value passed to cli */
-static UINT32 apply_cli_defaults(VOID)
+static UINT32
+apply_cli_defaults(VOID)
 {
     if (g_arch_selection == ARCH_NONE && g_rule_count == 0) {
         Print(L"No -r or -a specified; defaulting to -a bsa\n");
@@ -127,28 +173,7 @@ static UINT32 apply_cli_defaults(VOID)
         }
     }
 
-    return 0;
-}
-
-static VOID freeAcsMem(void)
-{
-    val_pe_free_info_table();
-    val_gic_free_info_table();
-    val_timer_free_info_table();
-    val_wd_free_info_table();
-    val_pcie_free_info_table();
-    val_iovirt_free_info_table();
-    val_peripheral_free_info_table();
-    val_smbios_free_info_table();
-    val_pmu_free_info_table();
-    val_cache_free_info_table();
-    val_mpam_free_info_table();
-    val_hmat_free_info_table();
-    val_srat_free_info_table();
-    val_ras2_free_info_table();
-    val_pcc_free_info_table();
-    val_tpm2_free_info_table();
-    val_free_shared_mem();
+    return ACS_STATUS_PASS;
 }
 
 UINT32
@@ -159,21 +184,15 @@ execute_tests()
 
     /* Apply any ACS specific default values */
     Status = apply_cli_defaults();
-    if (Status != 0) {
-        if (g_dtb_log_file_handle) {
-            ShellCloseFile(&g_dtb_log_file_handle);
-        }
-        if (g_acs_log_file_handle) {
-            ShellCloseFile(&g_acs_log_file_handle);
-        }
-        return Status;
+    if (Status != ACS_STATUS_PASS) {
+        goto exit_acs;
     }
 
     /* Print ACS header */
-    val_print(ACS_PRINT_TEST, "\n\nSystem Architecture Compliance Suite", 0);
-    val_print(ACS_PRINT_TEST, "\n          Version %d.", 1);
-    val_print(ACS_PRINT_TEST, "%d.", 0);
-    val_print(ACS_PRINT_TEST, "%d\n", 0);
+    val_print(ACS_PRINT_TEST, "\n\nUnified Architecture Compliance Suite", 0);
+    val_print(ACS_PRINT_TEST, "\n          Version %d.", UNI_ACS_MAJOR_VER);
+    val_print(ACS_PRINT_TEST, "%d.", UNI_ACS_MINOR_VER);
+    val_print(ACS_PRINT_TEST, "%d\n", UNI_ACS_SUBMINOR_VER);
     val_print(ACS_PRINT_TEST, "(Print level is %2d)\n\n", g_print_level);
     val_print(ACS_PRINT_TEST, "\n       Creating Platform Information Tables\n", 0);
 
@@ -215,7 +234,6 @@ execute_tests()
     val_allocate_shared_mem();
     FlushImage();
 
-    /* Build and run rule-based selection if -r provided or -a selected (default BSA) */
     if ((g_rule_count > 0 && g_rule_list != NULL) || (g_arch_selection != ARCH_NONE)) {
         /* Merge arch rules if any, then apply CLI filters (-skip, -m, -skipmodule) */
         g_rule_count = filter_rule_list_by_cli(&g_rule_list, g_rule_count);
@@ -230,10 +248,11 @@ execute_tests()
         return 0;
     }
 
-exit_acs:
+    // TODO make changes in orchestrator to update result counts
 
     freeAcsMem();
 
+exit_acs:
     /* Close any file handles open */
     if (g_dtb_log_file_handle) {
         ShellCloseFile(&g_dtb_log_file_handle);
@@ -243,5 +262,5 @@ exit_acs:
     }
 
     val_pe_context_restore(AA64WriteSp(g_stack_pointer));
-    return 0;
+    return ACS_STATUS_PASS;;
 }

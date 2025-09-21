@@ -2326,7 +2326,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [B_PPI_00_ENTRY]   = b_ppi_00_entry,
     [B_WAK_03_07_ENTRY] = b_wak_03_07_entry,
     [S_L7MP_03_ENTRY]  = s_l7mp_03_entry,
-    [SYS_RAS_2_ENTRY]  = sys_ras_2_entry,
     [APPENDIX_I_6_ENTRY] = appendix_i_6_entry,
     [IE_REG_1_ENTRY]   = ie_reg_1_entry,
     [IE_REG_2_ENTRY]   = ie_reg_2_entry,
@@ -2395,7 +2394,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [M008_ENTRY] = m008_entry,
     [MPAM001_ENTRY] = mpam001_entry,
     [MPAM002_ENTRY] = mpam002_entry, // used in wrapper.
-    [MPAM003_ENTRY] = mpam003_entry,
     [MPAM005_ENTRY] = mpam005_entry,
     [MPAM006_ENTRY] = mpam006_entry, // used in wrapper.
     [MPAM007_ENTRY] = mpam007_entry, // used in wrapper.
@@ -2549,6 +2547,11 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [PE062_ENTRY] = pe062_entry,
     [PE063_ENTRY] = pe063_entry,
     [PE064_ENTRY] = pe064_entry,
+/* The following test entries are excluded from compilation for the BSA DT UEFI App, as they are
+   not required for the BSA DT build. These tests invoke VAL APIs, which in turn call PAL APIs,
+   and PAL_DT lacks a few necessary implementations.*/
+#ifndef BSA_DT_BUILD
+    [MPAM003_ENTRY] = mpam003_entry,
     [PMU001_ENTRY] = pmu001_entry,
     [PMU002_ENTRY] = pmu002_entry,
     [PMU003_ENTRY] = pmu003_entry,
@@ -2574,6 +2577,10 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [RAS013_ENTRY] = ras013_entry,
     [RAS014_ENTRY] = ras014_entry,
     [RAS015_ENTRY] = ras015_entry,
+    [SYS_RAS_2_ENTRY]  = sys_ras_2_entry,
+    [TPM001_ENTRY] = tpm001_entry,
+    [TPM002_ENTRY] = tpm002_entry,
+#endif
     [T001_ENTRY] = t001_entry,
     [T002_ENTRY] = t002_entry,
     [T003_ENTRY] = t003_entry,
@@ -2581,8 +2588,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [T005_ENTRY] = t005_entry,
     [T006_ENTRY] = t006_entry,
     [T007_ENTRY] = t007_entry,
-    [TPM001_ENTRY] = tpm001_entry,
-    [TPM002_ENTRY] = tpm002_entry,
     [U001_ENTRY] = u001_entry, // used in wrapper.
     [U002_ENTRY] = u002_entry, // used in wrapper.
     [U003_ENTRY] = u003_entry, // used in wrapper.

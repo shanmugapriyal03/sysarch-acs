@@ -1,5 +1,5 @@
 diff --git a/MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.c b/MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.c
-index f0a8b9f..e41e0de 100644
+index f0a8b9fe62..e41e0de3e0 100644
 --- a/MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.c
 +++ b/MdeModulePkg/Library/UefiHiiServicesLib/UefiHiiServicesLib.c
 @@ -90,8 +90,8 @@ UefiHiiServicesLibConstructor (
@@ -14,7 +14,7 @@ index f0a8b9f..e41e0de 100644
    //
    // Retrieve the pointer to the optional UEFI HII Font Protocol
 diff --git a/ShellPkg/ShellPkg.dsc b/ShellPkg/ShellPkg.dsc
-index 7e985f8..6ea22f8 100644
+index 7e985f8280..50ae5ea046 100644
 --- a/ShellPkg/ShellPkg.dsc
 +++ b/ShellPkg/ShellPkg.dsc
 @@ -66,6 +66,9 @@
@@ -22,7 +22,7 @@ index 7e985f8..6ea22f8 100644
  
    SafeIntLib|MdePkg/Library/BaseSafeIntLib/BaseSafeIntLib.inf
 +  FdtLib|EmbeddedPkg/Library/FdtLib/FdtLib.inf
-+  UnifiedValLib|ShellPkg/Application/sysarch-acs/val/UnifiedValLib.inf
++  UnifiedValLib|ShellPkg/Application/sysarch-acs/val/UnifiedValLibRB.inf
 +  UnifiedPalLib|ShellPkg/Application/sysarch-acs/pal/uefi_dt/UnifiedPalLib.inf
  
  [PcdsFixedAtBuild]
@@ -35,3 +35,9 @@ index 7e985f8..6ea22f8 100644
  
    ShellPkg/Application/Shell/Shell.inf {
      <PcdsFixedAtBuild>
+@@ -157,4 +161,4 @@
+   ShellPkg/DynamicCommand/VariablePolicyDynamicCommand/VariablePolicyApp.inf
+ 
+ [BuildOptions]
+-  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES
++  *_*_*_CC_FLAGS = -D DISABLE_NEW_DEPRECATED_INTERFACES -D BSA_DT_BUILD

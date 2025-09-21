@@ -29,7 +29,6 @@
 #
 
 [Sources.AARCH64]
-
   ../
   ../../
   app.c
@@ -145,7 +144,6 @@
   ../../test_pool/exerciser/e033.c
   ../../test_pool/exerciser/e035.c
   ../../test_pool/exerciser/e039.c
-
   ../../test_pool/pe/pe023.c
   ../../test_pool/pe/pe024.c
   ../../test_pool/pe/pe025.c
@@ -302,10 +300,8 @@
   ../../test_pool/ete/ete006.c
   ../../test_pool/ete/ete007.c
   ../../test_pool/ete/ete008.c
-
   ../../test_pool/drtm/interface010.c
   ../../test_pool/drtm/interface011.c
-
   ../../test_pool/tpm/tpm001.c
   ../../test_pool/tpm/tpm002.c
 

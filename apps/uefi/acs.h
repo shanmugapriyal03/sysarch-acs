@@ -37,6 +37,11 @@
 #define PC_BSA_ACS_MINOR_VER     8
 #define PC_BSA_ACS_SUBMINOR_VER  0
 
+/* Unified ACS Release versions */
+#define UNI_ACS_MAJOR_VER     1
+#define UNI_ACS_MINOR_VER     0
+#define UNI_ACS_SUBMINOR_VER  0
+
 /* DRTM Release versions */
 #define DRTM_ACS_MAJOR_VER      0
 #define DRTM_ACS_MINOR_VER      7
@@ -109,13 +114,11 @@
 #define TPM2_INFO_TBL_SZ        256   /* Supports maximum of 10 TPM2 info entries */
                                       /* [24 B each: 3 x uint64_t] + 16 B Header */
 
-#define BSA_LEVEL_PRINT_FORMAT(level, only) ((level > BSA_MAX_LEVEL_SUPPORTED) ? \
-    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
-    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
-
-#define SBSA_LEVEL_PRINT_FORMAT(level, only) ((level > SBSA_MAX_LEVEL_SUPPORTED) ? \
-    ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
-    ((only) != 0 ? "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
+#define LEVEL_PRINT_FORMAT(level, filter_mode, fr_level) ((filter_mode == LVL_FILTER_FR) ? \
+    ((filter_mode == LVL_FILTER_ONLY && level == fr_level) ? \
+    "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
+    ((filter_mode == LVL_FILTER_ONLY) ? \
+    "\n Starting tests for only level %2d " : "\n Starting tests for level %2d "))
 
 #ifdef _AARCH64_BUILD_
 unsigned long __stack_chk_guard = 0xBAAAAAAD;
