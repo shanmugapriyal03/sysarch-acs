@@ -20,7 +20,7 @@
 
 #include <stdbool.h>
 #include <Library/ShellLib.h>
-#include "val/src/rule_based_execution.h"
+#include "val/include/rule_based_execution.h"
 
 /* BSA Release versions */
 #define BSA_ACS_MAJOR_VER       1

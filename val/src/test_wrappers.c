@@ -28,7 +28,7 @@
 #include "include/acs_pe.h"
 #include "include/acs_exerciser.h"
 #include "include/test_wrappers.h"
-#include "rule_based_execution.h"
+#include "include/rule_based_execution.h"
 
 extern test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL];
 

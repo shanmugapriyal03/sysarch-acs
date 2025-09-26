@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <Library/ShellLib.h>
 #include "val/include/val_interface.h"
-#include "val/src/rule_based_execution.h"
+#include "val/include/rule_based_execution.h"
 #include "acs.h"
 
 /* Global Variables */

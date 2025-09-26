@@ -27,7 +27,7 @@
 #include "val/include/acs_pe.h"
 #include "val/include/acs_val.h"
 #include "val/include/acs_memory.h"
-#include "val/src/rule_based_execution.h"
+#include "val/include/rule_based_execution.h"
 #include "acs.h"
 
 /* Minimal ASCII string equality check to avoid extra deps */
