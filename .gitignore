@@ -5,6 +5,8 @@ cscope.*
 .vscode/
 pre_commit_data/
 AGENTS.md
+.project
+*.launch
 #Ignore build directory
 build/
 #Ignore kvm framework

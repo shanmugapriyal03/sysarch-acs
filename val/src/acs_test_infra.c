@@ -284,6 +284,7 @@ val_mmio_write64(addr_t addr, uint64_t data)
   @return         ACS_STATUS_SKIP - if the user override has no tests to run in the current module
                   ACS_STATUS_PASS - if tests are to be run in the current module
  **/
+#ifndef COMPILE_RB_EXE
 uint32_t
 val_check_skip_module(uint32_t module_base)
 {
@@ -310,6 +311,14 @@ val_check_skip_module(uint32_t module_base)
 
   return ACS_STATUS_PASS;
 }
+#else
+uint32_t
+val_check_skip_module(uint32_t module_base)
+{
+  (void)module_base;
+  return ACS_STATUS_PASS;
+}
+#endif
 
 /**
   @brief  This API prints the test number, description and
@@ -369,6 +378,9 @@ val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
   val_print(ACS_PRINT_ERR, "%4d : ", test_num); //Always print this
   val_print(ACS_PRINT_TEST, desc, 0);
   g_acs_tests_total++;
+#else
+  (void)desc;
+  (void)num_pe;
 #endif
   val_report_status(0, ACS_START(test_num), NULL);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);

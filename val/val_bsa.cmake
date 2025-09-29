@@ -58,6 +58,12 @@ set(COMPILE_LIST ${COMPILE_LIST} PARENT_SCOPE)
 # Create VAL library
 add_library(${VAL_LIB} STATIC ${VAL_SRC})
 
+# Define COMPILE_RB_EXE for gating few compilations in val for rule based
+# execution infra.
+target_compile_definitions(${VAL_LIB} PRIVATE COMPILE_RB_EXE)
+# Define BAREMETAL_BSA_BUILD
+target_compile_definitions(${VAL_LIB} PRIVATE BAREMETAL_BSA_BUILD)
+
 target_include_directories(${VAL_LIB} PRIVATE
  ${CMAKE_CURRENT_BINARY_DIR}
  ${ROOT_DIR}/
