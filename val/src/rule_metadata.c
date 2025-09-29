@@ -2425,7 +2425,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [P024_ENTRY] = p024_entry, // used in wrapper.
     [P025_ENTRY] = p025_entry, // used in wrapper.
     [P026_ENTRY] = p026_entry, // used in wrapper.
-    [P027_ENTRY] = p027_entry, // used in wrapper.
     [P028_ENTRY] = p028_entry, // used in wrapper.
     [P029_ENTRY] = p029_entry,
     [P030_ENTRY] = p030_entry, // used in wrapper.
@@ -2551,6 +2550,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
    not required for the BSA DT build. These tests invoke VAL APIs, which in turn call PAL APIs,
    and PAL_DT lacks a few necessary implementations.*/
 #ifndef BSA_DT_BUILD
+    [P027_ENTRY] = p027_entry, // used in wrapper.
     [MPAM003_ENTRY] = mpam003_entry,
     [PMU001_ENTRY] = pmu001_entry,
     [PMU002_ENTRY] = pmu002_entry,

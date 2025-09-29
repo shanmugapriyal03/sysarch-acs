@@ -103,8 +103,10 @@ freeAcsMem()
 static UINT32
 apply_cli_defaults(VOID)
 {
-    /* Standalone PCBSA UEFI app, set g_arch_selection to PCBSA */
-    g_arch_selection = ARCH_PCBSA;
+    /* Standalone PCBSA UEFI app, set g_arch_selection to PCBSA if -r empty */
+    if (g_rule_count == 0) {
+        g_arch_selection = ARCH_PCBSA;
+    }
 
     /* Set Default level for the run if level filtering CLI options (-l, -only or -fr) is
        not passed and set filter mode to LVL_FILTER_MAX for filter_rule_list_by_cli logic to work
@@ -186,7 +188,6 @@ execute_tests()
 
         /* Run rule based test orchestrator */
         run_tests(g_rule_list, g_rule_count);
-        return 0;
     }
 
 print_test_status:
@@ -198,7 +199,7 @@ print_test_status:
     // val_print(ACS_PRINT_ERR, "  Tests Failed = %4d\n", g_acs_tests_fail);
     // val_print(ACS_PRINT_ERR, "     -------------------------------------------------------\n",
     //           0);
-    // val_print(ACS_PRINT_ERR, "\n      *** PC BSA tests complete. Reset the system. ***\n\n", 0);
+    val_print(ACS_PRINT_ERR, "\n      *** PC BSA tests complete. Reset the system. ***\n\n", 0);
 
     freeAcsMem();
 

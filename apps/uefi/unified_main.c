@@ -245,10 +245,10 @@ execute_tests()
 
         /* Run rule based test orchestrator */
         run_tests(g_rule_list, g_rule_count);
-        return 0;
     }
 
     // TODO make changes in orchestrator to update result counts
+    val_print(ACS_PRINT_ERR, "\n      *** tests complete. Reset the system. ***\n\n", 0);
 
     freeAcsMem();
 
