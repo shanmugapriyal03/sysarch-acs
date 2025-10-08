@@ -79,6 +79,7 @@
   src/rule_based_execution_helpers.c
   src/rule_based_orchestrator.c
   src/rule_metadata.c
+  src/rule_enum_string_map.c
   src/rule_lookup.c
   src/test_wrappers.c
 

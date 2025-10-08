@@ -457,5 +457,7 @@ report_status:
         print_rule_test_status(rule_list[i], rule_test_status);
 
     }
-    val_print(ACS_PRINT_TEST, "\n-------------------- Suite run complete --------------------", 0);
+    val_print(ACS_PRINT_TEST,
+              "\n-------------------- Suite run complete --------------------\n",
+              0);
 }
