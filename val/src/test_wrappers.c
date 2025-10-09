@@ -319,3 +319,13 @@ pci_in_05_entry(uint32_t num_pe)
     TEST_ENTRY_ID_e e_list[] = { E017_ENTRY, TEST_ENTRY_SENTINEL };
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
+
+/* GPU_04 */
+uint32_t
+gpu_04_entry(uint32_t num_pe)
+{
+    TEST_ENTRY_ID_e tst_entry_list[] = {I024_ENTRY, P089_ENTRY,
+                                        TEST_ENTRY_SENTINEL};
+
+    return run_test_entries(tst_entry_list, num_pe);
+}

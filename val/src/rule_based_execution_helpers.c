@@ -18,7 +18,8 @@
 #include "include/rule_based_execution.h"
 
 extern rule_test_map_t rule_test_map[RULE_ID_SENTINEL];
-extern char8_t *rule_id_string[RULE_ID_SENTINEL];
+extern char *rule_id_string[RULE_ID_SENTINEL];
+extern char *module_name_string[MODULE_ID_SENTINEL];
 extern uint32_t alias_rule_map_count;
 extern alias_rule_map_t alias_rule_map[];
 
@@ -42,25 +43,6 @@ bool rule_in_list(RULE_ID_e rid, const RULE_ID_e *list, uint32_t count)
             return 1;
     }
     return 0;
-}
-
-/**
- * @brief Bounded ASCII string length.
- *
- * Counts characters in a NUL-terminated ASCII string up to a maximum bound
- * without relying on libc. If `s` is NULL, returns 0.
- *
- * @param s   Pointer to input string (may be NULL).
- * @param max Maximum number of characters to scan.
- * @return uint32_t Number of characters found before NUL or `max`,
- *                  whichever occurs first.
- */
-static uint32_t ascii_strnlen(const char8_t *s, uint32_t max)
-{
-    if (!s) return 0;
-    uint32_t n = 0;
-    while (n < max && s[n] != '\0') n++;
-    return n;
 }
 
 /**
@@ -140,103 +122,92 @@ void quick_sort_rule_list(RULE_ID_e *rule_list, uint32_t list_size)
 
 
 /**
- * @brief Print an aligned rule header line before running a test.
+ * @brief Print an rule header line before running a test.
  *
- * Formats and emits a single line containing the rule ID and description
- * in fixed-width columns without using printf-style width specifiers.
- * The rule ID is padded/truncated to `RULE_STRING_SIZE` and the
- * description to `RULE_DESC_SIZE`. Output is assembled into one buffer
- * and printed with a single `val_print` call to preserve alignment.
- *
- * Example output (widths exaggerated for illustration):
- * "\nB_PE_01    : Check Arch symmetry across PE           "
+ * Example output
+ * "START PE B_PE_01 18 : Check PE symmetry"
  *
  * @param rule_enum Rule identifier (enum) whose ID string and description
  *                  will be printed.
  * @param indent    Indentation level; output is prefixed by (indent * 4)
- *                  spaces, capped internally to a safe maximum.
+ *                  spaces.
  */
 void
 print_rule_test_start(uint32_t rule_enum, uint32_t indent)
 {
-    /* Fixed-width, space-padded buffers (+1 for terminator) */
-    char8_t id_pad[RULE_STRING_SIZE + 1];
-    char8_t desc_pad[RULE_DESC_SIZE + 1];
-
-    /* Build a single line: "\n<indent> <ID_PAD> : <DESC_PAD>\0"
-     * Allow up to 16 indentation levels (16*4 = 64 spaces) for safety. */
-    #define MAX_INDENT_SPACES 64
-    char8_t line[1 /*\n*/ + MAX_INDENT_SPACES + RULE_STRING_SIZE +
-                 3 /*" : "*/ + RULE_DESC_SIZE + 1 /*\0*/];
-
-    uint32_t i;
-
-    /* 1) Copy or space-pad rule ID to RULE_STRING_SIZE */
-    uint32_t id_len = ascii_strnlen(rule_id_string[rule_enum], RULE_STRING_SIZE);
-    for (i = 0; i < id_len; i++) id_pad[i] = rule_id_string[rule_enum][i];
-    for (; i < RULE_STRING_SIZE; i++) id_pad[i] = ' ';
-    id_pad[RULE_STRING_SIZE] = '\0';
-
-    /* 2) Copy or space-pad description to RULE_DESC_SIZE */
-    uint32_t desc_len = ascii_strnlen(rule_test_map[rule_enum].rule_desc, RULE_DESC_SIZE);
-    for (i = 0; i < desc_len; i++) desc_pad[i] = rule_test_map[rule_enum].rule_desc[i];
-    for (; i < RULE_DESC_SIZE; i++) desc_pad[i] = ' ';
-    desc_pad[RULE_DESC_SIZE] = '\0';
-
-    /* 3) Assemble the final output line */
-    {
-        uint32_t p = 0;
-        uint32_t j;
-
-        line[p++] = '\n';
-        /* Apply indentation: 4 spaces per indent level, capped */
-        uint32_t indent_spaces = indent * 4;
-        if (indent_spaces > MAX_INDENT_SPACES) indent_spaces = MAX_INDENT_SPACES;
-        for (j = 0; j < indent_spaces && p < sizeof(line)-1; j++) line[p++] = ' ';
-        for (j = 0; j < RULE_STRING_SIZE; j++) line[p++] = id_pad[j];
-        line[p++] = ' ';
-        line[p++] = ':';
-        line[p++] = ' ';
-        for (j = 0; j < RULE_DESC_SIZE; j++) line[p++] = desc_pad[j];
-        line[p] = '\0';
+    val_print(ACS_PRINT_TEST, "\n\n", 0);
+    /* Print indent spaces */
+    while (indent) {
+        val_print(ACS_PRINT_TEST, "    ", 0);
+        indent--;
     }
 
-    /* 4) Print once to avoid interleaving and preserve alignment */
-    val_print(ACS_PRINT_TEST, line, 0);
+    val_print(ACS_PRINT_TEST, "START ", 0);
+
+    /* Print module name */
+    if (rule_test_map[rule_enum].flag == INVALID_ENTRY) {
+        val_print(ACS_PRINT_TEST, "-", 0);
+    } else {
+        val_print(ACS_PRINT_TEST, module_name_string[rule_test_map[rule_enum].module_id], 0);
+    }
+    val_print(ACS_PRINT_TEST, " ", 0);
+    val_print(ACS_PRINT_TEST, rule_id_string[rule_enum], 0);
+    val_print(ACS_PRINT_TEST, " : ", 0);
+    /* Print rule  description */
+    if (rule_test_map[rule_enum].flag != INVALID_ENTRY) {
+        val_print(ACS_PRINT_TEST, rule_test_map[rule_enum].rule_desc, 0);
+    }
 }
 
 /**
  * @brief Print the status for a rule test result.
  *
- * Emits a standardized, aligned status suffix (PASS/FAIL/SKIP/WARN/NO SUPPORT)
- * or a hexadecimal code for unknown statuses. Intended to be printed after
- * the rule header line.
+ * Example output
+ * "END B_PE_01 PASS"
  *
- * @param rule_enum Rule identifier (unused here; kept for symmetry/signature).
+ * @param rule_enum Rule identifier enum
+ * @param indent    Indentation level; output is prefixed by (indent * 4)
+ *                  spaces.
  * @param status    Result code (e.g. `TEST_PASS`, `TEST_FAIL`).
  */
 void
-print_rule_test_status(uint32_t rule_enum, uint32_t status)
+print_rule_test_status(uint32_t rule_enum, uint32_t indent, uint32_t status)
 {
-    (void) rule_enum;
+    val_print(ACS_PRINT_TEST, "\n", 0);
+    /* Print indent spaces */
+    while (indent) {
+        val_print(ACS_PRINT_TEST, "    ", 0);
+        indent--;
+    }
+
+    val_print(ACS_PRINT_TEST, "END ", 0);
+    val_print(ACS_PRINT_TEST, rule_id_string[rule_enum], 0);
+    val_print(ACS_PRINT_TEST, " ", 0);
+
     switch (status) {
     case TEST_PASS:
-        val_print(ACS_PRINT_TEST, " : Result:  PASS", 0);
+        val_print(ACS_PRINT_TEST, "PASSED", 0);
         break;
-    case TEST_FAIL:
-        val_print(ACS_PRINT_TEST, " : Result:  FAIL", 0);
-        break;
-    case TEST_SKIP:
-        val_print(ACS_PRINT_TEST, " : Result:  SKIP", 0);
+    case TEST_PART_COV:
+        val_print(ACS_PRINT_TEST, "PASSED(*PARTIAL)", 0);
         break;
     case TEST_WARN:
-        val_print(ACS_PRINT_TEST, " : Result:  WARN", 0);
+        val_print(ACS_PRINT_TEST, "WARNING", 0);
         break;
-    case TEST_NS:
-        val_print(ACS_PRINT_TEST, " : Result:  NO SUPPORT", 0);
+    case TEST_SKIP:
+        val_print(ACS_PRINT_TEST, "SKIPPED", 0);
+        break;
+    case TEST_FAIL:
+        val_print(ACS_PRINT_TEST, "FAILED", 0);
+        break;
+    case TEST_NO_IMP:
+        val_print(ACS_PRINT_TEST, "NOT TESTED (TEST NOT IMPLEMENTED)", 0);
+        break;
+    case TEST_PAL_NS:
+        val_print(ACS_PRINT_TEST, "NOT TESTED (PAL NOT SUPPORTED)", 0);
         break;
     default:
-        val_print(ACS_PRINT_TEST, " : Result:  0x%x", status);
+        val_print(ACS_PRINT_TEST, "STATUS:0x%x", status);
     }
     return;
 }

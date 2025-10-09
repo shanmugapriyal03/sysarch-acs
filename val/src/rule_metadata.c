@@ -44,12 +44,10 @@
  * Stores the latest execution status for each rule, indexed by RULE_ID_e.
  * The array size matches RULE_ID_SENTINEL so every legal rule ID is a valid index.
  * Values use the existing status codes returned by tests (e.g., TEST_PASS, TEST_FAIL,
- * TEST_SKIP, TEST_WARN, TEST_NS). Use rule_status_map_reset() to initialize all
+ * TEST_SKIP, TEST_WARN etc). Use rule_status_map_reset() to initialize all
  * entries to TEST_STATUS_UNKNOWN before a run.
  */
 uint32_t rule_status_map[RULE_ID_SENTINEL] = { 0 };
-
-//TODO update rule_test_map with pcbsa rules and remove entries for rules using test wrappers.
 
 /* Following structure has every test entry that was is sysarch-acs on 23/07/25 */
 rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
@@ -668,8 +666,8 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
         [S_L3PR_01] = {
             .test_entry_id    = NULL_ENTRY,
             .module_id        = PERIPHERAL,
-            .rule_desc        = "TODO",
-            .platform_bitmask = 0,
+            .rule_desc        = "Check UART Arm Generic or 16550 presence",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = ALIAS_RULE,
         },
         [B_PER_06] = {
@@ -1048,11 +1046,11 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
         },
         [B_SMMU_21] = {
-            .test_entry_id    = I007_ENTRY,
+            .test_entry_id    = NULL_ENTRY,
             .module_id        = SMMU,
             .rule_desc        = "SMMUv3 Integration compliance",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //revisit
+            .flag             = ALIAS_RULE,
         },
         [B_SMMU_23] = {
             .test_entry_id    = I015_ENTRY,
@@ -1061,19 +1059,12 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
-        // [GPU_04] = {
-        //     .test_entry_id    = I024_ENTRY,
-        //     .module_id        = SMMU,
-        //     .rule_desc        = "Check ATS Support for SMMU",
-        //     .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-        //     .flag             = BASE_RULE, //TODO as multiple entry add to wrappers
-        // },
         [SMMU_01] = {
             .test_entry_id    = I007_ENTRY,
             .module_id        = SMMU,
             .rule_desc        = "SMMUv3 Integration compliance",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //revisit
+            .flag             = BASE_RULE,
         },
         [S_L4SM_01] = {
             .test_entry_id    = I008_ENTRY,
@@ -1101,7 +1092,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .module_id        = SMMU,
             .rule_desc        = "Check SMMUv3.2 or higher",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //revisit
+            .flag             = BASE_RULE,
         },
         [S_L5SM_02] = {
             .test_entry_id    = I026_ENTRY,
@@ -1115,7 +1106,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .module_id        = SMMU,
             .rule_desc        = "Check SMMU for MPAM support",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //revisit
+            .flag             = BASE_RULE,
         },
         [S_L6SM_02] = {
             .test_entry_id    = I013_ENTRY,
@@ -1253,12 +1244,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
         },
     /* NIST */
+        // TODO nist suite compilation with rule based infra
         [S_L7ENT_1] = {
             .test_entry_id    = N001_ENTRY,
             .module_id        = NIST,
             .rule_desc        = "NIST Statistical Test Suite",
             .platform_bitmask = 0,
-            .flag             = BASE_RULE, //revisit
+            .flag             = BASE_RULE,
         },
     /* POWER WAKEUP*/
         [B_WAK_03] = {
@@ -1295,7 +1287,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .module_id        = PCIE,
             .rule_desc        = "Type 0 config header rules",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //revisit
+            .flag             = BASE_RULE,
         },
         [GPU_03] = {
             .test_entry_id    = P093_ENTRY,
@@ -1305,11 +1297,11 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
         },
         [GPU_04] = {
-            .test_entry_id    = P089_ENTRY,
+            .test_entry_id    = GPU_04_ENTRY,
             .module_id        = PCIE,
-            .rule_desc        = "Check ATS support for RC",
+            .rule_desc        = "Check ATS support for RC and SMMU",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
-            .flag             = BASE_RULE, //TODO as multiple entry
+            .flag             = BASE_RULE,
         },
         [IE_ACS_1] = {
             .test_entry_id    = P082_ENTRY,
@@ -2230,7 +2222,6 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
 /* Following structure maps test entry enums with entry function pointers
    Entries are guarded with TARGET_* macros to compile the entry functions based on test support
    for PAL for which compilation is carried out */
-// TODO: revisit this for all commented ones
 test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [NULL_ENTRY] = NULL,
 /* TARGET_LINUX */
@@ -2331,6 +2322,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [P_L1PE_01_ENTRY]  = p_l1pe_01_entry,
     [B_PPI_00_ENTRY]   = b_ppi_00_entry,
     [B_WAK_03_07_ENTRY] = b_wak_03_07_entry,
+    [GPU_04_ENTRY] = gpu_04_entry,
     [S_L7MP_03_ENTRY]  = s_l7mp_03_entry,
     [APPENDIX_I_6_ENTRY] = appendix_i_6_entry,
     [IE_REG_1_ENTRY]   = ie_reg_1_entry,
@@ -2372,7 +2364,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I012_ENTRY] = i012_entry,
     [I013_ENTRY] = i013_entry,
     [I014_ENTRY] = i014_entry,
-    [I015_ENTRY] = i015_entry,
+    [I015_ENTRY] = i015_entry, // used in wrapper
     [I016_ENTRY] = i016_entry,
     [I017_ENTRY] = i017_entry,
     [I018_ENTRY] = i018_entry,
@@ -2380,7 +2372,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I020_ENTRY] = i020_entry,
     [I021_ENTRY] = i021_entry,
     [I022_ENTRY] = i022_entry,
-    [I024_ENTRY] = i024_entry,
+    [I024_ENTRY] = i024_entry, // used in wrapper
     [I025_ENTRY] = i025_entry,
     [I026_ENTRY] = i026_entry,
     [I027_ENTRY] = i027_entry,
@@ -2485,7 +2477,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [P086_ENTRY] = p086_entry,
     [P087_ENTRY] = p087_entry,
     [P088_ENTRY] = p088_entry, // used in wrapper.
-    [P089_ENTRY] = p089_entry,
+    [P089_ENTRY] = p089_entry, // used in wrapper.
     [P090_ENTRY] = p090_entry,
     [P092_ENTRY] = p092_entry,
     [P093_ENTRY] = p093_entry,
@@ -2719,7 +2711,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I010_ENTRY] = i010_entry,
     [I030_ENTRY] = i030_entry,
     [I017_ENTRY] = i017_entry,
-    [I024_ENTRY] = i024_entry,
+    [I024_ENTRY] = i024_entry, // used in wrapper
     [I012_ENTRY] = i012_entry,
     [I014_ENTRY] = i014_entry,
     [I020_ENTRY] = i020_entry,
@@ -2749,7 +2741,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [P066_ENTRY] = p066_entry, // used in wrapper.
     [P090_ENTRY] = p090_entry,
     [P065_ENTRY] = p065_entry, // used in wrapper.
-    [P089_ENTRY] = p089_entry,
+    [P089_ENTRY] = p089_entry, // used in wrapper.
     [P062_ENTRY] = p062_entry,
     [P041_ENTRY] = p041_entry,
     [P027_ENTRY] = p027_entry, // used in wrapper.
@@ -2961,26 +2953,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
 #endif /* TARGET_BAREMETAL */
 };
 
-/* Modules with there init function and init status data */
-/* If no init function, status hardcoded as true */
-module_init_t module_init_status[MODULE_ID_SENTINEL] = {
-    [PE]           = {NULL, 1},
-    [GIC]          = {NULL, 1}, //pcbsa needs init
-    [PERIPHERAL]   = {NULL, 1},
-    [MEM_MAP]      = {NULL, 1},
-    [PMU]          = {NULL, 1},
-    [RAS]          = {NULL, 1},
-    [SMMU]         = {NULL, 1},
-    [TIMER]        = {NULL, 1},
-    [WATCHDOG]     = {NULL, 1},
-    [NIST]         = {NULL, 0}, //TODO
-    [PCIE]         = {NULL, 0}, //TODO
-    [MPAM]         = {NULL, 1},
-    [ETE]          = {NULL, 1},
-    [TPM]          = {NULL, 1},
-    [POWER_WAKEUP] = {NULL, 1}
-};
-
 #if defined(TARGET_BAREMETAL)
     uint8_t g_current_pal = PLATFORM_BAREMETAL;
 #endif
@@ -3009,7 +2981,9 @@ RULE_ID_e bsa_l1_rule_list[] = {
 
     /* SMMU L1 */
     B_SMMU_01, B_SMMU_02, B_SMMU_06, B_SMMU_07, B_SMMU_08, B_SMMU_12,
-    B_SMMU_16, B_SMMU_17, B_SMMU_18, B_SMMU_19, B_SMMU_21,
+    B_SMMU_16, B_SMMU_17, B_SMMU_18, B_SMMU_19,
+    /*B_SMMU_21,*/
+        SMMU_01, SMMU_02,
 
     /* Timer L1 */
     B_TIME_01, B_TIME_02, B_TIME_03, B_TIME_04, B_TIME_05,
@@ -3326,13 +3300,16 @@ RULE_ID_e p_l2wd_01_rule_list[]   = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05
 /* P_L1MM_01 */
 RULE_ID_e p_l1mm_01_rule_list[]   = {S_L3MM_01, S_L3MM_02, RULE_ID_SENTINEL};
 
-// TODO update all alias rules in xbsa specs
+/* B_SMMU_21 */
+RULE_ID_e b_smmu_21_rule_list[]   = {SMMU_01, SMMU_02, RULE_ID_SENTINEL};
+
 alias_rule_map_t alias_rule_map[] = {
     /* BSA alias rules */
     {B_WD_00,   b_wd_00_rule_list},
     {B_PER_08,  b_per_08_rule_list},
     {B_REP_1,   b_rep_1_rule_list},
     {B_IEP_1,   b_iep_1_rule_list},
+    {B_SMMU_21, b_smmu_21_rule_list},
 
     /* SBSA alias rules */
     {S_L3_01,  bsa_l1_rule_list},

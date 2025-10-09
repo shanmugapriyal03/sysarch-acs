@@ -230,8 +230,9 @@ typedef enum {
     B_SMMU_23,
     B_SMMU_24,
     B_SMMU_25,
-    GPU_04, // TODO multiple module tests
+    GPU_04,
     SMMU_01,
+    SMMU_02,
     S_L3SM_01,
 
     S_L4SM_01,
@@ -860,11 +861,13 @@ typedef enum {
     P096_ENTRY,
     P097_ENTRY,
     P104_ENTRY,
+    GPU_04_ENTRY,
     TEST_ENTRY_SENTINEL
 } TEST_ENTRY_ID_e;
 
 /* Module ID enum definition */
 typedef enum {
+    MODULE_UNKNOWN,
     BASE,
     PE,
     GIC,

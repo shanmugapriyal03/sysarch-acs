@@ -76,7 +76,7 @@ void     quick_sort_rule_list(RULE_ID_e *rule_list, uint32_t list_size);
 uint32_t check_module_init(MODULE_NAME_e module_id);
 uint32_t alias_rule_map_get_index(RULE_ID_e alias_rule_id);
 void     print_rule_test_start(uint32_t rule_enum, uint32_t indent);
-void     print_rule_test_status(uint32_t rule_enum, uint32_t status);
+void     print_rule_test_status(uint32_t rule_enum, uint32_t indent, uint32_t status);
 void     rule_status_map_reset(void);
 bool     rule_in_list(RULE_ID_e rid, const RULE_ID_e *list, uint32_t count);
 

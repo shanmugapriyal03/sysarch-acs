@@ -49,5 +49,6 @@ uint32_t ie_reg_4_entry(uint32_t num_pe);
 uint32_t pci_in_13_entry(uint32_t num_pe);
 uint32_t pci_in_17_entry(uint32_t num_pe);
 uint32_t pci_in_05_entry(uint32_t num_pe);
+uint32_t gpu_04_entry(uint32_t num_pe);
 
 #endif // TEST_WRAPPERS_H

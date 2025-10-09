@@ -208,6 +208,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [B_SMMU_25]   = "B_SMMU_25",
     [GPU_04]      = "GPU_04",
     [SMMU_01]     = "SMMU_01",
+    [SMMU_02]     = "SMMU_02",
     [S_L3SM_01]   = "S_L3SM_01",
     [S_L4SM_01]   = "S_L4SM_01",
     [S_L4SM_02]   = "S_L4SM_02",

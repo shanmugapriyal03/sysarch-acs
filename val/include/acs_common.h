@@ -87,8 +87,9 @@ typedef enum {
 #define TEST_FAIL_VAL      0x8
 
 /* Test support defines */
-#define TEST_NOT_SUPPORTED 0x0
-#define TEST_SUPPORTED     0x1
+#define TEST_NOT_IMPLEMENTED    0xA
+#define TEST_PAL_NOT_SUPPORTED  0xB
+#define TEST_SUPPORTED          0x0
 
 #define CPU_NUM_BIT  32
 #define CPU_NUM_MASK 0xFFFFFFFF
@@ -142,12 +143,13 @@ typedef struct {
 } test_config_t;
 /* Test status enum defs */
 typedef enum {
-    TEST_PASS = TEST_PASS_VAL,
-    TEST_FAIL = TEST_FAIL_VAL,
-    TEST_SKIP = TEST_SKIP_VAL,
-    TEST_WARN = TEST_WARN_VAL,
-    TEST_NS   = TEST_NOT_SUPPORTED,
+    TEST_PASS     = TEST_PASS_VAL,
     TEST_PART_COV = TEST_PARTIAL_COV,
+    TEST_WARN     = TEST_WARN_VAL,
+    TEST_SKIP     = TEST_SKIP_VAL,
+    TEST_FAIL     = TEST_FAIL_VAL,
+    TEST_NO_IMP   = TEST_NOT_IMPLEMENTED,
+    TEST_PAL_NS   = TEST_PAL_NOT_SUPPORTED,
     TEST_STATUS_UNKNOWN = 0xFFFFFFFF
 } test_status_t;
 
