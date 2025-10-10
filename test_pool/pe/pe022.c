@@ -104,6 +104,7 @@ pe022_entry(uint32_t num_pe)
 
   uint32_t status = ACS_STATUS_FAIL;
 
+  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
       val_run_test_payload(TEST_NUM, num_pe, payload_check_el3_support, 0);
@@ -122,6 +123,7 @@ pe063_entry(uint32_t num_pe)
 
   uint32_t status = ACS_STATUS_FAIL;
 
+  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
   status = val_initialize_test(TEST_NUM1, TEST_DESC1, num_pe);
   if (status != ACS_STATUS_SKIP)
       val_run_test_payload(TEST_NUM1, num_pe, payload_check_secure_state_support, 0);

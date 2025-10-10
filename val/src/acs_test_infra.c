@@ -43,6 +43,31 @@ val_print(uint32_t level, char8_t *string, uint64_t data)
       pal_print(string, data);
 }
 
+
+/**
+  @brief  Print standardized log context prefix.
+          1. Caller       - Application/VAL layers
+          2. Prerequisite - None
+
+  @param level  print verbosity to use with val_print
+  @param file   source file name (typically __FILE__)
+  @param func   function name (typically __func__)
+  @param line   source line number (typically __LINE__)
+
+  @return None
+ **/
+void
+val_log_context(uint32_t level, char8_t *file, char8_t *func, uint32_t line)
+{
+  val_print(level, "\n    [", 0);
+  val_print(level, file, 0);
+  val_print(level, ":", 0);
+  val_print(level, "%d", line);
+  val_print(level, " ", 0);
+  val_print(level, func, 0);
+  val_print(level, "] ", 0);
+}
+
 /**
   @brief  This API calls val_print API to print a formatted string
           to the output console if current PE index is Primary PE index .

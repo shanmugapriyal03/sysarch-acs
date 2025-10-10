@@ -194,6 +194,7 @@ p027_entry(uint32_t num_pe)
   num_pe = 1;  /* This test is run on single processor */
   test_num = test_entries[0].test_num;
 
+  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
   prereq_status = val_initialize_test(test_num, test_entries[0].desc, num_pe);
   if (prereq_status != ACS_STATUS_SKIP)
       val_run_test_payload(test_num, num_pe, payload_primary, 0);
@@ -207,7 +208,8 @@ p027_entry(uint32_t num_pe)
 
 uint32_t
 p078_entry(uint32_t num_pe)
-{
+{  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+
   uint32_t status = ACS_STATUS_FAIL;
 
   num_pe = 1;  //This test is run on single processor

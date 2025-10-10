@@ -78,6 +78,7 @@ void val_get_test_data(uint32_t index, uint64_t *data0, uint64_t *data1);
 void *val_memcpy(void *dest_buffer, void *src_buffer, uint32_t len);
 void val_dump_dtb(void);
 void view_print_info(uint32_t view);
+void val_log_context(uint32_t level, char8_t *file, char8_t *func, uint32_t line);
 
 uint32_t execute_tests(void);
 uint32_t val_strncmp(char8_t *str1, char8_t *str2, uint32_t len);
