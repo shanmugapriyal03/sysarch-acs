@@ -65,6 +65,41 @@ static uint32_t check_rule_support(RULE_ID_e rule_id)
 }
 
 /**
+ * @brief Determine if a rule should be skipped based on CLI options.
+ *
+ * Checks whether the provided rule ID is present in the explicit skip list
+ * (-skip) or whether its module is present in the skip-modules list
+ * (-skipmodule).
+ *
+ * @param rule_id Rule identifier to check.
+ * @return true (1) if the rule should be skipped, false(0) otherwise.
+ */
+static bool is_rule_skipped(RULE_ID_e rule_id)
+{
+    uint32_t i;
+    MODULE_NAME_e module;
+
+    /* Check explicit rule skip list (-skip) */
+    if (g_skip_rule_count > 0 && g_skip_rule_list != NULL) {
+        for (i = 0; i < g_skip_rule_count; i++) {
+            if (g_skip_rule_list[i] == rule_id)
+                return 1;
+        }
+    }
+
+    /* Check module skip list (-skipmodule) */
+    if (g_num_skip_modules > 0 && g_skip_modules != NULL) {
+        module = rule_test_map[rule_id].module_id;
+        for (i = 0; i < g_num_skip_modules; i++) {
+            if (g_skip_modules[i] == (uint32_t)module)
+                return 1;
+        }
+    }
+
+    return 0;
+}
+
+/**
  * @brief Filter the provided rule list in place based on CLI selections.
  *
  * Applies the following filters to the rule list, compacting it in-place while
@@ -399,6 +434,13 @@ run_tests(RULE_ID_e *rule_list, uint32_t list_size)
 
             /* Run the base rules required by the alias; list is sentinel-terminated */
             for (j = 0; base_rule_list[j] != RULE_ID_SENTINEL; j++) {
+                /* -skip and -skipmodule only apply to initial rule list; ensure
+                   base rules of an alias honor these selections here. */
+                if (is_rule_skipped(base_rule_list[j])) {
+                    /* Skip executing this base rule as per CLI selection */
+                    continue;
+                }
+
                 /* Print base rule header */
                 print_rule_test_start(base_rule_list[j], 1);
 
