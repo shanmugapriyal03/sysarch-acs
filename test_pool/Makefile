@@ -39,9 +39,15 @@ else  ifeq ($(ACS), sbsa)
     obj-m += sbsa_acs_test.o
     sbsa_acs_test-objs += $(TEST_POOL)/pcie/p001.o \
         $(TEST_POOL)/pcie/p045.o \
+        $(TEST_POOL)/pcie/p094.o \
+        $(TEST_POOL)/pcie/p095.o \
+        $(TEST_POOL)/pcie/p096.o \
+        $(TEST_POOL)/pcie/p097.o \
+        $(TEST_POOL)/pcie/p105.o \
+        $(TEST_POOL)/peripherals/d004.o \
+        $(TEST_POOL)/memory_map/m004.o \
         $(TEST_POOL)/pcie/p046.o \
         $(TEST_POOL)/pcie/p091.o \
-        $(TEST_POOL)/pcie/p094.o \
         $(TEST_POOL)/smmu/i023.o
 else ifeq ($(ACS), pcbsa)
     obj-m += pcbsa_acs_test.o

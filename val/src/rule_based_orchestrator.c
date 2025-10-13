@@ -358,7 +358,7 @@ run_tests(RULE_ID_e *rule_list, uint32_t list_size)
     RULE_ID_e base_rule_id;
     RULE_ID_e *base_rule_list;
 
-    val_print(ACS_PRINT_ERR, "\n-------------------- Running tests --------------------", 0);
+    val_print(ACS_PRINT_ERR, "\n---------------------- Running tests ------------------------", 0);
 
     /* Initialize per-rule status map to TEST_STATUS_UNKNOWN for this run */
     rule_status_map_reset();
@@ -434,6 +434,14 @@ run_tests(RULE_ID_e *rule_list, uint32_t list_size)
 
             /* Run the base rules required by the alias; list is sentinel-terminated */
             for (j = 0; base_rule_list[j] != RULE_ID_SENTINEL; j++) {
+                /* Check if test for the base rule is present in current PAL */
+                rule_support_status = check_rule_support(base_rule_list[j]);
+#ifdef TARGET_LINUX
+                /* Workaround for linux apps, to skip rule silently */
+                if (rule_support_status != TEST_SUPPORTED) {
+                    continue;
+                }
+#endif
                 /* -skip and -skipmodule only apply to initial rule list; ensure
                    base rules of an alias honor these selections here. */
                 if (is_rule_skipped(base_rule_list[j])) {
@@ -444,8 +452,6 @@ run_tests(RULE_ID_e *rule_list, uint32_t list_size)
                 /* Print base rule header */
                 print_rule_test_start(base_rule_list[j], 1);
 
-                /* Check if test for the base rule is present in current PAL */
-                rule_support_status = check_rule_support(base_rule_list[j]);
                 if (rule_support_status != TEST_SUPPORTED) {
                     /* set a flag to track partial coverage */
                     test_ns_flag = 1;

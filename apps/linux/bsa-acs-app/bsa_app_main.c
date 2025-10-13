@@ -86,7 +86,7 @@ cleanup_test_environment()
 {
     call_drv_clean_test_env();
 }
-// TODO level filtering options (-l, -only --fr requires changes in orchestrator to work)
+
 void print_help(){
     printf ("\nUsage: Bsa [-v <n>] | [-l <n>] | [-only] | [-r <rule_id>[,<rule_id>...]] | [--fr] |"
             " [--skip <rule_id>[,<rule_id>...]]\n"

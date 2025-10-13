@@ -2235,8 +2235,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [PCI_MM_01_ENTRY] = pci_mm_01_entry,
     [PCI_MM_03_ENTRY] = pci_mm_03_entry,
     [PCI_MSI_2_ENTRY] = pci_msi_2_entry,
-/* Skip build of bsa only tests for SBSA */
-#ifndef SBSA_LINUX_BUILD
     [D004_ENTRY] = d004_entry,
     [D007_ENTRY] = d007_entry,
     [P105_ENTRY] = p105_entry,
@@ -2246,7 +2244,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [M006_ENTRY] = m006_entry,
     [P095_ENTRY] = p095_entry,
     [M007_ENTRY] = m007_entry,
-#endif
 /* Skip build of sbsa only tests for BSA */
 #ifndef BSA_LINUX_BUILD
     [P091_ENTRY] = p091_entry,

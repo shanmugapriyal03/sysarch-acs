@@ -87,7 +87,6 @@ cleanup_test_environment()
     call_drv_clean_test_env();
 }
 
-// TODO level filtering options (-l, -only --fr requires changes in orchestrator to work)
 void print_help(){
     printf ("\nUsage: Sbsa [-v <n>] | [-l <n>] | [--only <n>] | [-r <rule_id>[,<rule_id>...]] | "
         "[--fr] | [--skip <rule_id>[,<rule_id>...]]\n"
@@ -242,7 +241,6 @@ main (int argc, char **argv)
     call_drv_execute_test(RUN_TESTS, 0, 0, g_print_level, 0);
     (void)call_drv_wait_for_completion();
 
-    printf("\n  ** For complete SBSA test coverage, it is necessary to also run the BSA test **\n");
     printf("\n                    *** SBSA tests complete ***\n\n");
     cleanup_test_environment();
     return 0;

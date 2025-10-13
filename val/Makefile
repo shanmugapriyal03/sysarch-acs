@@ -54,7 +54,6 @@ sbsa_acs_val-objs += $(VAL_SRC)/acs_status.o      $(VAL_SRC)/acs_memory.o \
     $(VAL_SRC)/rule_metadata.o \
     $(VAL_SRC)/test_wrappers.o \
     $(VAL_SRC)/rule_enum_string_map.o
-ccflags-y += -DSBSA_LINUX_BUILD
 else  ifeq ($(ACS), pcbsa)
 obj-m += pcbsa_acs_val.o
 pcbsa_acs_val-objs += $(VAL_SRC)/acs_status.o      $(VAL_SRC)/acs_memory.o \
