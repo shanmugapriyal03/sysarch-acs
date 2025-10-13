@@ -137,6 +137,44 @@ val_print_test_end(uint32_t status, char8_t *string)
 }
 
 /**
+  @brief  Print consolidated ACS test status summary from global counters.
+          Only top-level rule results are counted in these counters.
+          1. Caller       - Application/VAL layers
+          2. Prerequisite - Counters updated via print_rule_test_status()
+
+  @return None
+ **/
+void
+val_print_acs_test_status_summary(void)
+{
+  val_print(ACS_PRINT_TEST, "\n---------- ACS Summary ----------\n", 0);
+  val_print(ACS_PRINT_TEST, "   Total Rules Run        : %d\n",
+            g_rule_test_stats.total_rules_run);
+  val_print(ACS_PRINT_TEST, "   Passed                 : %d\n", g_rule_test_stats.passed);
+  val_print(ACS_PRINT_TEST, "   Passed (Partial)       : %d\n",
+            g_rule_test_stats.partial_coverage);
+  val_print(ACS_PRINT_TEST, "   Warnings               : %d\n", g_rule_test_stats.warnings);
+  val_print(ACS_PRINT_TEST, "   Skipped                : %d\n", g_rule_test_stats.skipped);
+  val_print(ACS_PRINT_TEST, "   Failed                 : %d\n", g_rule_test_stats.failed);
+  val_print(ACS_PRINT_TEST, "   PAL Not Supported      : %d\n",
+            g_rule_test_stats.pal_not_supported);
+  val_print(ACS_PRINT_TEST, "   Not Implemented        : %d\n",
+            g_rule_test_stats.not_implemented);
+  val_print(ACS_PRINT_TEST, "---------------------------------\n", 0);
+
+  /* Reset global rule/test status counters after printing summary */
+  g_rule_test_stats.total_rules_run = 0;
+  g_rule_test_stats.passed = 0;
+  g_rule_test_stats.partial_coverage = 0;
+  g_rule_test_stats.warnings = 0;
+  g_rule_test_stats.skipped = 0;
+  g_rule_test_stats.failed = 0;
+  g_rule_test_stats.pal_not_supported = 0;
+  g_rule_test_stats.not_implemented = 0;
+
+}
+
+/**
   @brief  This API calls PAL layer to print a string to the output console.
           1. Caller       - Application layer
           2. Prerequisite - None.

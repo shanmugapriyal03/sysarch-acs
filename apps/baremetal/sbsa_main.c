@@ -195,16 +195,7 @@ ShellAppMainsbsa()
     }
 
 print_test_status:
-    // TODO
-    //   val_print(ACS_PRINT_ERR,
-    //             "\n     -------------------------------------------------------\n", 0);
-    //   val_print(ACS_PRINT_ERR, "     Total Tests run  = %4d;", g_acs_tests_total);
-    //   val_print(ACS_PRINT_ERR, "  Tests Passed  = %4d", g_acs_tests_pass);
-    //   val_print(ACS_PRINT_ERR, "  Tests Failed = %4d\n", g_acs_tests_fail);
-    //   val_print(ACS_PRINT_ERR,
-    //             "     ---------------------------------------------------------\n", 0);
-    //   val_print(ACS_PRINT_ERR, "\n      **  For complete SBSA test coverage, it is ", 0);
-    //   val_print(ACS_PRINT_ERR, "\n            necessary to also run the BSA test    **\n\n", 0);
+    val_print_acs_test_status_summary();
     val_print(ACS_PRINT_ERR, "\n      *** SBSA tests complete. Reset the system. ***\n\n", 0);
 exit_acs:
     freeAcsMeM();

@@ -223,14 +223,7 @@ execute_tests()
     }
 
 print_test_status:
-    // TODO make changes in orchestrator to update result counts
-    // val_print(ACS_PRINT_ERR, "\n     -------------------------------------------------------\n",
-    //           0);
-    // val_print(ACS_PRINT_ERR, "     Total Tests run  = %4d", g_acs_tests_total);
-    // val_print(ACS_PRINT_ERR, "  Tests Passed  = %4d", g_acs_tests_pass);
-    // val_print(ACS_PRINT_ERR, "  Tests Failed = %4d\n", g_acs_tests_fail);
-    // val_print(ACS_PRINT_ERR, "     -------------------------------------------------------\n",
-    //           0);
+    val_print_acs_test_status_summary();
     val_print(ACS_PRINT_ERR, "\n      *** SBSA tests complete. Reset the system. ***\n\n", 0);
 
     freeAcsMem();

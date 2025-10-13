@@ -247,8 +247,8 @@ execute_tests()
         run_tests(g_rule_list, g_rule_count);
     }
 
-    // TODO make changes in orchestrator to update result counts
-    val_print(ACS_PRINT_ERR, "\n      *** tests complete. Reset the system. ***\n\n", 0);
+    val_print_acs_test_status_summary();
+    val_print(ACS_PRINT_ERR, "\n      *** ACS tests complete. Reset the system. ***\n\n", 0);
 
     freeAcsMem();
 

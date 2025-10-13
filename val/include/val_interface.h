@@ -42,6 +42,20 @@
 
 #define VAL_EXTRACT_BITS(data, start, end) ((data >> start) & ((1ul << (end-start+1))-1))
 
+/* Test status counters visible across ACS */
+typedef struct {
+    uint32_t total_rules_run;     /* Total rules/tests that reported a status */
+    uint32_t passed;              /* Count of TEST_PASS */
+    uint32_t partial_coverage;    /* Count of TEST_PART_COV */
+    uint32_t warnings;            /* Count of TEST_WARN */
+    uint32_t skipped;             /* Count of TEST_SKIP */
+    uint32_t failed;              /* Count of TEST_FAIL */
+    uint32_t not_implemented;     /* Count of TEST_NO_IMP */
+    uint32_t pal_not_supported;   /* Count of TEST_PAL_NS */
+} acs_test_status_counters_t;
+
+extern acs_test_status_counters_t g_rule_test_stats;
+
 /* Module init operation type enum */
 typedef enum {
     INIT_OP_INIT,
@@ -79,6 +93,9 @@ void *val_memcpy(void *dest_buffer, void *src_buffer, uint32_t len);
 void val_dump_dtb(void);
 void view_print_info(uint32_t view);
 void val_log_context(uint32_t level, char8_t *file, char8_t *func, uint32_t line);
+
+/* Print consolidated ACS test status summary from global counters */
+void val_print_acs_test_status_summary(void);
 
 uint32_t execute_tests(void);
 uint32_t val_strncmp(char8_t *str1, char8_t *str2, uint32_t len);

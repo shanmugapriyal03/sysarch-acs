@@ -16,6 +16,7 @@
 **/
 
 #include "include/rule_based_execution.h"
+#include "include/val_interface.h"
 
 extern rule_test_map_t rule_test_map[RULE_ID_SENTINEL];
 extern char *rule_id_string[RULE_ID_SENTINEL];
@@ -173,6 +174,9 @@ print_rule_test_start(uint32_t rule_enum, uint32_t indent)
 void
 print_rule_test_status(uint32_t rule_enum, uint32_t indent, uint32_t status)
 {
+    /* Only count top-level rules (indent == 0) */
+    uint32_t top_level_rule = (indent == 0);
+
     val_print(ACS_PRINT_TEST, "\n", 0);
     /* Print indent spaces */
     while (indent) {
@@ -184,27 +188,39 @@ print_rule_test_status(uint32_t rule_enum, uint32_t indent, uint32_t status)
     val_print(ACS_PRINT_TEST, rule_id_string[rule_enum], 0);
     val_print(ACS_PRINT_TEST, " ", 0);
 
+    /* Update global counters for top-level rules only */
+    if (top_level_rule) {
+        g_rule_test_stats.total_rules_run++;
+    }
+
     switch (status) {
     case TEST_PASS:
         val_print(ACS_PRINT_TEST, "PASSED", 0);
+        if (top_level_rule) g_rule_test_stats.passed++;
         break;
     case TEST_PART_COV:
         val_print(ACS_PRINT_TEST, "PASSED(*PARTIAL)", 0);
+        if (top_level_rule) g_rule_test_stats.partial_coverage++;
         break;
     case TEST_WARN:
         val_print(ACS_PRINT_TEST, "WARNING", 0);
+        if (top_level_rule) g_rule_test_stats.warnings++;
         break;
     case TEST_SKIP:
         val_print(ACS_PRINT_TEST, "SKIPPED", 0);
+        if (top_level_rule) g_rule_test_stats.skipped++;
         break;
     case TEST_FAIL:
         val_print(ACS_PRINT_TEST, "FAILED", 0);
+        if (top_level_rule) g_rule_test_stats.failed++;
         break;
     case TEST_NO_IMP:
         val_print(ACS_PRINT_TEST, "NOT TESTED (TEST NOT IMPLEMENTED)", 0);
+        if (top_level_rule) g_rule_test_stats.not_implemented++;
         break;
     case TEST_PAL_NS:
         val_print(ACS_PRINT_TEST, "NOT TESTED (PAL NOT SUPPORTED)", 0);
+        if (top_level_rule) g_rule_test_stats.pal_not_supported++;
         break;
     default:
         val_print(ACS_PRINT_TEST, "STATUS:0x%x", status);
