@@ -2224,6 +2224,28 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
+        /* VBSA ACS entries */
+        [V_L1PE_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check vPE architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [V_L1MM_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = MEM_MAP,
+            .rule_desc        = "Check VE Mem architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [V_L1GI_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check vGIC architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
     };
 
 /* Following structure maps test entry enums with entry function pointers
@@ -3307,6 +3329,17 @@ RULE_ID_e p_l1mm_01_rule_list[]   = {S_L3MM_01, S_L3MM_02, RULE_ID_SENTINEL};
 /* B_SMMU_21 */
 RULE_ID_e b_smmu_21_rule_list[]   = {SMMU_01, SMMU_02, RULE_ID_SENTINEL};
 
+
+/* VBSA alias lists */
+RULE_ID_e v_l1pe_01_rule_list[]   = {B_PE_01, B_PE_02, B_PE_03, B_PE_04, B_PE_05,
+                                     B_PE_06, B_PE_07, B_PE_08, B_PE_10, B_PE_13,
+                                     B_PE_14, RULE_ID_SENTINEL};
+RULE_ID_e v_l1mm_01_rule_list[]   = {B_MEM_01, B_MEM_02, B_MEM_04, B_MEM_05,
+                                     B_MEM_07, RULE_ID_SENTINEL};
+RULE_ID_e v_l1gi_01_rule_list[]   = {B_GIC_01, B_GIC_02, B_GIC_03, B_GIC_05,
+                                     RULE_ID_SENTINEL};
+
+// TODO update all alias rules in xbsa specs
 alias_rule_map_t alias_rule_map[] = {
     /* BSA alias rules */
     {B_WD_00,   b_wd_00_rule_list},
@@ -3316,15 +3349,21 @@ alias_rule_map_t alias_rule_map[] = {
     {B_SMMU_21, b_smmu_21_rule_list},
 
     /* SBSA alias rules */
-    {S_L3_01,  bsa_l1_rule_list},
+    {S_L3_01,   bsa_l1_rule_list},
     {S_L3PR_01, s_l3pr_01_rule_list},
     {S_L3WD_01, s_l3wd_01_rule_list},
     {S_L6PCI_1, s_l6pci_1_rule_list},
     {SYS_RAS,   sys_ras_rule_list},
+
     /* PCBSA alias rules */
-    {P_L1_01,  bsa_l1_rule_list},
+    {P_L1_01,   bsa_l1_rule_list},
     {P_L2WD_01, p_l2wd_01_rule_list},
     {P_L1MM_01, p_l1mm_01_rule_list},
+
+    /* VBSA alias rules */
+    {V_L1PE_01, v_l1pe_01_rule_list},
+    {V_L1MM_01, v_l1mm_01_rule_list},
+    {V_L1GI_01, v_l1gi_01_rule_list},
 
 };
 

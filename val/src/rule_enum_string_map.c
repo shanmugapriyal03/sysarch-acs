@@ -489,6 +489,11 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [P_L1TP_03]   = "P_L1TP_03",
     [P_L1TP_04]   = "P_L1TP_04",
     [P_L2WD_01]   = "P_L2WD_01",
+
+    /* VBSA ACS rule identifiers */
+    [V_L1PE_01]  = "V_L1PE_01",
+    [V_L1MM_01]  = "V_L1MM_01",
+    [V_L1GI_01]  = "V_L1GI_01",
 };
 
 /* Module name strings mapping to MODULE_NAME_e */

@@ -504,6 +504,13 @@ typedef enum {
     P_L1PCI_1,
     P_L1PCI_2,
 
+    /* VBSA rules */
+    V_L1PE_01,
+    V_L1PE_02,
+    V_L1MM_01,
+    V_L1MM_02,
+    V_L1GI_01,
+
     /* Sentinel must remain last */
     RULE_ID_SENTINEL
 } RULE_ID_e;
@@ -920,6 +927,13 @@ typedef enum {
     PCBSA_LEVEL_SENTINEL /* Keep last */
 } PCBSA_LEVEL_e;
 
+/* VBSA levels enum */
+typedef enum {
+    VBSA_LEVEL_1 = 1,
+    VBSA_LEVEL_FR,
+    VBSA_LEVEL_SENTINEL /* Keep last */
+} VBSA_LEVEL_e;
+
 /* Software views enum for BSA */
 typedef enum {
     SW_OS,
@@ -939,7 +953,8 @@ typedef enum {
     ARCH_NONE = 0,
     ARCH_BSA,
     ARCH_SBSA,
-    ARCH_PCBSA
+    ARCH_PCBSA,
+    ARCH_VBSA
 } ARCH_SEL_e;
 
 /* Level filter mode for CLI selection */

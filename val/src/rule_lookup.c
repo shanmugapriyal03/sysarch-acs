@@ -352,3 +352,20 @@ const bsa_rule_entry_t bsa_rule_list[] = {
 /* sentinel */
     { RULE_ID_SENTINEL, BSA_LEVEL_SENTINEL, SW_OS }
 };
+
+const vbsa_rule_entry_t vbsa_rule_list[] = {
+
+    /* L1 PE Rules */
+    { V_L1PE_01, VBSA_LEVEL_1 },
+    // { V_L1PE_02, VBSA_LEVEL_1 },
+
+    /* L1 Memory map rules */
+    { V_L1MM_01, VBSA_LEVEL_1 },
+    // { V_L1MM_02, VBSA_LEVEL_1 },
+
+    /* L1 GIC rules */
+    { V_L1GI_01, VBSA_LEVEL_1 },
+
+    /* sentinel */
+    { RULE_ID_SENTINEL, VBSA_LEVEL_SENTINEL }
+};
