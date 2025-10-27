@@ -170,6 +170,7 @@ extern uint32_t   g_arch_selection;
 extern uint32_t   g_level_filter_mode;
 extern uint32_t   g_level_value;
 extern uint32_t   g_bsa_sw_view_mask;
+extern BOOLEAN    g_invalid_arg_seen;
 extern CONST SHELL_PARAM_ITEM ParamList[];
 /* Use rule string map from VAL to translate -r inputs */
 extern char8_t *rule_id_string[RULE_ID_SENTINEL];
