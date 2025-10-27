@@ -366,6 +366,18 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     /* L1 GIC rules */
     { V_L1GI_01, VBSA_LEVEL_1 },
 
+    /* L1 SMMU rules */
+    { V_L1SM_01, VBSA_LEVEL_1 },
+
+    /* L1 Timer rules */
+    { V_L1TM_03, VBSA_LEVEL_1 },
+
+    /* L1 Wakeup rules */
+    { V_L1WK_04, VBSA_LEVEL_1 },
+
+    /* L1 Peripheral rules */
+    { V_L1PR_01, VBSA_LEVEL_1 },
+
     /* sentinel */
     { RULE_ID_SENTINEL, VBSA_LEVEL_SENTINEL }
 };

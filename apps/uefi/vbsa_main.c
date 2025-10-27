@@ -27,7 +27,7 @@
 #include "val/include/acs_memory.h"
 #include "acs.h"
 
-/* CLI parameter table for BSA ACS, for description refer HelpMsg */
+/* CLI parameter table for VBSA ACS, for description refer HelpMsg */
 CONST SHELL_PARAM_ITEM ParamList[] = {
     {L"-cache", TypeFlag},
     {L"-el1physkip", TypeFlag},

@@ -2246,6 +2246,34 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1SM_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check vSMMU architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [V_L1TM_03] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = TIMER,
+            .rule_desc        = "Check Timer architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [V_L1WK_04] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = WATCHDOG,
+            .rule_desc        = "Check Watchdog architectural compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
+        [V_L1PR_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = PERIPHERAL,
+            .rule_desc        = "Check Peripheral arch compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
     };
 
 /* Following structure maps test entry enums with entry function pointers
@@ -3338,6 +3366,14 @@ RULE_ID_e v_l1mm_01_rule_list[]   = {B_MEM_01, B_MEM_02, B_MEM_04, B_MEM_05,
                                      B_MEM_07, RULE_ID_SENTINEL};
 RULE_ID_e v_l1gi_01_rule_list[]   = {B_GIC_01, B_GIC_02, B_GIC_03, B_GIC_05,
                                      RULE_ID_SENTINEL};
+RULE_ID_e v_l1sm_01_rule_list[]   = {B_SMMU_01, B_SMMU_02, B_SMMU_06,
+                                     B_SMMU_07, B_SMMU_12, RULE_ID_SENTINEL};
+RULE_ID_e v_l1tm_03_rule_list[]   = {B_TIME_03, B_TIME_04, RULE_ID_SENTINEL};
+RULE_ID_e v_l1wk_04_rule_list[]   = {B_WAK_05,  B_WAK_06,  RULE_ID_SENTINEL};
+RULE_ID_e v_l1pr_01_rule_list[]   = {B_PER_01,  B_PER_02,  B_PER_03,
+                                     B_PER_04,  B_PER_05,  B_PER_06,
+                                     B_PER_09,  B_PER_10,  B_PER_11,
+                                     B_PER_12,  RULE_ID_SENTINEL};
 
 // TODO update all alias rules in xbsa specs
 alias_rule_map_t alias_rule_map[] = {
@@ -3364,6 +3400,10 @@ alias_rule_map_t alias_rule_map[] = {
     {V_L1PE_01, v_l1pe_01_rule_list},
     {V_L1MM_01, v_l1mm_01_rule_list},
     {V_L1GI_01, v_l1gi_01_rule_list},
+    {V_L1SM_01, v_l1sm_01_rule_list},
+    {V_L1TM_03, v_l1tm_03_rule_list},
+    {V_L1WK_04, v_l1wk_04_rule_list},
+    {V_L1PR_01, v_l1pr_01_rule_list},
 
 };
 
