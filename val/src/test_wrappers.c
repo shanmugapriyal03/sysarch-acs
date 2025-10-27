@@ -205,7 +205,7 @@ pci_msi_2_entry(uint32_t num_pe)
 uint32_t
 pci_pp_04_entry(uint32_t num_pe)
 {
-    TEST_ENTRY_ID_e tst_entry_list[] = {E001_ENTRY, E002_ENTRY, TEST_ENTRY_SENTINEL};
+    TEST_ENTRY_ID_e tst_entry_list[] = {P018_ENTRY, E001_ENTRY, E002_ENTRY, TEST_ENTRY_SENTINEL};
     val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -214,7 +214,7 @@ pci_pp_04_entry(uint32_t num_pe)
 uint32_t
 pci_pp_05_entry(uint32_t num_pe)
 {
-    TEST_ENTRY_ID_e tst_entry_list[] = {P017_ENTRY, P018_ENTRY, TEST_ENTRY_SENTINEL};
+    TEST_ENTRY_ID_e tst_entry_list[] = {P017_ENTRY, TEST_ENTRY_SENTINEL};
     val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -291,7 +291,7 @@ uint32_t
 re_smu_2_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P028_ENTRY, TEST_ENTRY_SENTINEL };
-    TEST_ENTRY_ID_e e_list[] = { E019_ENTRY, E020_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e e_list[] = { E020_ENTRY, TEST_ENTRY_SENTINEL };
     val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
@@ -311,7 +311,7 @@ uint32_t
 ie_reg_4_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P051_ENTRY, P099_ENTRY, P066_ENTRY, P088_ENTRY,
-                                        TEST_ENTRY_SENTINEL};
+                                        P064_ENTRY, TEST_ENTRY_SENTINEL};
     val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -329,7 +329,7 @@ pci_in_13_entry(uint32_t num_pe)
 uint32_t
 pci_in_17_entry(uint32_t num_pe)
 {
-    TEST_ENTRY_ID_e p_list[] = { P036_ENTRY, P064_ENTRY, P071_ENTRY, TEST_ENTRY_SENTINEL };
+    TEST_ENTRY_ID_e p_list[] = { P036_ENTRY, P071_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E015_ENTRY, TEST_ENTRY_SENTINEL };
     val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);

@@ -465,6 +465,7 @@ typedef enum {
     RE_REG_2,
     RE_REG_3,
     RE_RST_1,
+    RE_SMU_1,
     RE_SMU_2,
     RE_SMU_4,
     RI_CRS_1,

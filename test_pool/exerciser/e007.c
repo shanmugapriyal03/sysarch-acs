@@ -150,6 +150,15 @@ payload (void)
 
   pe_index = val_pe_get_index_mpid (val_pe_get_mpid());
 
+  /* PCI_IC_11 is conditional as part of BSA
+     but are mandatory for SBSA as part of Rule S_PCIe_09
+     returning SKIP if called for BSA */
+  /* TODO revisit could be warning for BSA, since we can't deduce if condition of BSA rule */
+  if (g_build_sbsa == 0) {
+      val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 1));
+      return;
+  }
+
   /* Read the number of excerciser cards */
   instance = val_exerciser_get_info(EXERCISER_NUM_CARDS);
 

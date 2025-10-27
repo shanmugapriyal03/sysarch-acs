@@ -875,30 +875,28 @@ val_bsa_exerciser_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 
   if (g_sw_view[G_SW_OS]) {
 
-      if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
-              view_print_info(OPERATING_SYSTEM);
-          status |= e001_entry(num_pe);
-          status |= e002_entry(num_pe);
-          status |= e003_entry(num_pe);
-          status |= e004_entry(num_pe);
-          status |= e006_entry(num_pe);
-          status |= e007_entry(num_pe);
-          status |= e010_entry(num_pe);
+     if (g_bsa_level >= 1 || g_bsa_only_level == 1) {
+         view_print_info(OPERATING_SYSTEM);
+         status |= e001_entry(num_pe);
+         status |= e002_entry(num_pe);
+         status |= e004_entry(num_pe);
+         status |= e006_entry(num_pe);
+         status |= e010_entry(num_pe);
 
-          if (!pal_target_is_dt()) {
-              status |= e011_entry(num_pe);
-              status |= e012_entry(num_pe);
-              status |= e013_entry(num_pe);
-              status |= e035_entry(num_pe);
-          }
+         if (!pal_target_is_dt()) {
+             status |= e011_entry(num_pe);
+             status |= e012_entry(num_pe);
+             status |= e013_entry(num_pe);
+             status |= e035_entry(num_pe);
+         }
 
-          status |= e014_entry(num_pe);
-          status |= e015_entry(num_pe);
-          status |= e016_entry(num_pe);
-          status |= e017_entry(num_pe);
-          status |= e033_entry(num_pe);
-          status |= e039_entry(num_pe);
-      }
+         status |= e014_entry(num_pe);
+         status |= e015_entry(num_pe);
+         status |= e016_entry(num_pe);
+         status |= e017_entry(num_pe);
+         status |= e033_entry(num_pe);
+         status |= e039_entry(num_pe);
+     }
   }
 
   val_smmu_stop();

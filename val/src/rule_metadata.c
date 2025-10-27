@@ -1649,7 +1649,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
         [PCI_LI_01] = {
             .test_entry_id    = PCI_LI_01_ENTRY,
             .module_id        = PCIE,
-            .rule_desc        = "Check Legacy Intrrupt is SPI",
+            .rule_desc        = "Check Legacy Interrupt is SPI",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
@@ -1874,6 +1874,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .test_entry_id    = P063_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Check Function level reset: RCiEP",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+        },
+        [RE_SMU_1] = {
+            .test_entry_id    = E019_ENTRY,
+            .module_id        = PCIE,
+            .rule_desc        = "Check ATS Support Rule: RCiEP",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
