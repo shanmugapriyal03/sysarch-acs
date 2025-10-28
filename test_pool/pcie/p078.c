@@ -102,23 +102,23 @@ payload_primary(void)
         val_memory_free_aligned(intr_map);
         return;
       }
-  }
 
-  /* If test runs for atleast an endpoint */
-  test_skip = 0;
-  intr_line = intr_map->legacy_irq_map[intr_pin-1].irq_list[0];
+      /* If test runs for atleast an endpoint */
+      test_skip = 0;
+      intr_line = intr_map->legacy_irq_map[intr_pin-1].irq_list[0];
 
-  /* Check if the int falls in SPI range */
-  if ((intr_line >= 32 && intr_line <= 1019) ||
+      /* Check if the int falls in SPI range */
+      if ((intr_line >= 32 && intr_line <= 1019) ||
        (val_gic_espi_supported() && (intr_line >= 4096 &&
                          intr_line <= val_gic_max_espi_val())))  {
-      val_print(ACS_PRINT_INFO, "\n Int is SPI", 0);
-  }
-  else {
-      val_print(ACS_PRINT_ERR, "\n Int id %d is not SPI", intr_line);
-      val_memory_free_aligned(intr_map);
-      val_set_status(pe_index, RESULT_FAIL(test_num, 02));
-      return;
+          val_print(ACS_PRINT_INFO, "\n Int is SPI", 0);
+      }
+      else {
+        val_print(ACS_PRINT_ERR, "\n Int id %d is not SPI", intr_line);
+        val_memory_free_aligned(intr_map);
+        val_set_status(pe_index, RESULT_FAIL(test_num, 02));
+        return;
+      }
   }
 
   val_memory_free_aligned(intr_map);
