@@ -107,8 +107,6 @@ exception_taken:
 uint32_t
 m001_entry(uint32_t num_pe)
 {
-
-  uint32_t error_flag = 0;
   uint32_t status = ACS_STATUS_FAIL;
 
   num_pe = 1;  //This test is run on single processor
@@ -119,12 +117,7 @@ m001_entry(uint32_t num_pe)
       val_run_test_payload(TEST_NUM, num_pe, payload, 0);
 
   /* get the result from all PE and check for failure */
-  error_flag = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
-
-  if (!error_flag)
-      status = ACS_STATUS_PASS;
-  else
-      status = ACS_STATUS_FAIL;
+  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
 
   val_report_status(0, ACS_END(TEST_NUM), NULL);
 

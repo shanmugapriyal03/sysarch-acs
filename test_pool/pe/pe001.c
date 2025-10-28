@@ -415,8 +415,9 @@ pe001_entry(uint32_t num_pe)
   /* execute payload, which will execute relevant functions on current and other PEs */
       payload(num_pe);
 
-  /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
+  /* The test status depends solely on overall status as seen by primary PE,
+     hence passing num_pe as zero to get that. */
+  status = val_check_for_error(TEST_NUM, 1, TEST_RULE);
 
   val_report_status(0, ACS_END(TEST_NUM), NULL);
 
