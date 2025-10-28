@@ -2239,6 +2239,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1MM_02] = {
+            .test_entry_id    = M004_ENTRY,
+            .module_id        = MEM_MAP,
+            .rule_desc        = "DMA requestors access to NS addr space",
+            .platform_bitmask = PLATFORM_LINUX,
+            .flag             = BASE_RULE
+        },
         [V_L1GI_01] = {
             .test_entry_id    = NULL_ENTRY,
             .module_id        = GIC,
@@ -2253,12 +2260,40 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1TM_01] = {
+            .test_entry_id    = T001_ENTRY,
+            .module_id        = TIMER,
+            .rule_desc        = "Check Virt and Phy counter presence",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
+        [V_L1TM_02] = {
+            .test_entry_id    = T007_ENTRY,
+            .module_id        = TIMER,
+            .rule_desc        = "Check Virt and Phy counter min freq",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
         [V_L1TM_03] = {
             .test_entry_id    = NULL_ENTRY,
             .module_id        = TIMER,
             .rule_desc        = "Check Timer architectural compliance",
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
+        },
+        [V_L1WK_02] = {
+            .test_entry_id    = V_L1WK_02_05_ENTRY,
+            .module_id        = POWER_WAKEUP,
+            .rule_desc        = "Check power wakeup interrupts",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
+        [V_L1WK_05] = {
+            .test_entry_id    = V_L1WK_02_05_ENTRY,
+            .module_id        = POWER_WAKEUP,
+            .rule_desc        = "Check vPE power state semantics",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
         },
         [V_L1WK_04] = {
             .test_entry_id    = NULL_ENTRY,
@@ -2659,6 +2694,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [W001_ENTRY] = w001_entry,
     [W002_ENTRY] = w002_entry,
     [W003_ENTRY] = w003_entry,
+    [V_L1WK_02_05_ENTRY] = v_l1wk_02_05_entry,
 #endif /* TARGET_UEFI */
 
 /* TARGET_BAREMETAL */

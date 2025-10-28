@@ -361,7 +361,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
 
     /* L1 Memory map rules */
     { V_L1MM_01, VBSA_LEVEL_1 },
-    // { V_L1MM_02, VBSA_LEVEL_1 },
+    { V_L1MM_02, VBSA_LEVEL_1 },
 
     /* L1 GIC rules */
     { V_L1GI_01, VBSA_LEVEL_1 },
@@ -370,10 +370,19 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1SM_01, VBSA_LEVEL_1 },
 
     /* L1 Timer rules */
+    { V_L1TM_01, VBSA_LEVEL_1 },
+    { V_L1TM_02, VBSA_LEVEL_1 },
     { V_L1TM_03, VBSA_LEVEL_1 },
 
     /* L1 Wakeup rules */
+    { V_L1WK_01, VBSA_LEVEL_1 },
+    { V_L1WK_02, VBSA_LEVEL_1 },
+    { V_L1WK_03, VBSA_LEVEL_1 },
     { V_L1WK_04, VBSA_LEVEL_1 },
+    { V_L1WK_05, VBSA_LEVEL_1 },
+    { V_L1WK_07, VBSA_LEVEL_1 },
+    { V_L1WK_08, VBSA_LEVEL_1 },
+    { V_L1WK_09, VBSA_LEVEL_1 },
 
     /* L1 Peripheral rules */
     { V_L1PR_01, VBSA_LEVEL_1 },

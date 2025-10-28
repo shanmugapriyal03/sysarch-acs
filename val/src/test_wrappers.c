@@ -357,3 +357,10 @@ gpu_04_entry(uint32_t num_pe)
 
     return run_test_entries(tst_entry_list, num_pe);
 }
+/* V_L1WK_02 */
+uint32_t
+v_l1wk_02_05_entry(uint32_t num_pe)
+{
+    TEST_ENTRY_ID_e tst_entry_list[] = {U001_ENTRY, U002_ENTRY, U005_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
+}
