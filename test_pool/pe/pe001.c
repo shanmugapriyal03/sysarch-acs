@@ -393,10 +393,10 @@ payload(uint32_t num_pe)
   if (total_fail) {
       val_print(ACS_PRINT_ERR, "\n\n    Total Register and cache fail for all PE: %d \n",
                                                                              total_fail);
-      val_set_status(total_fail, RESULT_FAIL(TEST_NUM, 4));
+      val_set_status(my_index, RESULT_FAIL(TEST_NUM, 4));
   }
   else
-      val_set_status(1, RESULT_PASS(TEST_NUM, 2));
+      val_set_status(my_index, RESULT_PASS(TEST_NUM, 2));
 
   val_memory_free((void *) g_pe_reg_info);
   return;

@@ -102,7 +102,7 @@ pe016_entry(uint32_t num_pe)
   }
 
   /* This check is when user is forcing us to skip this test */
-  if (status != ACS_STATUS_SKIP) {
+  if (status != TEST_SKIP_VAL) {
     g_sve_reg_info = (sve_reg_details *) val_memory_calloc(num_pe, sizeof(sve_reg_details));
     if (g_sve_reg_info == NULL) {
       val_print(ACS_PRINT_ERR, "\n       Memory Allocation for SVE Register data Failed", 0);
