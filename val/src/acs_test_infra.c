@@ -717,29 +717,36 @@ val_check_for_error(uint32_t test_num, uint32_t num_pe, char8_t *ruleid)
 
   uint32_t i;
   uint32_t overall_status;
-  uint32_t status = TEST_FAIL_VAL;
+  uint32_t status = TEST_FAIL;
+  uint32_t checkpoint;
   uint32_t my_index = val_pe_get_index_mpid(val_pe_get_mpid());
 
   if (num_pe == 1) {
       status = val_get_status(my_index);
+      checkpoint = status & STATUS_MASK;
       status = (status >> STATE_BIT) & STATE_MASK;
-      return status;
+      overall_status = status;
   } else {
       /* Start with least severe status */
-      overall_status = TEST_PASS_VAL;
+      overall_status = TEST_PASS;
       for (i = 0; i < num_pe; i++) {
           status = val_get_status(i);
+          /* Checkpoint info from last PE would be reflected */
+          checkpoint = status & STATUS_MASK;
           status = (status >> STATE_BIT) & STATE_MASK;
-          // DEBUG_PRINT
-          // val_print(ACS_PRINT_ERR, "\n PE index = %d", i);
-          // val_print(ACS_PRINT_ERR, " status = 0x%x", status);
           /* Overwrite status if higher severity status found*/
           if (status > overall_status) {
               overall_status = status;
           }
       }
-      return overall_status;
   }
+  if (overall_status == TEST_FAIL) {
+      val_print(ACS_PRINT_ERR, "\n        Failed at checkpoint - %2d", checkpoint);
+  } else if (overall_status == TEST_SKIP) {
+      val_print(ACS_PRINT_ERR, "\n        Skipped at checkpoint - %2d", checkpoint);
+  }
+
+  return overall_status;
 }
 #endif
 /**
