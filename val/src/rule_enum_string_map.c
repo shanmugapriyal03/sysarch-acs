@@ -498,6 +498,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1TM_03]  = "V_L1TM_03",
     [V_L1WK_04]  = "V_L1WK_04",
     [V_L1PR_01]  = "V_L1PR_01",
+    [V_L1PR_02]  = "V_L1PR_02",
 };
 
 /* Module name strings mapping to MODULE_NAME_e */

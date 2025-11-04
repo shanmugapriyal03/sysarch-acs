@@ -377,6 +377,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
 
     /* L1 Peripheral rules */
     { V_L1PR_01, VBSA_LEVEL_1 },
+    { V_L1PR_02, VBSA_LEVEL_1 },
 
     /* sentinel */
     { RULE_ID_SENTINEL, VBSA_LEVEL_SENTINEL }

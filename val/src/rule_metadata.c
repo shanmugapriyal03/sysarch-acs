@@ -2274,6 +2274,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1PR_02] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = PERIPHERAL,
+            .rule_desc        = "Check Virt PCIe arch compliance",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = ALIAS_RULE
+        },
     };
 
 /* Following structure maps test entry enums with entry function pointers
@@ -3374,6 +3381,50 @@ RULE_ID_e v_l1pr_01_rule_list[]   = {B_PER_01,  B_PER_02,  B_PER_03,
                                      B_PER_04,  B_PER_05,  B_PER_06,
                                      B_PER_09,  B_PER_10,  B_PER_11,
                                      B_PER_12,  RULE_ID_SENTINEL};
+RULE_ID_e v_l1pr_02_rule_list[]   = {
+                                     /* E.1 - Configuration Space */
+                                     PCI_IN_01, PCI_IN_02, PCI_IN_03, PCI_IN_04,
+                                     PCI_IN_05, PCI_IN_06, PCI_IN_07, PCI_IN_08,
+                                     PCI_IN_09, PCI_IN_10, PCI_IN_11, PCI_IN_12,
+                                     PCI_IN_13, PCI_IN_14, PCI_IN_15, PCI_IN_16,
+                                     PCI_IN_17, PCI_IN_18, PCI_IN_19, PCI_IN_20,
+
+                                     /* E.2 - PCI Express memory space (Except PCI_MM_02) */
+                                     PCI_MM_01, PCI_MM_03, PCI_MM_04,
+
+                                     /* E.3 - PCI Express deivce view of memory */
+                                     PCI_MM_05, PCI_MM_06, PCI_MM_07,
+
+                                     /* E.4 - Message Signaled Interrupts */
+                                     PCI_MSI_1, PCI_MSI_2,
+
+                                     /* E.6 - Legacy Interrupts */
+                                     PCI_LI_01, PCI_LI_02, PCI_LI_03, PCI_LI_04,
+
+                                     /* E.7 - System MMU and Device Assignment */
+                                     PCI_SM_01, PCI_SM_02,
+
+                                     /* E.8 - I/O Coherency */
+                                     PCI_IC_11, PCI_IC_12, PCI_IC_13, PCI_IC_14,
+                                     PCI_IC_15, PCI_IC_16, PCI_IC_17, PCI_IC_18,
+
+                                     /* E.9 - Legacy I/O */
+                                     PCI_IO_01,
+
+                                     /* E.10 - Integrated End Points */
+                                     PCI_IEP_1,
+
+                                     /* E.11 - Peer-to-Peer */
+                                     PCI_PP_01, PCI_PP_02, PCI_PP_03,
+                                     PCI_PP_04, PCI_PP_05, PCI_PP_06,
+
+                                     /* E.12 - PASID Support */
+                                     PCI_PAS_1,
+
+                                     /* E.13 - PCIe Precision Time Measurement */
+                                     PCI_PTM_1,
+
+                                     RULE_ID_SENTINEL};
 
 // TODO update all alias rules in xbsa specs
 alias_rule_map_t alias_rule_map[] = {
@@ -3404,6 +3455,7 @@ alias_rule_map_t alias_rule_map[] = {
     {V_L1TM_03, v_l1tm_03_rule_list},
     {V_L1WK_04, v_l1wk_04_rule_list},
     {V_L1PR_01, v_l1pr_01_rule_list},
+    {V_L1PR_02, v_l1pr_02_rule_list},
 
 };
 

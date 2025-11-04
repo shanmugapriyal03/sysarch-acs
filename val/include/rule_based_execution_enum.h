@@ -514,6 +514,7 @@ typedef enum {
     V_L1TM_03,
     V_L1WK_04,
     V_L1PR_01,
+    V_L1PR_02,
 
     /* Sentinel must remain last */
     RULE_ID_SENTINEL
