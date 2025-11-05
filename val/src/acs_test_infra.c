@@ -381,7 +381,7 @@ val_check_skip_module(uint32_t module_base)
   (void)module_base;
   return ACS_STATUS_PASS;
 }
-#endif
+#endif /* COMPILE_RB_EXE */
 
 /**
   @brief  This API prints the test number, description and
@@ -395,13 +395,14 @@ val_check_skip_module(uint32_t module_base)
 
   @return         Skip - if the user has overriden to skip the test.
  **/
+#ifndef COMPILE_RB_EXE
 uint32_t
 val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
 {
-/* Test header and skip logic is implemented by rule bases orchestrator */
-#ifndef COMPILE_RB_EXE
-  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+
   uint32_t i;
+  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+
   g_override_skip = 0;
 
   for (i = 0; i < num_pe; i++)
@@ -440,16 +441,29 @@ val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
 
   val_print(ACS_PRINT_ERR, "%4d : ", test_num); //Always print this
   val_print(ACS_PRINT_TEST, desc, 0);
-  g_acs_tests_total++;
-#else
-  (void)desc;
-  (void)num_pe;
-#endif
   val_report_status(0, ACS_START(test_num), NULL);
   val_pe_initialize_default_exception_handler(val_pe_default_esr);
 
+  g_acs_tests_total++;
+
   return ACS_STATUS_PASS;
 }
+#else
+uint32_t
+val_initialize_test(uint32_t test_num, char8_t *desc, uint32_t num_pe)
+{
+  uint32_t i;
+  (void)desc;
+  (void)num_pe;
+
+  /* Set TEST_PENDING_VAL status for all PEs, hint for val_wait_for_test_completion */
+  for (i = 0; i < num_pe; i++)
+      val_set_status(i, RESULT_PENDING(test_num));
+
+  val_pe_initialize_default_exception_handler(val_pe_default_esr);
+  return ACS_STATUS_PASS;
+}
+#endif /* COMPILE_RB_EXE */
 
 /**
   @brief  Allocate memory which is to be shared across PEs
