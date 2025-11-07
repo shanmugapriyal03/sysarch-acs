@@ -360,6 +360,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
+        [S_L6PE_01] = {
+            .test_entry_id    = NULL_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check PE security features",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .flag             = ALIAS_RULE,
+        },
         [S_L6PE_02] = {
             .test_entry_id    = PE038_ENTRY,
             .module_id        = PE,
@@ -744,14 +751,14 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
         [S_L3MM_01] = {
             .test_entry_id    = M005_ENTRY,
             .module_id        = MEM_MAP,
-            .rule_desc        = "",
+            .rule_desc        = "NS-EL2 Stage-2 64KB Mapping Check",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
         [S_L3MM_02] = {
             .test_entry_id    = M008_ENTRY,
             .module_id        = MEM_MAP,
-            .rule_desc        = "",
+            .rule_desc        = "Check peripherals addr 64Kb apart",
             .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
             .flag             = BASE_RULE,
         },
@@ -1608,7 +1615,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .test_entry_id    = PCI_IN_13_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Check RootPort NP Memory Access",
-            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .platform_bitmask = PLATFORM_BAREMETAL,
             .flag             = BASE_RULE,
         },
         [PCI_IN_16] = {
@@ -3288,6 +3295,9 @@ RULE_ID_e s_l6pci_1_rule_list[] = {
 
         RULE_ID_SENTINEL
     };
+/* S_L6PE_01 */
+RULE_ID_e s_l6pe_01_rule_list[]   = {B_SEC_01, B_SEC_02, B_SEC_03, B_SEC_04, B_SEC_05,
+                                     RULE_ID_SENTINEL};
 /* SYS_RAS */
 RULE_ID_e sys_ras_rule_list[] = {
     /* SBSA Section B Server RAS */
@@ -3320,6 +3330,7 @@ alias_rule_map_t alias_rule_map[] = {
     {S_L3PR_01, s_l3pr_01_rule_list},
     {S_L3WD_01, s_l3wd_01_rule_list},
     {S_L6PCI_1, s_l6pci_1_rule_list},
+    {S_L6PE_01, s_l6pe_01_rule_list},
     {SYS_RAS,   sys_ras_rule_list},
     /* PCBSA alias rules */
     {P_L1_01,  bsa_l1_rule_list},
