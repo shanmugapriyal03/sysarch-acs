@@ -2232,6 +2232,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1PE_02] = {
+            .test_entry_id    = V_L1PE_02_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check PMUv3 support in vPE",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
         [V_L1MM_01] = {
             .test_entry_id    = NULL_ENTRY,
             .module_id        = MEM_MAP,
@@ -2259,6 +2266,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .rule_desc        = "Check vSMMU architectural compliance",
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
+        },
+        [V_L1SM_02] = {
+            .test_entry_id    = I031_ENTRY,
+            .module_id        = SMMU,
+            .rule_desc        = "Check SMMU stage 1 support for VE",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
         },
         [V_L1TM_01] = {
             .test_entry_id    = T001_ENTRY,
@@ -2315,6 +2329,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .rule_desc        = "Check Virt PCIe arch compliance",
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
+        },
+        [V_L2PE_02] = {
+            .test_entry_id    = PE010_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check vPE PMU overflow signal",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
         },
     };
 
@@ -2442,6 +2463,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [RE_REC_1_ENTRY]   = re_rec_1_entry,
     [RE_REG_1_ENTRY]   = re_reg_1_entry,
     [RE_SMU_2_ENTRY]   = re_smu_2_entry,
+    [V_L1PE_02_ENTRY]  = v_l1pe_02_entry,
     [G013_ENTRY] = g013_entry,
     [G014_ENTRY] = g014_entry,
     [G015_ENTRY] = g015_entry,
@@ -2475,6 +2497,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [I028_ENTRY] = i028_entry,
     [I029_ENTRY] = i029_entry,
     [I030_ENTRY] = i030_entry,
+    [I031_ENTRY] = i031_entry,
     [INTERFACE010_ENTRY] = interface010_entry,
     [INTERFACE011_ENTRY] = interface011_entry,
     [ITS001_ENTRY] = its001_entry,
@@ -2640,6 +2663,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [PE062_ENTRY] = pe062_entry,
     [PE063_ENTRY] = pe063_entry,
     [PE064_ENTRY] = pe064_entry,
+    [PE067_ENTRY] = pe067_entry,
 /* The following test entries are excluded from compilation for the BSA DT UEFI App, as they are
    not required for the BSA DT build. These tests invoke VAL APIs, which in turn call PAL APIs,
    and PAL_DT lacks a few necessary implementations.*/

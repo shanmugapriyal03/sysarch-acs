@@ -492,10 +492,12 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
 
     /* VBSA ACS rule identifiers */
     [V_L1PE_01]  = "V_L1PE_01",
+    [V_L1PE_02]  = "V_L1PE_02",
     [V_L1MM_01]  = "V_L1MM_01",
     [V_L1MM_02]  = "V_L1MM_02",
     [V_L1GI_01]  = "V_L1GI_01",
     [V_L1SM_01]  = "V_L1SM_01",
+    [V_L1SM_02]  = "V_L1SM_02",
     [V_L1TM_01]  = "V_L1TM_01",
     [V_L1TM_02]  = "V_L1TM_02",
     [V_L1TM_03]  = "V_L1TM_03",
@@ -509,6 +511,8 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1WK_09]  = "V_L1WK_09",
     [V_L1PR_01]  = "V_L1PR_01",
     [V_L1PR_02]  = "V_L1PR_02",
+    [V_L2PE_01]  = "V_L2PE_01",
+    [V_L2PE_02]  = "V_L2PE_02",
 };
 
 /* Module name strings mapping to MODULE_NAME_e */

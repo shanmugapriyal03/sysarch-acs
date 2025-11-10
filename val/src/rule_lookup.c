@@ -357,7 +357,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
 
     /* L1 PE Rules */
     { V_L1PE_01, VBSA_LEVEL_1 },
-    // { V_L1PE_02, VBSA_LEVEL_1 },
+    { V_L1PE_02, VBSA_LEVEL_1 },
 
     /* L1 Memory map rules */
     { V_L1MM_01, VBSA_LEVEL_1 },
@@ -368,6 +368,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
 
     /* L1 SMMU rules */
     { V_L1SM_01, VBSA_LEVEL_1 },
+    { V_L1SM_02, VBSA_LEVEL_1 },
 
     /* L1 Timer rules */
     { V_L1TM_01, VBSA_LEVEL_1 },
@@ -388,6 +389,9 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1PR_01, VBSA_LEVEL_1 },
     { V_L1PR_02, VBSA_LEVEL_1 },
 
-    /* sentinel */
+    /* FR (L2) PE rules */
+    { V_L2PE_02, VBSA_LEVEL_FR },
+
+    /* Sentinel to indicate end-of-list */
     { RULE_ID_SENTINEL, VBSA_LEVEL_SENTINEL }
 };

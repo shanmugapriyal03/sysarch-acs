@@ -364,3 +364,11 @@ v_l1wk_02_05_entry(uint32_t num_pe)
     TEST_ENTRY_ID_e tst_entry_list[] = {U001_ENTRY, U002_ENTRY, U005_ENTRY, TEST_ENTRY_SENTINEL};
     return run_test_entries(tst_entry_list, num_pe);
 }
+
+/* V_L1PE_02 */
+uint32_t
+v_l1pe_02_entry(uint32_t num_pe)
+{
+    TEST_ENTRY_ID_e tst_entry_list[] = {PE008_ENTRY, PE067_ENTRY, PE002_ENTRY, TEST_ENTRY_SENTINEL};
+    return run_test_entries(tst_entry_list, num_pe);
+}

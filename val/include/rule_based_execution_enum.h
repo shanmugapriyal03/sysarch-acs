@@ -511,6 +511,7 @@ typedef enum {
     V_L1MM_02,
     V_L1GI_01,
     V_L1SM_01,
+    V_L1SM_02,
     V_L1TM_01,
     V_L1TM_02,
     V_L1TM_03,
@@ -524,6 +525,8 @@ typedef enum {
     V_L1WK_09,
     V_L1PR_01,
     V_L1PR_02,
+    V_L2PE_01,
+    V_L2PE_02,
 
     /* Sentinel must remain last */
     RULE_ID_SENTINEL
@@ -593,6 +596,8 @@ typedef enum {
     PE064_ENTRY,
     PE061_ENTRY,
     PE062_ENTRY,
+    PE067_ENTRY,
+    V_L1PE_02_ENTRY,
     G001_ENTRY,
     G002_ENTRY,
     G003_ENTRY,
@@ -692,6 +697,7 @@ typedef enum {
     I021_ENTRY,
     I027_ENTRY,
     I028_ENTRY,
+    I031_ENTRY,
     T001_ENTRY,
     T007_ENTRY,
     T002_ENTRY,
