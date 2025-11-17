@@ -28,22 +28,22 @@
 static uint64_t wd_num;
 static uint32_t g_wd_int_received;
 extern uint32_t g_wakeup_timeout;
-static uint32_t g_failsafe_int_received;
-
-static
-void
-isr_failsafe()
-{
-  uint32_t intid;
-  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-
-  val_timer_set_phy_el1(0);
-  val_print(ACS_PRINT_ERR, "       Received Failsafe interrupt\n", 0);
-  g_failsafe_int_received = 1;
-  val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
-  intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
-  val_gic_end_of_interrupt(intid);
-}
+//static uint32_t g_failsafe_int_received;
+//
+//static
+//void
+//isr_failsafe()
+//{
+//  uint32_t intid;
+//  uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
+//
+//  val_timer_set_phy_el1(0);
+//  val_print(ACS_PRINT_ERR, "       Received Failsafe interrupt\n", 0);
+//  g_failsafe_int_received = 1;
+//  val_set_status(index, RESULT_FAIL(TEST_NUM, 1));
+//  intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
+//  val_gic_end_of_interrupt(intid);
+//}
 
 static
 void
@@ -59,24 +59,24 @@ isr4()
   val_gic_end_of_interrupt(intid);
 }
 
-static
-void
-wakeup_set_failsafe()
-{
-  uint32_t intid;
-  uint64_t timer_expire_val = (val_get_counter_frequency() * 3 * g_wakeup_timeout) / 2;
-
-  intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
-  val_gic_install_isr(intid, isr_failsafe);
-  val_timer_set_phy_el1(timer_expire_val);
-}
-
-static
-void
-wakeup_clear_failsafe()
-{
-  val_timer_set_phy_el1(0);
-}
+//static
+//void
+//wakeup_set_failsafe()
+//{
+//  uint32_t intid;
+//  uint64_t timer_expire_val = (val_get_counter_frequency() * 3 * g_wakeup_timeout) / 2;
+//
+//  intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
+//  val_gic_install_isr(intid, isr_failsafe);
+//  val_timer_set_phy_el1(timer_expire_val);
+//}
+//
+//static
+//void
+//wakeup_clear_failsafe()
+//{
+//  val_timer_set_phy_el1(0);
+//}
 
 static
 void
@@ -89,6 +89,7 @@ payload4()
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint64_t timer_expire_val = 1 * g_wakeup_timeout;
 
+  val_print(ACS_PRINT_ERR, "       Barrier No Failsafe\n", 0);
   wd_num = val_wd_get_info(0, WD_INFO_COUNT);
 
   // Assume a test passes until something causes a failure.
@@ -117,11 +118,11 @@ payload4()
               val_gic_set_intr_trigger(intid, INTR_TRIGGER_INFO_LEVEL_HIGH);
 
           g_wd_int_received = 0;
-          g_failsafe_int_received = 0;
-	  wakeup_set_failsafe();
-	  status = val_wd_set_ws0(wd_num, timer_expire_val);
+          //g_failsafe_int_received = 0;
+	      //wakeup_set_failsafe();
+	      status = val_wd_set_ws0(wd_num, timer_expire_val);
           if (status) {
-              wakeup_clear_failsafe();
+              //wakeup_clear_failsafe();
     	      val_print(ACS_PRINT_ERR, "\n       Setting watchdog timeout failed", 0);
               val_set_status(index, RESULT_FAIL(TEST_NUM, 2));
               return;
@@ -131,8 +132,9 @@ payload4()
           /* Add a delay loop after WFI called in case PE needs some time to enter WFI state
            * exit in case test or failsafe int is received
           */
-          delay_loop = val_get_counter_frequency() * g_wakeup_timeout;
-	  while (delay_loop && (g_wd_int_received == 0) && (g_failsafe_int_received == 0)) {
+          delay_loop = val_get_counter_frequency() * g_wakeup_timeout * 3;
+	      //while (delay_loop && (g_wd_int_received == 0) && (g_failsafe_int_received == 0)) {
+	      while (delay_loop && (g_wd_int_received == 0)) {
               delay_loop--;
           }
 
@@ -143,8 +145,8 @@ payload4()
            * 4. PE didn't enter WFI mode, treating as (SKIP), as finding 3rd,4th case not feasible
            * 5. Hang, if PE didn't exit WFI (FAIL)
           */
-	  wakeup_clear_failsafe();
-          if (!(g_wd_int_received || g_failsafe_int_received)) {
+	      //wakeup_clear_failsafe();
+          if (!(g_wd_int_received)) {
               intid = val_wd_get_info(wd_num, WD_INFO_GSIV);
 	      val_gic_clear_interrupt(intid);
               val_set_status(index, RESULT_SKIP(TEST_NUM, 1));
@@ -157,6 +159,11 @@ payload4()
           val_set_status(index, RESULT_FAIL(TEST_NUM, 3));
       }
 
+      delay_loop = val_get_counter_frequency() * g_wakeup_timeout * 3;
+	  while (delay_loop && (g_wd_int_received == 0)) {
+        delay_loop--;
+      }
+	  val_print(ACS_PRINT_DEBUG, "\n       delay loop remainig value %d", delay_loop);
       /* Disable watchdog so it doesn't trigger after this test. */
       val_wd_set_ws0(wd_num, 0);
   }
