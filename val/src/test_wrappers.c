@@ -82,7 +82,7 @@ b_ppi_00_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {G006_ENTRY, G007_ENTRY, G009_ENTRY,
                                         G010_ENTRY, G011_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -97,7 +97,7 @@ b_wak_03_07_entry(uint32_t num_pe)
                                         U004_ENTRY, U005_ENTRY,
                                         /* U006_ENTRY, */
                                         TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -108,7 +108,7 @@ s_l7mp_03_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {MPAM002_ENTRY, MPAM006_ENTRY, MPAM007_ENTRY,
                                         TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -118,7 +118,7 @@ uint32_t
 sys_ras_2_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {RAS011_ENTRY, RAS012_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -128,7 +128,7 @@ uint32_t
 appendix_i_6_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {V2M001_ENTRY, V2M003_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -138,7 +138,7 @@ uint32_t
 p_l1pe_01_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {PE004_ENTRY, PE018_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }
@@ -148,7 +148,7 @@ uint32_t
 ie_reg_1_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P049_ENTRY, P059_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
    return run_test_entries(tst_entry_list, num_pe);
 }
@@ -159,7 +159,7 @@ pci_ic_11_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P068_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E007_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -168,7 +168,7 @@ uint32_t
 pci_in_04_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P003_ENTRY, P072_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -178,7 +178,7 @@ pci_li_02_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P096_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E006_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -187,7 +187,7 @@ uint32_t
 pci_li_03_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P023_ENTRY, P078_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -197,7 +197,7 @@ pci_msi_2_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P097_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E033_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -206,7 +206,7 @@ uint32_t
 pci_pp_04_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P018_ENTRY, E001_ENTRY, E002_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -215,7 +215,7 @@ uint32_t
 pci_pp_05_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P017_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -224,7 +224,7 @@ uint32_t
 re_rec_1_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P053_ENTRY, P061_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -233,7 +233,7 @@ uint32_t
 re_reg_1_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P048_ENTRY, P058_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -243,7 +243,7 @@ ie_reg_3_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P050_ENTRY, P060_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E034_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -253,7 +253,7 @@ pci_in_19_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P030_ENTRY, P031_ENTRY, P032_ENTRY,
                                         TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -262,7 +262,7 @@ uint32_t
 pci_li_01_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P006_ENTRY, P027_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -272,7 +272,7 @@ pci_mm_01_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P045_ENTRY, P103_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E016_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -282,7 +282,7 @@ pci_mm_03_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P094_ENTRY, P104_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E039_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -292,7 +292,7 @@ re_smu_2_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P028_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E020_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -302,7 +302,7 @@ ie_reg_2_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P054_ENTRY, P098_ENTRY, P065_ENTRY, P067_ENTRY,
                                         TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -312,7 +312,7 @@ ie_reg_4_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P051_ENTRY, P099_ENTRY, P066_ENTRY, P088_ENTRY,
                                         P064_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -321,7 +321,7 @@ uint32_t
 pci_in_13_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {P004_ENTRY, P005_ENTRY, TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_test_entries(tst_entry_list, num_pe);
 }
 
@@ -331,7 +331,7 @@ pci_in_17_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e p_list[] = { P036_ENTRY, P071_ENTRY, TEST_ENTRY_SENTINEL };
     TEST_ENTRY_ID_e e_list[] = { E015_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -343,7 +343,7 @@ pci_in_05_entry(uint32_t num_pe)
         P020_ENTRY, P022_ENTRY, P024_ENTRY, P025_ENTRY, P026_ENTRY, P033_ENTRY, TEST_ENTRY_SENTINEL
     };
     TEST_ENTRY_ID_e e_list[] = { E017_ENTRY, TEST_ENTRY_SENTINEL };
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
     return run_pcie_static_and_exerciser(p_list, e_list, num_pe);
 }
 
@@ -353,7 +353,7 @@ gpu_04_entry(uint32_t num_pe)
 {
     TEST_ENTRY_ID_e tst_entry_list[] = {I024_ENTRY, P089_ENTRY,
                                         TEST_ENTRY_SENTINEL};
-    val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+    val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
 
     return run_test_entries(tst_entry_list, num_pe);
 }

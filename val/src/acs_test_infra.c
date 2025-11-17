@@ -49,7 +49,6 @@ val_print(uint32_t level, char8_t *string, uint64_t data)
           1. Caller       - Application/VAL layers
           2. Prerequisite - None
 
-  @param level  print verbosity to use with val_print
   @param file   source file name (typically __FILE__)
   @param func   function name (typically __func__)
   @param line   source line number (typically __LINE__)
@@ -57,15 +56,14 @@ val_print(uint32_t level, char8_t *string, uint64_t data)
   @return None
  **/
 void
-val_log_context(uint32_t level, char8_t *file, char8_t *func, uint32_t line)
+val_log_context(char8_t *file, char8_t *func, uint32_t line)
 {
-  val_print(level, "\n    [", 0);
-  val_print(level, file, 0);
-  val_print(level, ":", 0);
-  val_print(level, "%d", line);
-  val_print(level, " ", 0);
-  val_print(level, func, 0);
-  val_print(level, "] ", 0);
+  val_print(ACS_PRINT_TEST, "\n    ", 0);
+  val_print(ACS_PRINT_INFO, file, 0);
+  val_print(ACS_PRINT_INFO, ":", 0);
+  val_print(ACS_PRINT_INFO, "%d", line);
+  val_print(ACS_PRINT_INFO, " ", 0);
+  val_print(ACS_PRINT_TEST, func, 0);
 }
 
 /**
