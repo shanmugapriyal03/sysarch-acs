@@ -363,8 +363,9 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1MM_01, VBSA_LEVEL_1 },
     { V_L1MM_02, VBSA_LEVEL_1 },
 
-    /* L1 GIC rules */
+    /* L1 GIC and PPI assignment rules */
     { V_L1GI_01, VBSA_LEVEL_1 },
+    { V_L1PP_00, VBSA_LEVEL_1 },
 
     /* L1 SMMU rules */
     { V_L1SM_01, VBSA_LEVEL_1 },

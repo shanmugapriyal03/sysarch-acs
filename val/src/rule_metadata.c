@@ -2260,6 +2260,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1PP_00] = {
+            .test_entry_id    = V_L1PP_00_ENTRY,
+            .module_id        = GIC,
+            .rule_desc        = "Check VE PPI assignment mapping",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
         [V_L1SM_01] = {
             .test_entry_id    = NULL_ENTRY,
             .module_id        = SMMU,
@@ -2727,6 +2734,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [W002_ENTRY] = w002_entry,
     [W003_ENTRY] = w003_entry,
     [V_L1WK_02_05_ENTRY] = v_l1wk_02_05_entry,
+    [V_L1PP_00_ENTRY] = v_l1pp_00_entry,
 #endif /* TARGET_UEFI */
 
 /* TARGET_BAREMETAL */
