@@ -91,6 +91,7 @@ payload4()
 
   val_print(ACS_PRINT_ERR, "       Barrier No Failsafe\n", 0);
   wd_num = val_wd_get_info(0, WD_INFO_COUNT);
+  val_print(ACS_PRINT_ERR, "       wd_num : %d\n", wd_num);
 
   // Assume a test passes until something causes a failure.
   val_set_status(index, RESULT_PASS(TEST_NUM, 1));
@@ -107,16 +108,19 @@ payload4()
 
       ns_wdg++;
       intid = val_wd_get_info(wd_num, WD_INFO_GSIV);
+      val_print(ACS_PRINT_ERR, "       intid : 0x%x\n", intid);
       status = val_gic_install_isr(intid, isr4);
 
       if (status == 0) {
 
+          val_print(ACS_PRINT_ERR, "       Install Handler Complete\n", 0);
           /* Set Interrupt Type Edge/Level Trigger */
           if (val_wd_get_info(wd_num, WD_INFO_IS_EDGE))
               val_gic_set_intr_trigger(intid, INTR_TRIGGER_INFO_EDGE_RISING);
           else
               val_gic_set_intr_trigger(intid, INTR_TRIGGER_INFO_LEVEL_HIGH);
 
+          val_print(ACS_PRINT_ERR, "       Set Trigger Type Done\n", 0);
           g_wd_int_received = 0;
           //g_failsafe_int_received = 0;
 	      //wakeup_set_failsafe();
@@ -127,13 +131,16 @@ payload4()
               val_set_status(index, RESULT_FAIL(TEST_NUM, 2));
               return;
           }
+          val_print(ACS_PRINT_ERR, "       val_wd_set_ws0 complete, calling val_power_enter_semantic \n", 0);
           val_power_enter_semantic(BSA_POWER_SEM_B);
 
           /* Add a delay loop after WFI called in case PE needs some time to enter WFI state
            * exit in case test or failsafe int is received
           */
+          val_print(ACS_PRINT_ERR, "       Wating for Delay \n", 0);
           delay_loop = val_get_counter_frequency() * g_wakeup_timeout * 3;
 	      //while (delay_loop && (g_wd_int_received == 0) && (g_failsafe_int_received == 0)) {
+	      val_print(ACS_PRINT_ERR, "\n       Delay loop %d", delay_loop);
 	      while (delay_loop && (g_wd_int_received == 0)) {
               delay_loop--;
           }
@@ -148,12 +155,14 @@ payload4()
 	      //wakeup_clear_failsafe();
           if (!(g_wd_int_received)) {
               intid = val_wd_get_info(wd_num, WD_INFO_GSIV);
-	      val_gic_clear_interrupt(intid);
+              val_print(ACS_PRINT_ERR, "       Calling Clear Interrupt for intid 0x%x\n", intid);
+	          val_gic_clear_interrupt(intid);
+	          val_print(ACS_PRINT_ERR, "\n       Clear interrupt done", 0);
               val_set_status(index, RESULT_SKIP(TEST_NUM, 1));
-    	      val_print(ACS_PRINT_DEBUG,
+    	      val_print(ACS_PRINT_ERR,
                         "\n       PE wakeup by some other events/int or didn't enter WFI", 0);
 	  }
-	  val_print(ACS_PRINT_DEBUG, "\n       delay loop remainig value %d", delay_loop);
+	  val_print(ACS_PRINT_ERR, "\n       delay loop remainig value 0x%lx", delay_loop);
       } else {
           val_print(ACS_PRINT_WARN, "\n       GIC Install Handler Failed...", 0);
           val_set_status(index, RESULT_FAIL(TEST_NUM, 3));
@@ -163,7 +172,7 @@ payload4()
 	  while (delay_loop && (g_wd_int_received == 0)) {
         delay_loop--;
       }
-	  val_print(ACS_PRINT_DEBUG, "\n       delay loop remainig value %d", delay_loop);
+	  val_print(ACS_PRINT_ERR, "\n       second delay loop remainig value 0x%lx", delay_loop);
       /* Disable watchdog so it doesn't trigger after this test. */
       val_wd_set_ws0(wd_num, 0);
   }
