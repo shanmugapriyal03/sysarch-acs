@@ -390,6 +390,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1PR_02, VBSA_LEVEL_1 },
 
     /* FR (L2) PE rules */
+    { V_L2PE_01, VBSA_LEVEL_FR },
     { V_L2PE_02, VBSA_LEVEL_FR },
 
     /* Sentinel to indicate end-of-list */

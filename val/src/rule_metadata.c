@@ -2330,6 +2330,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L2PE_01] = {
+            .test_entry_id    = PE068_ENTRY,
+            .module_id        = PE,
+            .rule_desc        = "Check num PMU counters for vPEs",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
         [V_L2PE_02] = {
             .test_entry_id    = PE010_ENTRY,
             .module_id        = PE,
@@ -2664,6 +2671,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [PE063_ENTRY] = pe063_entry,
     [PE064_ENTRY] = pe064_entry,
     [PE067_ENTRY] = pe067_entry,
+    [PE068_ENTRY] = pe068_entry,
 /* The following test entries are excluded from compilation for the BSA DT UEFI App, as they are
    not required for the BSA DT build. These tests invoke VAL APIs, which in turn call PAL APIs,
    and PAL_DT lacks a few necessary implementations.*/
