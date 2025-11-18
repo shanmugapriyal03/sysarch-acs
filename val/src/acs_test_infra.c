@@ -58,11 +58,32 @@ val_print(uint32_t level, char8_t *string, uint64_t data)
 void
 val_log_context(char8_t *file, char8_t *func, uint32_t line)
 {
+  char8_t *trimmed_file;
+  char8_t *marker;
+  /* Substring to locate in full file path */
+  const char8_t pattern[] = "test_pool";
+  uint32_t i;
+
+  trimmed_file = file;
+  marker = file;
+
+  /* Scan file path for pattern and trim from first occurrence */
+  while (*marker != 0) {
+      for (i = 0; (pattern[i] != 0) && (marker[i] == pattern[i]); i++) {
+          /* Intentionally empty */
+      }
+      if (pattern[i] == 0) {
+          trimmed_file = marker;
+          break;
+      }
+      marker++;
+  }
+
   val_print(ACS_PRINT_TEST, "\n    ", 0);
-  val_print(ACS_PRINT_INFO, file, 0);
-  val_print(ACS_PRINT_INFO, ":", 0);
-  val_print(ACS_PRINT_INFO, "%d", line);
-  val_print(ACS_PRINT_INFO, " ", 0);
+  val_print(ACS_PRINT_TEST, trimmed_file, 0);
+  val_print(ACS_PRINT_TEST, ":", 0);
+  val_print(ACS_PRINT_TEST, "%d", line);
+  val_print(ACS_PRINT_TEST, " ", 0);
   val_print(ACS_PRINT_TEST, func, 0);
 }
 
