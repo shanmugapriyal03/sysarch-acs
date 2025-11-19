@@ -37,10 +37,32 @@
 #define ACS_STATUS_PASS      0x0
 #define ACS_STATUS_NIST_PASS 0x1
 #define ACS_INVALID_INDEX    0xFFFFFFFF
+#define ACS_STATUS_UNKNOWN   0xFFFFFFFF
 
 #define NOT_IMPLEMENTED         0x4B1D  /* Feature or API not implemented */
 
 #define VAL_EXTRACT_BITS(data, start, end) ((data >> start) & ((1ul << (end-start+1))-1))
+
+/* Test status counters visible across ACS */
+typedef struct {
+    uint32_t total_rules_run;     /* Total rules/tests that reported a status */
+    uint32_t passed;              /* Count of TEST_PASS */
+    uint32_t partial_coverage;    /* Count of TEST_PART_COV */
+    uint32_t warnings;            /* Count of TEST_WARN */
+    uint32_t skipped;             /* Count of TEST_SKIP */
+    uint32_t failed;              /* Count of TEST_FAIL */
+    uint32_t not_implemented;     /* Count of TEST_NO_IMP */
+    uint32_t pal_not_supported;   /* Count of TEST_PAL_NS */
+} acs_test_status_counters_t;
+
+extern acs_test_status_counters_t g_rule_test_stats;
+
+/* Module init operation type enum */
+typedef enum {
+    INIT_OP_INIT,
+    INIT_OP_TEARDOWN,
+    INIT_OP_SENTINEL /* Keep last */
+} INIT_OP_e;
 
 /* the following macros are defined by edk2 headers in case of UEFI env. Required only for BM */
 #ifdef TARGET_BAREMETAL
@@ -71,6 +93,10 @@ void val_get_test_data(uint32_t index, uint64_t *data0, uint64_t *data1);
 void *val_memcpy(void *dest_buffer, void *src_buffer, uint32_t len);
 void val_dump_dtb(void);
 void view_print_info(uint32_t view);
+void val_log_context(char8_t *file, char8_t *func, uint32_t line);
+
+/* Print consolidated ACS test status summary from global counters */
+void val_print_acs_test_status_summary(void);
 
 uint32_t execute_tests(void);
 uint32_t val_strncmp(char8_t *str1, char8_t *str2, uint32_t len);
@@ -453,7 +479,7 @@ uint64_t val_memory_get_unpopulated_addr(addr_t *addr, uint32_t instance);
 uint64_t val_get_max_memory(void);
 
 /* PCIe Exerciser tests */
-uint32_t val_bsa_exerciser_execute_tests(uint32_t *g_sw_view);
+uint32_t val_bsa_exerciser_execute_tests(uint32_t num_pe, uint32_t *g_sw_view);
 
 /* NIST VAL APIs */
 uint32_t val_nist_generate_rng(uint32_t *rng_buffer);
@@ -577,7 +603,7 @@ uint32_t val_sbsa_wd_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_timer_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_memory_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe);
-uint32_t val_sbsa_exerciser_execute_tests(uint32_t level);
+uint32_t val_sbsa_exerciser_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_pmu_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_mpam_execute_tests(uint32_t level, uint32_t num_pe);
 uint32_t val_sbsa_ras_execute_tests(uint32_t level, uint32_t num_pe);

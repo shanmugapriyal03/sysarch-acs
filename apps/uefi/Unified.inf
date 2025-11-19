@@ -29,10 +29,11 @@
 #
 
 [Sources.AARCH64]
-
   ../
   ../../
   app.c
+  acs_globals.c
+  acs_helpers.c
   unified_main.c
   ../../test_pool/pe/pe001.c
   ../../test_pool/pe/pe002.c
@@ -141,7 +142,6 @@
   ../../test_pool/exerciser/e033.c
   ../../test_pool/exerciser/e035.c
   ../../test_pool/exerciser/e039.c
-
   ../../test_pool/pe/pe023.c
   ../../test_pool/pe/pe024.c
   ../../test_pool/pe/pe025.c
@@ -204,10 +204,10 @@
   ../../test_pool/smmu/i024.c
   ../../test_pool/smmu/i025.c
   ../../test_pool/memory_map/m005.c
+  ../../test_pool/pcie/p004.c
+  ../../test_pool/pcie/p005.c
   ../../test_pool/pcie/p007.c
   ../../test_pool/pcie/p010.c
-  ../../test_pool/pcie/p043.c
-  ../../test_pool/pcie/p044.c
   ../../test_pool/pcie/p045.c
   ../../test_pool/pcie/p046.c
   ../../test_pool/pcie/p047.c
@@ -233,11 +233,6 @@
   ../../test_pool/pcie/p070.c
   ../../test_pool/pcie/p071.c
   ../../test_pool/pcie/p072.c
-  ../../test_pool/pcie/p073.c
-  ../../test_pool/pcie/p074.c
-  ../../test_pool/pcie/p075.c
-  ../../test_pool/pcie/p076.c
-  ../../test_pool/pcie/p077.c
   ../../test_pool/pcie/p078.c
   ../../test_pool/pcie/p079.c
   ../../test_pool/pcie/p080.c
@@ -305,10 +300,8 @@
   ../../test_pool/ete/ete006.c
   ../../test_pool/ete/ete007.c
   ../../test_pool/ete/ete008.c
-
   ../../test_pool/drtm/interface010.c
   ../../test_pool/drtm/interface011.c
-
   ../../test_pool/tpm/tpm001.c
   ../../test_pool/tpm/tpm002.c
 

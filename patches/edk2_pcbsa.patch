@@ -6,7 +6,7 @@ index 7e985f8280..ac7bf6c9a1 100644
    UefiDriverEntryPoint|MdePkg/Library/UefiDriverEntryPoint/UefiDriverEntryPoint.inf
    UefiBootServicesTableLib|MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
    DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLibOptionalDevicePathProtocol.inf
-+  UnifiedValLib|ShellPkg/Application/sysarch-acs/val/UnifiedValLib.inf
++  UnifiedValLib|ShellPkg/Application/sysarch-acs/val/UnifiedValLibRB.inf
 +  UnifiedPalLib|ShellPkg/Application/sysarch-acs/pal/uefi_acpi/UnifiedPalLib.inf
  !if $(TARGET) == RELEASE
    DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
