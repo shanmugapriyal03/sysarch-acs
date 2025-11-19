@@ -59,6 +59,7 @@ SHELL_FILE_HANDLE g_acs_log_file_handle;
    of EL1 phy and virt timer, Below command line option is added only for debug
    purpose to complete SBSA run on these systems */
 UINT32  g_el1physkip = FALSE;
+UINT32  g_build_sbsa = TRUE;
 
 #define SBSA_LEVEL_PRINT_FORMAT(level, only) ((level > SBSA_MAX_LEVEL_SUPPORTED) ? \
     ((only) != 0 ? "\n Starting tests for only level FR " : "\n Starting tests for level FR ") : \
