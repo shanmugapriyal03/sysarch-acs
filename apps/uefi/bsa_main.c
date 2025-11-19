@@ -206,9 +206,9 @@ command_init ()
   } else {
     g_wakeup_timeout = StrDecimalToUintn(CmdLineArg);
     Print(L"Wakeup timeout multiple %d.\n", g_wakeup_timeout);
-    if (g_wakeup_timeout > 5)
-        g_wakeup_timeout = 5;
-    }
+    //if (g_wakeup_timeout > 5)
+    //    g_wakeup_timeout = 5;
+  }
 
     // Options with Values
   CmdLineArg  = ShellCommandLineGetValue (ParamPackage, L"-v");
