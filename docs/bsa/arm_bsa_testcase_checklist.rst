@@ -37,8 +37,6 @@ The below table provides the following details
 +-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
 |13     |Check CRC32 instruction support             |L1   |B_PE_13                                                     |Yes  |Yes  |Yes  |Yes  |Yes       |No   |No                 |
 +-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
-|14     |Check PAuth if implementation               |L1   |B_PE_15                                                     |Yes  |Yes  |No   |Yes  |Yes       |No   |No                 |
-+-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
 |15     |Check for FEAT_LSE support                  |FR   |B_PE_25                                                     |Yes  |Yes  |Yes  |Yes  |Yes       |No   |No                 |
 +-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
 |16     |Check SVE2 for v9 PE                        |L1   |B_PE_14                                                     |Yes  |Yes  |Yes  |Yes  |Yes       |No   |No                 |
@@ -263,5 +261,7 @@ The below table provides the following details
 +-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
 |1539   |PCIe Normal Memory access check             |L1   |PCI_MM_03                                                   |No   |No   |No   |Yes  |Yes       |No   |Yes                |
 +-------+--------------------------------------------+-----+------------------------------------------------------------+-----+-----+-----+-----+----------+-----+-------------------+
+
+# - Tests that are ported from Linux to the UEFI environment and can be executed once the UEFI PAL layer is implemented. They are recommended to run at Pre-Silicon.
 
 For running tests on a bare-metal environment, integration of ACS with platform boot code is required. See `arm BSA Bare-metal User Guide <arm_bsa_architecture_compliance_bare-metal_user_guide.pdf>`_

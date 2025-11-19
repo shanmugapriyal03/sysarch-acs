@@ -12,7 +12,7 @@ on:
         description: "edk2 ref/branch/tag to checkout"
         required: false
         type: string
-        default: "edk2-stable202505"
+        default: "edk2-stable202508"
       run-uefi:
         description: "Run UEFI builds"
         required: false
@@ -114,9 +114,10 @@ jobs:
 
       - name: Download edk2 and its submodules
         run: |
-          git clone --recursive https://github.com/tianocore/edk2
+          git clone https://github.com/tianocore/edk2
           cd edk2
           git checkout "${{ inputs.edk2-ref }}"
+          git submodule update --init --recursive
           cd ..
           git clone https://github.com/tianocore/edk2-libc edk2/edk2-libc
 
