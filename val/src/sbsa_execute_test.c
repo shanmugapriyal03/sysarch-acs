@@ -370,11 +370,6 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
 #endif
 
-#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
-  if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
-    status |= p091_entry(num_pe);
-#endif
-
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
 #if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
       status |= p103_entry(num_pe);
@@ -688,7 +683,6 @@ val_sbsa_exerciser_execute_tests(uint32_t level, uint32_t num_pe)
       status |= e027_entry(num_pe);
       status |= e028_entry(num_pe);
       status |= e029_entry(num_pe);
-      status |= e030_entry(num_pe);
       status |= e032_entry(num_pe);
   }
 

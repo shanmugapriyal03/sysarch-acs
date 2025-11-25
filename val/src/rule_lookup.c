@@ -196,8 +196,6 @@ const sbsa_rule_entry_t sbsa_rule_list[] = {
     { S_PCIe_06,   SBSA_LEVEL_FR },
     { S_PCIe_07,   SBSA_LEVEL_FR },
     { S_PCIe_08,   SBSA_LEVEL_FR },
-    { S_PCIe_10,   SBSA_LEVEL_FR },
-    { S_PCIe_11,   SBSA_LEVEL_FR },
     { PCI_ER_07,   SBSA_LEVEL_FR },
     { PCI_ER_08,   SBSA_LEVEL_FR },
     { PCI_ER_09,   SBSA_LEVEL_FR },

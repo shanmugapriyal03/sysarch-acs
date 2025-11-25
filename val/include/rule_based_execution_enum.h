@@ -496,8 +496,6 @@ typedef enum {
     S_PCIe_09,
     S_PCIe_07,
     S_PCIe_08,
-    S_PCIe_10,
-    S_PCIe_11,
     S_L8CXL_1,
     S_L3GI_02, /* GIC rule is in part of PCIe module */
 

@@ -2181,7 +2181,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
             .test_num         = ACS_PE_TEST_NUM_BASE  +  32,
         },
-        [S_PCIe_10] = {
+        [B_PCIe_10] = {
             .test_entry_id    = E030_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Enable and disable STE.DCP bit",
@@ -2189,7 +2189,7 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
             .test_num         = ACS_EXERCISER_TEST_NUM_BASE + 30,
         },
-        [S_PCIe_11] = {
+        [B_PCIe_11] = {
             .test_entry_id    = P091_ENTRY,
             .module_id        = PCIE,
             .rule_desc        = "Steering Tag value properties",
@@ -2511,6 +2511,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
 #if defined(TARGET_LINUX)
     [P001_ENTRY] = p001_entry,
     [P045_ENTRY] = p045_entry, // used in wrapper.
+    [P091_ENTRY] = p091_entry, // used in wrapper.
     [P103_ENTRY] = p103_entry, // used in wrapper.
     [P094_ENTRY] = p094_entry, // used in wrapper.
     [P104_ENTRY] = p104_entry, // used in wrapper.
@@ -2529,7 +2530,6 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [M007_ENTRY] = m007_entry,
 /* Skip build of sbsa only tests for BSA */
 #ifndef BSA_LINUX_BUILD
-    [P091_ENTRY] = p091_entry,
     [I023_ENTRY] = i023_entry,
     [P046_ENTRY] = p046_entry,
 #endif /* BSA_LINUX_BUILD */
