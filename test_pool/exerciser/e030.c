@@ -28,7 +28,7 @@
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 30)
 #define TEST_DESC  "Enable and disable STE.DCP bit        "
-#define TEST_RULE  "S_PCIe_10"
+#define TEST_RULE  "B_PCIe_10"
 
 #define TEST_DATA_NUM_PAGES  4
 

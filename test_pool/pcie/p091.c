@@ -21,7 +21,7 @@
 #include "val/include/val_interface.h"
 
 #define TEST_NUM   (ACS_PCIE_TEST_NUM_BASE + 91)
-#define TEST_RULE  "S_PCIe_11"
+#define TEST_RULE  "B_PCIe_11"
 #define TEST_DESC  "Steering Tag value properties         "
 
 static

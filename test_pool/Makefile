@@ -28,6 +28,7 @@ ifeq ($(ACS), bsa)
     obj-m += bsa_acs_test.o
     bsa_acs_test-objs += $(TEST_POOL)/pcie/p001.o \
                      $(TEST_POOL)/pcie/p045.o \
+                     $(TEST_POOL)/pcie/p091.o \
                      $(TEST_POOL)/pcie/p094.o \
                      $(TEST_POOL)/pcie/p095.o \
                      $(TEST_POOL)/pcie/p096.o \
