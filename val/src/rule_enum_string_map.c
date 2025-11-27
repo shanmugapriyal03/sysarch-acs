@@ -502,6 +502,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1TM_01]  = "V_L1TM_01",
     [V_L1TM_02]  = "V_L1TM_02",
     [V_L1TM_03]  = "V_L1TM_03",
+    [V_L1TM_04]  = "V_L1TM_04",
     [V_L1WK_01]  = "V_L1WK_01",
     [V_L1WK_02]  = "V_L1WK_02",
     [V_L1WK_03]  = "V_L1WK_03",

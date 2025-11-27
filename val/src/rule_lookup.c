@@ -375,6 +375,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1TM_01, VBSA_LEVEL_1 },
     { V_L1TM_02, VBSA_LEVEL_1 },
     { V_L1TM_03, VBSA_LEVEL_1 },
+    { V_L1TM_04, VBSA_LEVEL_1 },
 
     /* L1 Wakeup rules */
     { V_L1WK_01, VBSA_LEVEL_1 },

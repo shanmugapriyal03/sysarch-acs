@@ -284,6 +284,7 @@ uint64_t AA64ReadTrcidr0(void);
 uint64_t AA64ReadTrcidr4(void);
 uint64_t AA64ReadTrcidr5(void);
 
+void AA64IssueISB(void);
 void DisableSpe(void);
 void ArmCallWFI(void);
 void ArmExecuteMemoryBarrier(void);

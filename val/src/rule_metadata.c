@@ -2302,6 +2302,13 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .platform_bitmask = PLATFORM_UEFI,
             .flag             = ALIAS_RULE
         },
+        [V_L1TM_04] = {
+            .test_entry_id    = T008_ENTRY,
+            .module_id        = TIMER,
+            .rule_desc        = "Check uniform passage of time in VE",
+            .platform_bitmask = PLATFORM_UEFI,
+            .flag             = BASE_RULE
+        },
         [V_L1WK_02] = {
             .test_entry_id    = V_L1WK_02_05_ENTRY,
             .module_id        = POWER_WAKEUP,
@@ -2721,6 +2728,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [T005_ENTRY] = t005_entry,
     [T006_ENTRY] = t006_entry,
     [T007_ENTRY] = t007_entry,
+    [T008_ENTRY] = t008_entry,
     [U001_ENTRY] = u001_entry, // used in wrapper.
     [U002_ENTRY] = u002_entry, // used in wrapper.
     [U003_ENTRY] = u003_entry, // used in wrapper.
