@@ -107,6 +107,7 @@ static VOID map_and_add_module_token(
     }
 
     Print(L"Invalid module: %s\n", wbuf);
+    g_invalid_arg_seen = TRUE;
 }
 
 /* Map a wide token to RULE_ID_e and append to list if capacity allows */
@@ -159,6 +160,7 @@ static VOID map_and_add_rule_token(
 
     /* Not found: print invalid once for visibility */
     Print(L"Invalid rule id: %s\n", wbuf);
+    g_invalid_arg_seen = TRUE;
 }
 
 /* Try open a file read-only; return TRUE if opened */
@@ -494,6 +496,7 @@ command_init (void)
             HelpMsg();
             return SHELL_INVALID_PARAMETER;
         } else {
+            g_invalid_arg_seen = FALSE;
             /* Count tokens */
             len = StrLen(CmdLineArg);
             max_tokens = 1; /* k declared at function start */
@@ -535,6 +538,9 @@ command_init (void)
                     );
                 }
                 start = (end < len) ? end + 1 : end;
+            }
+            if (g_invalid_arg_seen) {
+                return SHELL_INVALID_PARAMETER;
             }
         }
     }
@@ -731,8 +737,13 @@ command_init (void)
             }
 
             g_rule_count = 0;
+            g_invalid_arg_seen = FALSE;
             parse_rules_text_into_list(wtext, wlen, g_rule_list, &g_rule_count, max_tokens);
             gBS->FreePool(wtext);
+            if (g_invalid_arg_seen) {
+                if (Combined) gBS->FreePool(Combined);
+                return SHELL_INVALID_PARAMETER;
+            }
             } else {
                 /* Not a file: parse as single command-line CSV */
                 len = StrLen(CmdLineArg);
@@ -753,6 +764,7 @@ command_init (void)
                 }
                 start = 0;
                 g_rule_count = 0;
+                g_invalid_arg_seen = FALSE;
                 while (start < len) {
                     end = start;
                     while (end < len &&
@@ -778,6 +790,10 @@ command_init (void)
                         map_and_add_rule_token(wtoken, g_rule_list, &g_rule_count, max_tokens);
                     }
                     start = (end < len) ? end + 1 : end;
+                }
+                if (g_invalid_arg_seen) {
+                    if (Combined) gBS->FreePool(Combined);
+                    return SHELL_INVALID_PARAMETER;
                 }
             }
 
@@ -812,6 +828,7 @@ command_init (void)
             /* Parse CSV of module names */
             g_num_modules = 0;
             start = 0;
+            g_invalid_arg_seen = FALSE;
             while (start < mlen) {
                 end = start;
                 while (end < mlen &&
@@ -838,6 +855,9 @@ command_init (void)
                                              max_tokens);
                 }
                 start = (end < mlen) ? end + 1 : end;
+            }
+            if (g_invalid_arg_seen) {
+                return SHELL_INVALID_PARAMETER;
             }
 
             if (g_num_modules == 0) {
@@ -872,6 +892,7 @@ command_init (void)
 
             g_num_skip_modules = 0;
             start = 0;
+            g_invalid_arg_seen = FALSE;
             while (start < mlen) {
                 end = start;
                 while (end < mlen &&
@@ -898,6 +919,9 @@ command_init (void)
                                              max_tokens);
                 }
                 start = (end < mlen) ? end + 1 : end;
+            }
+            if (g_invalid_arg_seen) {
+                return SHELL_INVALID_PARAMETER;
             }
 
             if (g_num_skip_modules == 0) {

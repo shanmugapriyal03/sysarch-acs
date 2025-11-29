@@ -71,6 +71,7 @@
   ../../test_pool/pe/pe060.c
   ../../test_pool/pe/pe061.c
   ../../test_pool/pe/pe062.c
+  ../../test_pool/pe/pe065.c
   ../../test_pool/gic/g012.c
   ../../test_pool/gic/g013.c
   ../../test_pool/gic/g014.c
@@ -84,7 +85,6 @@
   ../../test_pool/smmu/i011.c
   ../../test_pool/smmu/i012.c
   ../../test_pool/smmu/i013.c
-  ../../test_pool/smmu/i014.c
   ../../test_pool/smmu/i015.c
   ../../test_pool/smmu/i016.c
   ../../test_pool/smmu/i017.c

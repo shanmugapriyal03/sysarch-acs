@@ -149,14 +149,14 @@ t008_entry(uint32_t num_pe)
 {
   uint32_t status = ACS_STATUS_FAIL;
 
-  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
-  status = val_initialize_test(TEST_NUM, "NA", num_pe);
+  val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+  status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP)
       val_run_test_payload(TEST_NUM, num_pe, payload, 0);
 
   /* get the result from all PE and check for failure */
-  status = val_check_for_error(TEST_NUM, num_pe, "NA");
+  status = val_check_for_error(TEST_NUM, num_pe, TEST_RULE);
 
-  val_report_status(0, ACS_END(TEST_NUM), "NA");
+  val_report_status(0, ACS_END(TEST_NUM), TEST_RULE);
   return status;
 }

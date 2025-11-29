@@ -123,6 +123,7 @@ val_sbsa_pe_execute_tests(uint32_t level, uint32_t num_pe)
       status |= pe061_entry(num_pe);
       status |= pe062_entry(num_pe);
       status |= pe064_entry(num_pe);
+      status |= pe065_entry(num_pe);
    }
 
   val_print_test_end(status, "PE");
@@ -369,11 +370,6 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
 
 #endif
 
-#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
-  if (((level > 7) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 8))
-    status |= p091_entry(num_pe);
-#endif
-
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
 #if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
       status |= p103_entry(num_pe);
@@ -394,13 +390,9 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p015_entry(num_pe);
       status |= p016_entry(num_pe); /* Depends on p015; run it prior to this test */
       status |= p027_entry(num_pe);
-      status |= p028_entry(num_pe);
-      status |= p029_entry(num_pe);
       status |= p034_entry(num_pe);
       status |= p037_entry(num_pe);
       status |= p038_entry(num_pe);
-      status |= p040_entry(num_pe);
-      status |= p041_entry(num_pe);
       status |= p047_entry(num_pe);
       status |= p048_entry(num_pe);
       status |= p049_entry(num_pe);
@@ -409,7 +401,6 @@ val_sbsa_pcie_execute_tests(uint32_t level, uint32_t num_pe)
       status |= p052_entry(num_pe);
       status |= p053_entry(num_pe);
       status |= p054_entry(num_pe);
-      status |= p055_entry(num_pe);
       status |= p056_entry(num_pe);
       status |= p057_entry(num_pe);
       status |= p058_entry(num_pe);
@@ -511,7 +502,6 @@ val_sbsa_smmu_execute_tests(uint32_t level, uint32_t num_pe)
 
   if (((level > 5) && (g_sbsa_only_level == 0)) || (g_sbsa_only_level == 6)) {
       status |= i013_entry(num_pe);
-      status |= i014_entry(num_pe);
       status |= i015_entry(num_pe);
       status |= i016_entry(num_pe);
       status |= i017_entry(num_pe);
@@ -669,10 +659,8 @@ val_sbsa_exerciser_execute_tests(uint32_t level, uint32_t num_pe)
       status |= e019_entry(num_pe);
       status |= e020_entry(num_pe);
       status |= e021_entry(num_pe);
-      status |= e031_entry(num_pe);
       status |= e034_entry(num_pe);
       status |= e036_entry(num_pe);
-      status |= e037_entry(num_pe);
       status |= e038_entry(num_pe);
   }
 
@@ -688,7 +676,6 @@ val_sbsa_exerciser_execute_tests(uint32_t level, uint32_t num_pe)
       status |= e027_entry(num_pe);
       status |= e028_entry(num_pe);
       status |= e029_entry(num_pe);
-      status |= e030_entry(num_pe);
       status |= e032_entry(num_pe);
   }
 

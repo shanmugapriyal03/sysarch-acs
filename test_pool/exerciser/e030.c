@@ -28,7 +28,7 @@
 
 #define TEST_NUM   (ACS_EXERCISER_TEST_NUM_BASE + 30)
 #define TEST_DESC  "Enable and disable STE.DCP bit        "
-#define TEST_RULE  "S_PCIe_10"
+#define TEST_RULE  "B_PCIe_10"
 
 #define TEST_DATA_NUM_PAGES  4
 
@@ -221,7 +221,7 @@ e030_entry(uint32_t num_pe)
   num_pe = 1;
   uint32_t status = ACS_STATUS_FAIL;
 
-  val_log_context(ACS_PRINT_TEST, (char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
+  val_log_context((char8_t *)__FILE__, (char8_t *)__func__, __LINE__);
   status = val_initialize_test(TEST_NUM, TEST_DESC, num_pe);
   if (status != ACS_STATUS_SKIP) {
       if (val_exerciser_test_init() != ACS_STATUS_PASS)

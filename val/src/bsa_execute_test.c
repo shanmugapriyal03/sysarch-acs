@@ -133,16 +133,13 @@ val_bsa_pe_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= pe011_entry(num_pe);
           status |= pe012_entry(num_pe);
           status |= pe013_entry(num_pe);
-          if (!g_build_sbsa) { /* B_PE_15 is only in BSA checklist */
-              status |= pe014_entry(num_pe);
-          }
-
           status |= pe016_entry(num_pe);
       }
 
       if (g_bsa_level > 1 || g_bsa_only_level == 2) {
           view_print_info(OPERATING_SYSTEM);
           status |= pe015_entry(num_pe);
+          status |= pe066_entry(num_pe);
       }
   }
 
@@ -541,6 +538,18 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #endif
       }
 
+#if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
+    if (g_bsa_level > 1 || g_bsa_only_level == 2) {
+        status |= p091_entry(num_pe);
+    }
+#endif
+
+#ifndef TARGET_LINUX
+    if (g_bsa_level > 1 || g_bsa_only_level == 2) {
+        status |= p100_entry(num_pe);
+    }
+
+#endif
   }
 
   view_print_info(MODULE_END);
@@ -661,7 +670,6 @@ val_bsa_memory_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
 #endif
 #if defined(TARGET_LINUX) || defined(TARGET_BAREMETAL)
           status |= m004_entry(num_pe);
-          status |= m006_entry(num_pe);
           status |= m007_entry(num_pe);
 #endif
       }
@@ -897,6 +905,10 @@ val_bsa_exerciser_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
          status |= e033_entry(num_pe);
          status |= e039_entry(num_pe);
      }
+
+      if (g_bsa_level > 1 || g_bsa_only_level == 2) {
+          status |= e030_entry(num_pe);
+      }
   }
 
   val_smmu_stop();
