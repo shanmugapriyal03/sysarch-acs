@@ -499,6 +499,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1PP_00]  = "V_L1PP_00",
     [V_L1SM_01]  = "V_L1SM_01",
     [V_L1SM_02]  = "V_L1SM_02",
+    [V_L1SM_03]  = "V_L1SM_03",
     [V_L1TM_01]  = "V_L1TM_01",
     [V_L1TM_02]  = "V_L1TM_02",
     [V_L1TM_03]  = "V_L1TM_03",
@@ -508,6 +509,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1WK_03]  = "V_L1WK_03",
     [V_L1WK_04]  = "V_L1WK_04",
     [V_L1WK_05]  = "V_L1WK_05",
+    [V_L1WK_06]  = "V_L1WK_06",
     [V_L1WK_07]  = "V_L1WK_07",
     [V_L1WK_08]  = "V_L1WK_08",
     [V_L1WK_09]  = "V_L1WK_09",
@@ -515,6 +517,7 @@ char *rule_id_string[RULE_ID_SENTINEL] = {
     [V_L1PR_02]  = "V_L1PR_02",
     [V_L2PE_01]  = "V_L2PE_01",
     [V_L2PE_02]  = "V_L2PE_02",
+    [V_L2WD_01]  = "V_L2WD_01",
 };
 
 /* Module name strings mapping to MODULE_NAME_e */

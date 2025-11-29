@@ -370,6 +370,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     /* L1 SMMU rules */
     { V_L1SM_01, VBSA_LEVEL_1 },
     { V_L1SM_02, VBSA_LEVEL_1 },
+    { V_L1SM_03, VBSA_LEVEL_1 },
 
     /* L1 Timer rules */
     { V_L1TM_01, VBSA_LEVEL_1 },
@@ -383,6 +384,7 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     { V_L1WK_03, VBSA_LEVEL_1 },
     { V_L1WK_04, VBSA_LEVEL_1 },
     { V_L1WK_05, VBSA_LEVEL_1 },
+    { V_L1WK_06, VBSA_LEVEL_1 },
     { V_L1WK_07, VBSA_LEVEL_1 },
     { V_L1WK_08, VBSA_LEVEL_1 },
     { V_L1WK_09, VBSA_LEVEL_1 },
@@ -394,6 +396,9 @@ const vbsa_rule_entry_t vbsa_rule_list[] = {
     /* FR (L2) PE rules */
     { V_L2PE_01, VBSA_LEVEL_FR },
     { V_L2PE_02, VBSA_LEVEL_FR },
+
+    /* FR (L2) Watchdog rules */
+    { V_L2WD_01, VBSA_LEVEL_FR },
 
     /* Sentinel to indicate end-of-list */
     { RULE_ID_SENTINEL, VBSA_LEVEL_SENTINEL }
