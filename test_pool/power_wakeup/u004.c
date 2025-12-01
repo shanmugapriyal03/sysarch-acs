@@ -64,7 +64,7 @@ void
 wakeup_set_failsafe()
 {
   uint32_t intid;
-  uint64_t timer_expire_val = (val_get_counter_frequency() * 6 * g_wakeup_timeout);
+  uint64_t timer_expire_val = (val_get_counter_frequency() * 1024 * g_wakeup_timeout);
 
   intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
   val_gic_install_isr(intid, isr_failsafe);
@@ -85,7 +85,7 @@ payload4()
   uint32_t status;
   uint32_t ns_wdg = 0;
   uint32_t intid;
-  uint32_t delay_loop;
+  uint64_t delay_loop;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint64_t timer_expire_val = 1 * g_wakeup_timeout;
 
@@ -134,7 +134,7 @@ payload4()
            * exit in case test or failsafe int is received
           */
           //val_print(ACS_PRINT_ERR, "       Wating for Delay \n", 0);
-          delay_loop = val_get_counter_frequency() * g_wakeup_timeout * 4;
+          delay_loop = val_get_counter_frequency() * g_wakeup_timeout * 10;
 	      //val_print(ACS_PRINT_ERR, "\n       Delay loop %d", delay_loop);
 	      while (delay_loop && (g_wd_int_received == 0) && (g_failsafe_int_received == 0)) {
               delay_loop--;

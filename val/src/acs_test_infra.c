@@ -219,6 +219,7 @@ val_mmio_write8(addr_t addr, uint8_t data)
 {
 
   pal_mmio_write8(addr, data);
+  TestExecuteBarrier();
 }
 
 /**
@@ -237,6 +238,7 @@ val_mmio_write16(addr_t addr, uint16_t data)
 {
 
   pal_mmio_write16(addr, data);
+  TestExecuteBarrier();
 }
 
 /**
@@ -255,6 +257,7 @@ val_mmio_write(addr_t addr, uint32_t data)
 {
 
   pal_mmio_write(addr, data);
+  TestExecuteBarrier();
 }
 /**
   @brief  This function will call PAL layer to write 64-bit data to
@@ -272,6 +275,7 @@ val_mmio_write64(addr_t addr, uint64_t data)
 {
 
   pal_mmio_write64(addr, data);
+  TestExecuteBarrier();
 }
 
 /**
