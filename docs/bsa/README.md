@@ -66,19 +66,19 @@ Tests can also run in a bare-metal environment. Initialization of the bare-metal
 Prebuilt images for each release are available in the [`prebuilt_images`](../../prebuilt_images/BSA) folder of the main branch.  
 
 ## Documentation and Guides
-- [Arm BSA Test Scenario Document](docs/arm_bsa_architecture_compliance_test_scenario.pdf) — algorithms for implementable rules and notes on unimplemented rules.  
-- [Arm BSA Test Checklist](docs/arm_bsa_testcase_checklist.rst) — test categories (UEFI, Linux, Bare-metal) and applicable systems (IR, ES, SR, Pre-Silicon).  
-- [Arm BSA Validation Methodology](docs/arm_bsa_architecture_compliance_validation_methodology.pdf).  
-- [Arm BSA ACS User Guide](docs/arm_bsa_architecture_compliance_user_guide.pdf).  
+- [Arm BSA Test Scenario Document](arm_bsa_architecture_compliance_test_scenario.pdf) — algorithms for implementable rules and notes on unimplemented rules.  
+- [Arm BSA Test Checklist](arm_bsa_testcase_checklist.rst) — test categories (UEFI, Linux, Bare-metal) and applicable systems (IR, ES, SR, Pre-Silicon).  
+- [Arm BSA Validation Methodology](arm_bsa_architecture_compliance_validation_methodology.pdf).  
+- [Arm BSA ACS User Guide](arm_bsa_architecture_compliance_user_guide.pdf).  
 - Bare-metal porting guides  
-  - [Arm BSA ACS Bare-metal User Guide](docs/arm_bsa_architecture_compliance_bare-metal_user_guide.pdf)  
-  - [Bare-metal Code](pal/baremetal/)  
+  - [Arm BSA ACS Bare-metal User Guide](arm_bsa_architecture_compliance_bare-metal_user_guide.pdf)  
+  - [Bare-metal Code](../../pal/baremetal/)  
 
   **Note:** The Bare-metal PCIe enumeration code provided with BSA ACS must be used and **must not be replaced**. It is essential for accurate analysis of test results.
 
 - Exerciser VIP guides - The **Exerciser** is a client device wrapped by a PCIe Endpoint, created to satisfy BSA requirements for PCIe capability validation. Running Exerciser tests increases platform coverage.
-  - [Exerciser.md](docs/PCIe_Exerciser/Exerciser.md)
-  - [Exerciser_API_porting_guide.md](docs/PCIe_Exerciser/Exerciser_API_porting_guide.md).
+  - [Exerciser.md](../pcie/Exerciser.md)
+  - [Exerciser_API_porting_guide.md](../pcie/Exerciser_API_porting_guide.md).
 
 ## BSA build steps
 
@@ -166,8 +166,7 @@ The ACS kernel module and app will be generated at `workspace/build/`
 
 ### Baremetal application
 The bare-metal build environment is platform-specific.
-As a baseline, steps to integrate and run the bare-metal tests from UEFI Shell are provided in [README.md](pal/baremetal/target/RDN2/README.md).
-For details on generating binaries for bare-metal environments, refer to [README.md](pal/baremetal/README.md).
+For details on generating binaries for bare-metal environments, refer to [README.md](../../pal/baremetal/README.md).
 
 
 ## BSA run steps
@@ -201,7 +200,7 @@ On a system with a functional USB port:
 4. Run `Bsa.efi` with appropriate parameters.  
 5. Capture UART console output to a log file.
 
-- For application parameters, see the [User Guide](docs/arm_bsa_architecture_compliance_user_guide.pdf).
+- For application parameters, see the [User Guide](arm_bsa_architecture_compliance_user_guide.pdf).
 
 #### Emulation environment with secondary storage
 1. Create an image containing `Bsa.efi` and **'Shell.efi` (only for u-boot systems)**:
@@ -219,7 +218,7 @@ On a system with a functional USB port:
 6. Run `Bsa.efi` with parameters.  
 7. Save UART console output for analysis/certification.
 
-- For application parameters, see the [User Guide](docs/arm_bsa_architecture_compliance_user_guide.pdf).
+- For application parameters, see the [User Guide](arm_bsa_architecture_compliance_user_guide.pdf).
 
 ### For Linux application
 
@@ -237,7 +236,7 @@ On a system with a functional USB port:
   ```sh
   sudo rmmod bsa_acs
   ```
-- For application parameters, see the [User Guide](docs/arm_bsa_architecture_compliance_user_guide.pdf).
+- For application parameters, see the [User Guide](arm_bsa_architecture_compliance_user_guide.pdf).
 
 ## Limitations
 - For systems with firmware compliant to SBBR, BSA depends on the **SPCR ACPI table** to obtain UART information.  

@@ -72,19 +72,19 @@ The tests can also be executed in a Bare-metal environment. The initialization o
 Prebuilt images for each release are available in the [`prebuilt_images`](../../prebuilt_images/SBSA) folder of the main branch
 
 ## Documentation and Guides
-- [Arm SBSA Test Scenario Document](docs/arm_sbsa_architecture_compliance_test_scenario.pdf) — algorithms for implementable rules and notes on unimplemented rules.  
-- [Arm SBSA Test Checklist](docs/arm_sbsa_testcase_checklist.rst) — test categories (UEFI, Linux, Bare-metal) and applicable systems (IR, ES, SR, Pre-Silicon).  
-- [Arm SBSA Validation Methodology](docs/arm_sbsa_architecture_compliance_validation_methodology.pdf).  
-- [Arm SBSA ACS User Guide](docs/arm_sbsa_architecture_compliance_user_guide.pdf).  
+- [Arm SBSA Test Scenario Document](arm_sbsa_architecture_compliance_test_scenario.pdf) — algorithms for implementable rules and notes on unimplemented rules.  
+- [Arm SBSA Test Checklist](arm_sbsa_testcase_checklist.rst) — test categories (UEFI, Linux, Bare-metal) and applicable systems (IR, ES, SR, Pre-Silicon).  
+- [Arm SBSA Validation Methodology](arm_sbsa_architecture_compliance_validation_methodology.pdf).  
+- [Arm SBSA ACS User Guide](arm_sbsa_architecture_compliance_user_guide.pdf).  
 - Bare-metal porting guides  
-  - [Arm SBSA ACS Bare-metal User Guide](docs/arm_sbsa_architecture_compliance_bare-metal_user_guide.pdf)  
-  - [Bare-metal Code](pal/baremetal/)  
+  - [Arm SBSA ACS Bare-metal User Guide](arm_sbsa_architecture_compliance_bare-metal_user_guide.pdf)  
+  - [Bare-metal Code](../../pal/baremetal/)  
 
  **Note:** The Bare-metal PCIe enumeration code provided with BSA ACS must be used and **must not be replaced**. It is essential for accurate analysis of test results.
 
 - Exerciser VIP guides - The **Exerciser** is a client device wrapped by a PCIe Endpoint, created to satisfy BSA requirements for PCIe capability validation. Running Exerciser tests increases platform coverage.
-  - [Exerciser.md](docs/PCIe_Exerciser/Exerciser.md)
-  - [Exerciser_API_porting_guide.md](docs/PCIe_Exerciser/Exerciser_API_porting_guide.md).
+  - [Exerciser.md](../pcie/Exerciser.md)
+  - [Exerciser_API_porting_guide.md](../pcie/Exerciser_API_porting_guide.md).
 
 
 ## SBSA build steps
@@ -167,8 +167,7 @@ The ACS kernel module and app will be generated at `workspace/build/`
 
 ### Baremetal application
 The bare-metal build environment is platform-specific.
-As a baseline, steps to integrate and run the bare-metal tests from UEFI Shell are provided in [README.md](pal/baremetal/target/RDN2/README.md).
-For details on generating binaries for bare-metal environments, refer to [README.md](pal/baremetal/README.md).
+For details on generating binaries for bare-metal environments, refer to [README.md](../../pal/baremetal/README.md).
 
 
 ## SBSA run steps
@@ -246,7 +245,7 @@ The details of the hardware or Verification IP which enable these exerciser test
  - PMU test have dependency on APMT table.
  - Entrophy rule will require ACS to build with NIST-STS package
 
-**Note:** To build the ACS with NIST Statistical Test Suite, see the [arm SBSA_NIST_User_Guide Document](docs/arm_sbsa_nist_user_guide.md)
+**Note:** To build the ACS with NIST Statistical Test Suite, see the [arm SBSA_NIST_User_Guide Document](arm_sbsa_nist_user_guide.md)
 
 |APIs                         |Description                                                                   |Affected tests          |
 |-----------------------------|------------------------------------------------------------------------------|------------------------|
