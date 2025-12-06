@@ -184,12 +184,12 @@ val_get_phy_el2_timer_count(void)
   @return  None
 **/
 void
-val_timer_set_phy_el1(uint64_t timeout)
+val_timer_set_phy_el1(uint32_t timeout)
 {
-
+  uint64_t temp = timeout;
   if (timeout != 0) {
     ArmGenericTimerDisableTimer(CntpCtl);
-    ArmArchTimerWriteReg(CntpTval, &timeout);
+    ArmArchTimerWriteReg(CntpTval, &temp);
     ArmGenericTimerEnableTimer(CntpCtl);
   } else {
     ArmGenericTimerDisableTimer(CntpCtl);
@@ -205,12 +205,12 @@ val_timer_set_phy_el1(uint64_t timeout)
   @return  None
 **/
 void
-val_timer_set_vir_el1(uint64_t timeout)
+val_timer_set_vir_el1(uint32_t timeout)
 {
-
+  uint64_t temp = timeout;
   if (timeout != 0) {
     ArmGenericTimerDisableTimer(CntvCtl);
-    ArmArchTimerWriteReg(CntvTval, &timeout);
+    ArmArchTimerWriteReg(CntvTval, &temp);
     ArmGenericTimerEnableTimer(CntvCtl);
   } else {
     ArmGenericTimerDisableTimer(CntvCtl);
@@ -330,12 +330,12 @@ val_get_phy_el1_timer_count(void)
   @return  None
 **/
 void
-val_timer_set_phy_el2(uint64_t timeout)
+val_timer_set_phy_el2(uint32_t timeout)
 {
-
+  uint64_t temp = timeout;
   if (timeout != 0) {
     ArmGenericTimerDisableTimer(CnthpCtl);
-    ArmArchTimerWriteReg(CnthpTval, &timeout);
+    ArmArchTimerWriteReg(CnthpTval, &temp);
     ArmGenericTimerEnableTimer(CnthpCtl);
   } else {
     ArmGenericTimerDisableTimer(CnthpCtl);
@@ -351,12 +351,12 @@ val_timer_set_phy_el2(uint64_t timeout)
   @return  None
 **/
 void
-val_timer_set_vir_el2(uint64_t timeout)
+val_timer_set_vir_el2(uint32_t timeout)
 {
-
+  uint64_t temp = timeout;
   if (timeout != 0) {
     ArmGenericTimerDisableTimer(CnthvCtl);
-    ArmArchTimerWriteReg(CnthvTval, &timeout);
+    ArmArchTimerWriteReg(CnthvTval, &temp);
     ArmGenericTimerEnableTimer(CnthvCtl);
   } else {
     ArmGenericTimerDisableTimer(CnthvCtl);
@@ -434,3 +434,20 @@ val_timer_skip_if_cntbase_access_not_allowed(uint64_t index)
       return ACS_STATUS_SKIP;
 
 }
+
+/**
+  @brief  Get a safe timeout value in timer ticks.
+
+  @param  None
+
+  @return uint32_t  Timeout value computed as (counter frequency / 5),
+                    guaranteed to fit in 32-bit timer registers.
+**/
+uint32_t
+val_get_safe_timeout_ticks(void)
+{
+    /* g_wakeup_timeout maximum = 5 */
+    uint64_t freq = val_get_counter_frequency();
+    return (uint32_t)(freq / 5);
+}
+

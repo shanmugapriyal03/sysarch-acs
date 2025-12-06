@@ -65,7 +65,7 @@ void
 wakeup_set_failsafe()
 {
   uint32_t intid;
-  uint64_t timer_expire_val = val_get_counter_frequency() * (g_wakeup_timeout + 1);
+  uint32_t timer_expire_val = (uint32_t)(val_get_safe_timeout_ticks() * (g_wakeup_timeout + 1));
 
   intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
   val_gic_install_isr(intid, isr_failsafe);
@@ -86,7 +86,7 @@ payload3()
   uint32_t intid;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint64_t delay_loop = val_get_counter_frequency() * g_wakeup_timeout;
-  uint64_t timer_expire_val = val_get_counter_frequency() * g_wakeup_timeout;
+  uint32_t timer_expire_val = (uint32_t)(val_get_safe_timeout_ticks() * g_wakeup_timeout);
 
   intid = val_timer_get_info(TIMER_INFO_PHY_EL2_INTID, 0);
   if (val_gic_install_isr(intid, isr3)) {

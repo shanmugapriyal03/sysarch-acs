@@ -195,18 +195,19 @@ typedef enum {
 #define BSA_TIMER_FLAG_ALWAYS_ON 0x4
 void     val_timer_create_info_table(uint64_t *timer_info_table);
 void     val_timer_free_info_table(void);
-void     val_timer_set_phy_el1(uint64_t timeout);
-void     val_timer_set_vir_el1(uint64_t timeout);
+void     val_timer_set_phy_el1(uint32_t timeout);
+void     val_timer_set_vir_el1(uint32_t timeout);
 void     val_platform_timer_get_entry_index(uint64_t instance, uint32_t *block, uint32_t *index);
 uint64_t val_timer_get_info(TIMER_INFO_e info_type, uint64_t instance);
 uint64_t val_get_phy_el2_timer_count(void);
 uint32_t val_bsa_timer_execute_tests(uint32_t num_pe, uint32_t *g_sw_view);
-void     val_timer_set_phy_el2(uint64_t timeout);
-void     val_timer_set_vir_el2(uint64_t timeout);
+void     val_timer_set_phy_el2(uint32_t timeout);
+void     val_timer_set_vir_el2(uint32_t timeout);
 void     val_timer_set_system_timer(addr_t cnt_base_n, uint32_t timeout);
 void     val_timer_disable_system_timer(addr_t cnt_base_n);
 uint32_t val_timer_skip_if_cntbase_access_not_allowed(uint64_t index);
 uint64_t val_get_phy_el1_timer_count(void);
+uint32_t val_get_safe_timeout_ticks(void);
 
 /* Watchdog VAL APIs */
 typedef enum {
