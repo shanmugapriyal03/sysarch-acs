@@ -33,8 +33,8 @@
 #define SBSA_ACS_SUBMINOR_VER    4
 
 /* PC BSA Release versions */
-#define PC_BSA_ACS_MAJOR_VER     0
-#define PC_BSA_ACS_MINOR_VER     8
+#define PC_BSA_ACS_MAJOR_VER     1
+#define PC_BSA_ACS_MINOR_VER     0
 #define PC_BSA_ACS_SUBMINOR_VER  0
 
 /* VBSA Release versions */
