@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2019, 2021-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2019, 2021-2026, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -63,7 +63,7 @@ void
 wakeup_set_failsafe()
 {
   uint32_t intid;
-  uint64_t timer_expire_val = (val_get_counter_frequency() * 3 * g_wakeup_timeout) / 2;
+  uint64_t timer_expire_val = (uint32_t)((uint64_t)val_get_safe_timeout_ticks() * g_wakeup_timeout);
 
   intid = val_timer_get_info(TIMER_INFO_PHY_EL1_INTID, 0);
   val_gic_install_isr(intid, isr_failsafe);
@@ -84,9 +84,9 @@ payload4()
   uint32_t status;
   uint32_t ns_wdg = 0;
   uint32_t intid;
-  uint32_t delay_loop;
+  uint32_t delay_loop = MAX_SPIN_LOOPS;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
-  uint64_t timer_expire_val = 1 * g_wakeup_timeout;
+  uint32_t timer_expire_val = 1 * g_wakeup_timeout;
 
   wd_num = val_wd_get_info(0, WD_INFO_COUNT);
 
@@ -129,8 +129,11 @@ payload4()
 
           /* Add a delay loop after WFI called in case PE needs some time to enter WFI state
            * exit in case test or failsafe int is received
+           *
+           * This delay loop is a bounded spin wait used only to wait for the
+           * interrupt to arrive. It is not time-based and does not represent
+           * system counter ticks.
           */
-          delay_loop = val_get_counter_frequency() * g_wakeup_timeout;
 	  while (delay_loop && (g_wd_int_received == 0) && (g_failsafe_int_received == 0)) {
               delay_loop--;
           }
