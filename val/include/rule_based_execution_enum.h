@@ -668,6 +668,7 @@ typedef enum {
     RAS013_ENTRY,
     RAS016_ENTRY,
     RAS017_ENTRY,
+    RAS018_ENTRY,
     I001_ENTRY,
     I007_ENTRY,
     I002_ENTRY,
