@@ -1092,6 +1092,14 @@ rule_test_map_t rule_test_map[RULE_ID_SENTINEL] = {
             .flag             = BASE_RULE,
             .test_num         = ACS_RAS_TEST_NUM_BASE + 17,
         },
+        [KBRZG] = {
+            .test_entry_id    = RAS018_ENTRY,
+            .module_id        = RAS,
+            .rule_desc        = "Data abort on containable Device err",
+            .platform_bitmask = PLATFORM_BAREMETAL | PLATFORM_UEFI,
+            .flag             = BASE_RULE,
+            .test_num         = ACS_RAS_TEST_NUM_BASE + 18,
+        },
     /* SMMU */
         [B_SMMU_01] = {
             .test_entry_id    = I001_ENTRY,
@@ -2948,6 +2956,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [RAS015_ENTRY] = ras015_entry,
     [RAS016_ENTRY] = ras016_entry,
     [RAS017_ENTRY] = ras017_entry,
+    [RAS018_ENTRY] = ras018_entry,
     [SYS_RAS_2_ENTRY]  = sys_ras_2_entry,
     [TPM001_ENTRY] = tpm001_entry,
     [TPM002_ENTRY] = tpm002_entry,
@@ -3202,6 +3211,7 @@ test_entry_fn_t test_entry_func_table[TEST_ENTRY_SENTINEL] = {
     [RAS008_ENTRY] = ras008_entry,
     [RAS014_ENTRY] = ras014_entry,
     [RAS005_ENTRY] = ras005_entry,
+    [RAS018_ENTRY] = ras018_entry,
     [E027_ENTRY] = e027_entry,
     [E026_ENTRY] = e026_entry,
     [E032_ENTRY] = e032_entry,

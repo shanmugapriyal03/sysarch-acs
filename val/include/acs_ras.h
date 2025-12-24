@@ -64,6 +64,11 @@
 
 #define RAS_VERSION_2           0x3
 
+#define FEAT_ANERR_VAL2      0x2
+#define FEAT_ANERR_VAL3      0x3
+#define FEAT_ADERR_VAL2      0x2
+#define FEAT_ADERR_VAL3      0x3
+
 #define ACS_ALL_1_64BIT         0xFFFFFFFFFFFFFFFF
 
 typedef enum {
@@ -124,6 +129,7 @@ uint32_t ras014_entry(uint32_t num_pe);
 uint32_t ras015_entry(uint32_t num_pe);
 uint32_t ras016_entry(uint32_t num_pe);
 uint32_t ras017_entry(uint32_t num_pe);
+uint32_t ras018_entry(uint32_t num_pe);
 
 uint64_t AA64ReadErrIdr1(void);
 uint64_t AA64ReadErrAddr1(void);
