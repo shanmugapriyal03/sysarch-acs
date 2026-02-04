@@ -18,6 +18,8 @@
 #ifndef __PAL_UEFI_H__
 #define __PAL_UEFI_H__
 
+#include "../../include/pal_status.h"
+
 /* include ACPI specification headers */
 #include "Include/Guid/Acpi.h"
 #include <Protocol/AcpiTable.h>
@@ -36,6 +38,7 @@ extern UINT32 g_curr_module;
 extern UINT32 g_enable_module;
 extern UINT32 g_pcie_p2p;
 extern UINT32 g_pcie_cache_present;
+VOID pal_warn_not_implemented(const CHAR8 *api_name);
 
 #define ACS_PRINT_ERR   5      /* Only Errors. use this to de-clutter the terminal and focus only on specifics */
 #define ACS_PRINT_WARN  4      /* Only warnings & errors. use this to de-clutter the terminal and focus only on specifics */
@@ -48,7 +51,6 @@ extern UINT32 g_pcie_cache_present;
 #define PCIE_CAP_NOT_FOUND      0x10000010  /* The specified capability was not found */
 #define PCIE_UNKNOWN_RESPONSE   0xFFFFFFFF  /* Function not found or UR response from completer */
 
-#define NOT_IMPLEMENTED         0x4B1D  /* Feature or API by default unimplemented */
 #define MEM_OFFSET_SMALL        0x10    /* Memory Offset from BAR base value that can be accesed*/
 
 #define TYPE0_MAX_BARS  6

@@ -26,7 +26,7 @@
 
   @return
   - 0               : Success
-  - NOT_IMPLEMENTED : Feature not implemented
+  - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
   - non-zero        : Failure (implementation-specific error code)
 */
 UINT64
@@ -35,5 +35,6 @@ pal_smmu_pa2iova(
   UINT64 Pa, UINT64 *dram_buf_iova
   )
 {
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }

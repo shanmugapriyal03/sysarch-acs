@@ -351,11 +351,13 @@ pal_pcie_p2p_support()
    * This is platform specific API which needs to be populated with system p2p capability
    * PCIe support for peer to peer
    * transactions is platform implementation specific
-   */
+  */
   if (g_pcie_p2p)
       return 0;
-  else
-      return NOT_IMPLEMENTED;
+  else {
+      pal_warn_not_implemented(__func__);
+      return PAL_STATUS_NOT_IMPLEMENTED;
+  }
 }
 
 /**
@@ -395,7 +397,7 @@ pal_pcie_dev_p2p_support (
 
   @return
   - 0               : Success
-  - NOT_IMPLEMENTED : Feature not implemented
+  - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
   - non-zero        : Failure (implementation-specific error code)
 **/
 UINT32
@@ -407,7 +409,8 @@ pal_get_msi_vectors (
   PERIPHERAL_VECTOR_LIST **MVector
   )
 {
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -421,7 +424,7 @@ pal_get_msi_vectors (
 
     @return  irq_map    IRQ routing map
     @return  status code If the device legacy irq map information is filled
-                         return 0, else returns NOT_IMPLEMENTED
+                         return 0, else returns PAL_STATUS_NOT_IMPLEMENTED
 **/
 UINT32
 pal_pcie_get_legacy_irq_map (
@@ -432,7 +435,8 @@ pal_pcie_get_legacy_irq_map (
   PERIPHERAL_IRQ_MAP *IrqMap
   )
 {
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /** Place holder function. Need to be implemented if needed in later releases
@@ -474,8 +478,10 @@ pal_pcie_is_cache_present (
 {
   if (g_pcie_cache_present)
       return 1;
-  else
-      return NOT_IMPLEMENTED;
+  else {
+      pal_warn_not_implemented(__func__);
+      return PAL_STATUS_NOT_IMPLEMENTED;
+  }
 }
 
 /**

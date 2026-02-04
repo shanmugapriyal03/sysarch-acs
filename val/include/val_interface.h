@@ -38,7 +38,10 @@
 #define ACS_INVALID_INDEX    0xFFFFFFFF
 #define ACS_STATUS_UNKNOWN   0xFFFFFFFF
 
-#define NOT_IMPLEMENTED         0x4B1D  /* Feature or API not implemented */
+#define ACS_STATUS_PAL_NOT_IMPLEMENTED 0x4B1D  /* PAL reports feature/API not implemented */
+#ifndef NOT_IMPLEMENTED
+#define NOT_IMPLEMENTED ACS_STATUS_PAL_NOT_IMPLEMENTED
+#endif
 
 #define VAL_EXTRACT_BITS(data, start, end) ((data >> start) & ((1ul << (end-start+1))-1))
 

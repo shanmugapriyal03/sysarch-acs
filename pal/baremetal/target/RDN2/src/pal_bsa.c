@@ -657,7 +657,7 @@ pal_gic_free_irq (
 
   @return
     - 0               : Success
-    - NOT_IMPLEMENTED : Feature not implemented
+    - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
     - non-zero        : Failure (implementation-specific error code)
 **/
 uint64_t
@@ -667,7 +667,8 @@ pal_smmu_pa2iova(uint64_t SmmuBase, uint64_t Pa, uint64_t *dram_buf_iova)
   (void) Pa;
   (void) dram_buf_iova;
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -677,7 +678,7 @@ pal_smmu_pa2iova(uint64_t SmmuBase, uint64_t Pa, uint64_t *dram_buf_iova)
 
   @return
     - 0               : Success
-    - NOT_IMPLEMENTED : Feature not implemented
+    - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
     - non-zero        : Failure (implementation-specific error code)
 **/
 uint32_t pal_smmu_check_device_iova(void *port, uint64_t dma_addr)
@@ -685,7 +686,8 @@ uint32_t pal_smmu_check_device_iova(void *port, uint64_t dma_addr)
   (void) port;
   (void) dma_addr;
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -758,7 +760,7 @@ pal_pcie_device_driver_present(uint32_t seg, uint32_t bus, uint32_t dev, uint32_
 
   @return
     - 0               : Success
-    - NOT_IMPLEMENTED : Feature not implemented
+    - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
     - non-zero        : Failure (implementation-specific error code)
 **/
 uint32_t
@@ -771,7 +773,8 @@ pal_get_msi_vectors(uint32_t Seg, uint32_t Bus, uint32_t Dev, uint32_t Fn,
   (void) MVector;
   (void) Fn;
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -1161,7 +1164,7 @@ pal_mem_free_cacheable(uint32_t Bdf, uint32_t Size, void *Va, void *Pa)
 
   @return
     - 0               : Success
-    - NOT_IMPLEMENTED : Feature not implemented
+    - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
     - non-zero        : Failure (implementation-specific error code)
 **/
 uint64_t
@@ -1173,7 +1176,8 @@ pal_dma_mem_alloc(void **buffer, uint32_t length, void *dev, uint32_t flag, addr
   (void) dma_addr;
   *buffer = (void *)pal_aligned_alloc(MEM_ALIGN_4K, length);
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -1228,7 +1232,7 @@ pal_dma_scsi_get_dma_addr(void *port, void *dma_addr, unsigned int *dma_len)
 
   @return
     - 0               : Success
-    - NOT_IMPLEMENTED : Feature not implemented
+    - PAL_STATUS_NOT_IMPLEMENTED : Feature not implemented
     - non-zero        : Failure (implementation-specific error code)
 **/
 int
@@ -1242,5 +1246,6 @@ pal_dma_mem_get_attrs(void *buf, uint32_t *attr, uint32_t *sh)
   (void) attr;
   (void) sh;
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }

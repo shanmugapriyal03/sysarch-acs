@@ -811,7 +811,8 @@ pal_memory_ioremap(VOID *ptr, UINT32 size, UINT32 attr, VOID **baseptr)
 {
   *baseptr = ptr;
 
-  return NOT_IMPLEMENTED;
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**

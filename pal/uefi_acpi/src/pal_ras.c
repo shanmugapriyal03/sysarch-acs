@@ -49,27 +49,42 @@ pal_ras_check_plat_poison_support()
   @param  in_param  - Error Input Parameters.
   @param  *out_param  - Parameters returned from platform to be used in the test.
 
-  @return  0 - Success, NOT_IMPLEMENTED - API not implemented, Other values - Failure
+  @return  PAL_STATUS_SUCCESS if setup completed,
+           PAL_STATUS_INVALID_PARAM for bad pointers,
+           PAL_STATUS_NOT_IMPLEMENTED while platform support is pending.
 **/
 UINT32
 pal_ras_setup_error(RAS_ERR_IN_t in_param, RAS_ERR_OUT_t *out_param)
 {
-  /* Platform Defined way of setting up the Error Environment */
-  return NOT_IMPLEMENTED;
+  (void) in_param;
+
+  if (out_param == NULL)
+    return PAL_STATUS_INVALID_PARAM;
+
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
-  @brief  Platform Defined way of injecting up the Error Environment
+  @brief  Platform Defined way of injecting the Error Environment
 
   @param  in_param  - Error Input Parameters.
   @param  *out_param  - Parameters returned from platform to be used in the test.
 
-  @return  0 - Success, NOT_IMPLEMENTED - API not implemented, Other values - Failure
+  @return  PAL_STATUS_SUCCESS if injection completed,
+           PAL_STATUS_INVALID_PARAM for bad pointers,
+           PAL_STATUS_NOT_IMPLEMENTED while platform support is pending.
 **/
 UINT32
 pal_ras_inject_error(RAS_ERR_IN_t in_param, RAS_ERR_OUT_t *out_param)
 {
-  return NOT_IMPLEMENTED;
+  (void) in_param;
+
+  if (out_param == NULL)
+    return PAL_STATUS_INVALID_PARAM;
+
+  pal_warn_not_implemented(__func__);
+  return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**

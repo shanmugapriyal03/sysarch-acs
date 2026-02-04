@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "pal_status.h"
 #include "platform_override_fvp.h"
 
 typedef uintptr_t addr_t;
@@ -63,6 +64,7 @@ void *pal_aligned_alloc( uint32_t alignment, uint32_t size );
 
 void pal_uart_print(int log, const char *fmt, ...);
 void *mem_alloc(size_t alignment, size_t size);
+void pal_warn_not_implemented(const char *api_name);
 #define print(verbose, string, ...)  if(verbose >= g_print_level) \
                                                    pal_uart_print(verbose, string, ##__VA_ARGS__)
 
@@ -178,7 +180,6 @@ void *mem_alloc(size_t alignment, size_t size);
 #define INVALIDATE            0x3
 
 #define HEAP_INITIALISED      0xDC
-#define NOT_IMPLEMENTED       0x4B1D
 
 #define MEM_SIZE_64K              0x10000
 

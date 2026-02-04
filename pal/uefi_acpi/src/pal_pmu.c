@@ -172,14 +172,19 @@ pal_pmu_get_event_info(UINT32 node_index, PMU_EVENT_TYPE_e event_type, PMU_NODE_
   @brief   This API checks if pmu monitor count value is valid
   @param   interface_acpiid - acpiid of interface
   @param   count_value - monitor count value
-  @param   eventid - eventid  
-  @return  0 - monitor count value is valid
-           non-zero - error or invallid count value
+  @param   eventid - eventid
+  @return  PAL_STATUS_SUCCESS when the value is valid,
+           PAL_STATUS_NOT_IMPLEMENTED when platform-specific validation is absent.
 **/
 UINT32
 pal_pmu_check_monitor_count_value(UINT64 interface_acpiid, UINT32 count_value, UINT32 eventid)
 {
-    return NOT_IMPLEMENTED;
+    (void) interface_acpiid;
+    (void) count_value;
+    (void) eventid;
+
+    pal_warn_not_implemented(__func__);
+    return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
@@ -188,26 +193,37 @@ pal_pmu_check_monitor_count_value(UINT64 interface_acpiid, UINT32 count_value, U
   @param   pmu_node_index - pmu node index
   @param   mon_index - monitor index
   @param   eventid - eventid
-  @return  0 - success status
-           non-zero - error status
+  @return  PAL_STATUS_SUCCESS on success,
+           PAL_STATUS_NOT_IMPLEMENTED if traffic generation is not available.
 **/
 UINT32
 pal_generate_traffic(UINT64 interface_acpiid, UINT32 pmu_node_index,
                                      UINT32 mon_index, UINT32 eventid)
 {
-    return NOT_IMPLEMENTED;
+    (void) interface_acpiid;
+    (void) pmu_node_index;
+    (void) mon_index;
+    (void) eventid;
+
+    pal_warn_not_implemented(__func__);
+    return PAL_STATUS_NOT_IMPLEMENTED;
 }
 
 /**
   @brief   This API checks if PMU node is secure only.
   @param   interface_acpiid - acpiid of interface
   @param   num_traffic_type_support - num of traffic type supported.
-  @return  0 - success status
-           non-zero - error status
+  @return  PAL_STATUS_SUCCESS on success,
+           PAL_STATUS_INVALID_PARAM for bad pointers,
+           PAL_STATUS_NOT_IMPLEMENTED if the capability is not yet provided.
 **/
 UINT32
 pal_pmu_get_multi_traffic_support_interface(UINT64 *interface_acpiid,
                                                        UINT32 *num_traffic_type_support)
 {
-    return NOT_IMPLEMENTED;
+    if ((interface_acpiid == NULL) || (num_traffic_type_support == NULL))
+        return PAL_STATUS_INVALID_PARAM;
+
+    pal_warn_not_implemented(__func__);
+    return PAL_STATUS_NOT_IMPLEMENTED;
 }

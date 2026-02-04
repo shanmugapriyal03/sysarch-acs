@@ -785,7 +785,7 @@ pal_exerciser_get_ras_status(uint32_t ras_node, uint32_t bdf, uint32_t rp_bdf)
            with reads
   @param   bdf         - BDF of the device
   @return  status      - 0 if implemented, else
-                       - NOT_IMPLEMENTED
+                       - PAL_STATUS_NOT_IMPLEMENTED
 **/
 uint32_t
 pal_exerciser_set_bar_response(uint32_t bdf)
