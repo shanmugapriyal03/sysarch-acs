@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2016-2018, 2021-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2016-2018, 2021-2026, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -42,6 +42,7 @@ payload (void)
   uint32_t ccnt;
   uint32_t ncnt;
   uint32_t test_skip;
+  uint32_t warn_cnt = 0;
 
   current_irq_pin = 0;
   status = 0;
@@ -97,8 +98,8 @@ payload (void)
         val_print(ACS_PRINT_ERR, "\n       Maximum number of interrupts has been reached", 0);
         break;
       default:
-        if (status == NOT_IMPLEMENTED)
-            val_print (ACS_PRINT_ERR, "\n       API not implemented", 0);
+        if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED)
+            warn_cnt++;
         else
             val_print (ACS_PRINT_ERR, "\n       Unknown error", 0);
         break;
@@ -140,16 +141,16 @@ payload (void)
 
   val_memory_free_aligned(irq_map);
 
-  if (test_skip) {
+  if (warn_cnt)
+    val_set_status(index, RESULT_WARN (TEST_NUM, 1));
+  else if (test_skip)
     val_set_status(index, RESULT_SKIP (TEST_NUM, 2));
-    return;
-  }
-
-  if (!status) {
+  else if (!status)
     val_set_status(index, RESULT_PASS (TEST_NUM, 1));
-  } else {
+  else
     val_set_status(index, RESULT_FAIL (TEST_NUM, status));
-  }
+
+  return;
 }
 
 uint32_t

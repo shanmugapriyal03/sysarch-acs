@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2020-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2020-2026, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -78,11 +78,8 @@ payload(void *arg)
   pe_index = val_pe_get_index_mpid(val_pe_get_mpid());
 
   /* Check If PCIe Hierarchy supports P2P */
-  if (val_pcie_p2p_support() == NOT_IMPLEMENTED) {
-    val_print(ACS_PRINT_DEBUG, "\n       The test is applicable only if the system supports", 0);
-    val_print(ACS_PRINT_DEBUG, "\n       P2P traffic. If the system supports P2P, pass the", 0);
-    val_print(ACS_PRINT_DEBUG, "\n       command line option '-p2p' while running the binary", 0);
-    val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
+  if (val_pcie_p2p_support() == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+    val_set_status(pe_index, RESULT_WARN(test_data->test_num, 01));
     return;
   }
 
@@ -167,7 +164,7 @@ payload(void *arg)
   if (test_skip == 1) {
       val_print(ACS_PRINT_DEBUG,
       "\n       No target device type with Multifunction and P2P support.Skipping test", 0);
-      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 02));
+      val_set_status(pe_index, RESULT_SKIP(test_data->test_num, 01));
   }
   else if (test_fails + aer_cap_fail)
       val_set_status(pe_index, RESULT_FAIL(test_data->test_num, test_fails));

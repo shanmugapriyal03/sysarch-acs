@@ -355,6 +355,8 @@ pal_pcie_p2p_support()
       return 0;
   else {
       pal_warn_not_implemented(__func__);
+      acs_print(ACS_PRINT_WARN, L"\n       Test is applicable only if the system supports P2P."
+                                 "\n       Pass command line option '-p2p' when running.");
       return PAL_STATUS_NOT_IMPLEMENTED;
   }
 }
