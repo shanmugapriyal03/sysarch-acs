@@ -33,6 +33,7 @@ static uint32_t transaction_order[] = {1, 1, 0, 1, 0, 0, 0, 0};
 static uint32_t pattern[16] = {0};
 static uint32_t run_flag;
 static uint32_t fail_cnt;
+static uint32_t warn_cnt;
 
 static uint32_t read_config_space(uint32_t *addr)
 {
@@ -307,11 +308,10 @@ cfgspace_transactions_order_check(void)
     /* Map config space to ARM device(nGnRnE) memory in MMU page tables */
     status = val_memory_ioremap((void *)bdf_addr, 512, DEVICE_nGnRnE, (void **)&baseptr);
 
-    /* Handle unimplemented PAL -> SKIP gracefully */
-    if (status == NOT_IMPLEMENTED) {
-        val_print(ACS_PRINT_ERR,
-                "\n       pal_memory_ioremap not implemented, skipping test.", 0);
-        goto test_skip_unimplemented;
+    /* Handle unimplemented PAL -> Report WARN */
+    if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+        warn_cnt++;
+        goto test_warn_unimplemented;
     }
 
     if (status) {
@@ -339,7 +339,7 @@ cfgspace_transactions_order_check(void)
     cfgspace_test_sequence((uint32_t *)baseptr, instance);
   }
 
-test_skip_unimplemented:
+test_warn_unimplemented:
     return;
 }
 
@@ -390,11 +390,10 @@ barspace_transactions_order_check(void)
     status = val_memory_ioremap((void *)e_data.bar_space.base_addr, 512, DEVICE_nGnRnE,
                                   (void **)&baseptr);
 
-    /* Handle unimplemented PAL -> SKIP gracefully */
-    if (status == NOT_IMPLEMENTED) {
-        val_print(ACS_PRINT_ERR,
-                "\n       pal_memory_ioremap not implemented, skipping test.", 0);
-        goto test_skip_unimplemented;
+    /* Handle unimplemented PAL -> Report WARN */
+    if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+        warn_cnt++;
+        goto test_warn_unimplemented;
     }
 
     if (status) {
@@ -420,7 +419,7 @@ barspace_transactions_order_check(void)
 
   }
 
-test_skip_unimplemented:
+test_warn_unimplemented:
     return;
 }
 
@@ -436,7 +435,10 @@ payload(void)
   cfgspace_transactions_order_check();
   barspace_transactions_order_check();
 
-  if (!run_flag) {
+  if (warn_cnt) {
+    val_set_status(pe_index, RESULT_WARN(TEST_NUM, 1));
+    return;
+  } else if (!run_flag) {
       val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
       return;
   }

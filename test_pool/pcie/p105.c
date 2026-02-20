@@ -56,17 +56,13 @@ payload(void)
           iommu_flag++;
           /* Allocate DMA-able memory region in DDR */
           status = val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT, &dma_addr);
-          if (status == NOT_IMPLEMENTED) {
-            val_print(ACS_PRINT_ERR,
-                    "\n       pal_dma_mem_alloc is unimplemented, Skipping test.", 0);
-            goto test_skip_unimplemented;
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            goto test_warn_unimplemented;
           }
           status = val_smmu_ops(SMMU_CHECK_DEVICE_IOVA, &target_dev_index, &dma_addr);
           if (status) {
-            if (status == NOT_IMPLEMENTED) {
-                val_print(ACS_PRINT_ERR,
-                        "\n       pal_smmu_check_device_iova is unimplemented, Skipping test.", 0);
-                goto test_skip_unimplemented;
+            if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+                goto test_warn_unimplemented;
             }
             val_print(ACS_PRINT_ERR, "\n       The DMA addr allocated to device %d ",
                     target_dev_index);
@@ -85,8 +81,8 @@ payload(void)
       val_set_status(index, RESULT_SKIP(TEST_NUM, 2));
   return;
 
-test_skip_unimplemented:
-    val_set_status(index, RESULT_SKIP(TEST_NUM, 3));
+test_warn_unimplemented:
+    val_set_status(index, RESULT_WARN(TEST_NUM, 1));
 
 }
 

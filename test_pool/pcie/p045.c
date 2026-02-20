@@ -65,7 +65,9 @@ payload(void)
   char    *baseptr;
   uint32_t index = val_pe_get_index_mpid(val_pe_get_mpid());
   uint32_t test_skip = 1;
+  uint32_t test_warn = 1;
   uint32_t test_fail = 0;
+  uint32_t test_abort = 0;
   uint64_t offset;
   uint64_t base;
   pcie_device_bdf_table *bdf_tbl_ptr;
@@ -205,16 +207,17 @@ next_bdf:
 
           branch_to_test = &&exception_return_device;
 
+          test_skip = 0;
+
           /* Map the BARs to a DEVICE memory (non-cachable) attribute
            * and check transaction.
            */
           status = val_memory_ioremap((void *)base, 1024, DEVICE_nGnRnE, (void **)&baseptr);
 
-          /* Handle unimplemented PAL -> SKIP gracefully */
-          if (status == NOT_IMPLEMENTED) {
-            val_print(ACS_PRINT_ERR,
-                  "\n       pal_memory_ioremap not implemented, skipping test.", 0);
-            goto test_skip_unimplemented;
+          /* Handle unimplemented PAL -> Report WARN */
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            test_abort = 1;
+            break;
           }
           else if (status) {
             val_print(ACS_PRINT_ERR, "\n       Failed in  ioremap with status %x", status);
@@ -223,7 +226,7 @@ next_bdf:
             goto next_bar;
           }
 
-          test_skip = 0;
+          test_warn = 0;
 
           /* Access check. Not performing data comparison check. */
           old_data = *(uint32_t *)(baseptr);
@@ -252,13 +255,17 @@ next_bar:
           if (msa_en)
               val_pcie_disable_msa(bdf);
       }
+
+      if (test_abort == 1)
+         break;
   }
 
-  if (test_skip) {
-test_skip_unimplemented:
-    val_set_status(index, RESULT_SKIP(test_num, 0));
+  if (test_warn) {
+    val_set_status(index, RESULT_WARN(test_num, 0));
     return;
-  } else if (test_fail)
+  } else if (test_skip)
+      val_set_status(index, RESULT_SKIP(test_num, 1));
+  else if (test_fail)
       val_set_status(index, RESULT_FAIL(test_num, test_fail));
   else
       val_set_status(index, RESULT_PASS(test_num, 0));

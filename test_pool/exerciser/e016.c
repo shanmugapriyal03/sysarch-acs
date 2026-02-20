@@ -101,11 +101,9 @@ payload(void)
                                               512,
                                               ARM_DEVICE_MEM_ARRAY[idx], (void **)&baseptr);
 
-        /* Handle unimplemented PAL -> SKIP gracefully */
-        if (status == NOT_IMPLEMENTED) {
-          val_print(ACS_PRINT_ERR,
-                "\n       pal_memory_ioremap not implemented, skipping test.", 0);
-          goto test_skip_unimplemented;
+        /* Handle unimplemented PAL -> Report WARN */
+        if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+          goto test_warn_unimplemented;
         }
 
         if (status) {
@@ -140,9 +138,9 @@ exception_return:
 val_set_status(pe_index, RESULT_PASS(TEST_NUM, 01));
 return;
 
-test_skip_unimplemented:
+test_warn_unimplemented:
   val_memory_unmap(baseptr);
-  val_set_status(pe_index, RESULT_SKIP(TEST_NUM, 01));
+  val_set_status(pe_index, RESULT_WARN(TEST_NUM, 01));
   return;
 
 test_fail:

@@ -64,26 +64,20 @@ payload_check_dma_mem_attribute(void)
       if (val_dma_get_info(DMA_HOST_COHERENT, target_dev_index))
       {
           status = val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT, &dma_addr);
-          if (status == NOT_IMPLEMENTED) {
-            val_print(ACS_PRINT_ERR,
-                    "\n       pal_dma_mem_alloc is unimplemented, Skipping test.", 0);
-            goto test_skip_unimplemented;
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            goto test_warn_unimplemented;
           }
       } else {
           status = val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_NOT_COHERENT, &dma_addr);
-          if (status == NOT_IMPLEMENTED) {
-            val_print(ACS_PRINT_ERR,
-                    "\n       pal_dma_mem_alloc is unimplemented, Skipping test.", 0);
-            goto test_skip_unimplemented;
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            goto test_warn_unimplemented;
           }
       }
       ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
       if (ret)
       {
-          if (ret == NOT_IMPLEMENTED) {
-            val_print(ACS_PRINT_ERR,
-                    "\n       pal_dma_mem_get_attrs is unimplemented, Skipping test.", 0);
-            goto test_skip_unimplemented;
+          if (ret == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            goto test_warn_unimplemented;
           }
           val_print(ACS_PRINT_ERR,
                     "\n       DMA controller %d: Failed to get"
@@ -112,8 +106,8 @@ payload_check_dma_mem_attribute(void)
       val_set_status(index, RESULT_PASS(TEST_NUM, 0));
     return;
 
-test_skip_unimplemented:
-    val_set_status(index, RESULT_SKIP(TEST_NUM, 2));
+test_warn_unimplemented:
+    val_set_status(index, RESULT_WARN(TEST_NUM, 1));
 }
 
 /* This test verifies I/O coherent DMA traffic must have the attribute
@@ -148,14 +142,13 @@ payload_check_io_coherent_dma_mem_attribute(void)
         if (val_dma_get_info(DMA_HOST_COHERENT, target_dev_index))
         {
             status = val_dma_mem_alloc(&buffer, 512, target_dev_index, DMA_COHERENT, &dma_addr);
-            if (status == NOT_IMPLEMENTED) {
-                val_print(ACS_PRINT_ERR,
-                        "\n       pal_dma_mem_alloc is unimplemented, Skipping test.", 0);
-                goto test_skip_unimplemented;
+            if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+                goto test_warn_unimplemented;
             }
             ret = val_dma_mem_get_attrs(buffer, &attr, &sh);
-            if (ret)
-            {
+            if (ret == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+                goto test_warn_unimplemented;
+            } else if (ret) {
                 val_print(ACS_PRINT_ERR,
                             "\n       DMA controller %d: Failed to get memory attributes\n",
                             target_dev_index);
@@ -181,8 +174,8 @@ payload_check_io_coherent_dma_mem_attribute(void)
         val_set_status(index, RESULT_PASS(TEST_NUM1, 0));
     return;
 
-test_skip_unimplemented:
-    val_set_status(index, RESULT_SKIP(TEST_NUM1, 2));
+test_warn_unimplemented:
+    val_set_status(index, RESULT_WARN(TEST_NUM1, 2));
 }
 
 uint32_t

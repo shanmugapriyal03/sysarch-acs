@@ -170,10 +170,9 @@ payload (void)
 
         ret = val_get_msi_vectors (current_dev_bdf, &current_dev_mvec);
 
-        if (ret == NOT_IMPLEMENTED) {
-          val_print(ACS_PRINT_ERR,
-              "\n       pal_get_msi_vectors is unimplemented, Skipping test.", 0);
-          goto test_skip_unimplemented;
+        if (ret == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+          clean_msi_list (current_dev_mvec);
+          goto test_warn_unimplemented;
         }
 
         if (ret) {
@@ -218,10 +217,9 @@ payload (void)
                   /* Read MSI(X) vectors */
                   ret = val_get_msi_vectors (next_dev_bdf, &next_dev_mvec);
 
-                  if (ret == NOT_IMPLEMENTED) {
-                    val_print(ACS_PRINT_ERR,
-                        "\n       pal_get_msi_vectors is unimplemented, Skipping test.", 0);
-                    goto test_skip_unimplemented;
+                  if (ret == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+                    clean_msi_list (next_dev_mvec);
+                    goto test_warn_unimplemented;
                   }
 
                   if (ret) {
@@ -257,8 +255,8 @@ payload (void)
   }
   return;
 
-test_skip_unimplemented:
-  val_set_status(index, RESULT_SKIP(TEST_NUM, 02));
+test_warn_unimplemented:
+  val_set_status(index, RESULT_WARN(TEST_NUM, 01));
 }
 
 uint32_t

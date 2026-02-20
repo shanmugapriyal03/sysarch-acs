@@ -757,7 +757,6 @@ pal_pcie_p2p_support(void)
   // in the PCIe platform configuration
 
   return 0;
-
 }
 
 /**

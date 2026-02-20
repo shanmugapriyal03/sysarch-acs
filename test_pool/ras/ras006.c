@@ -1,5 +1,5 @@
 /** @file
- * Copyright (c) 2023-2025, Arm Limited or its affiliates. All rights reserved.
+ * Copyright (c) 2023-2026, Arm Limited or its affiliates. All rights reserved.
  * SPDX-License-Identifier : Apache-2.0
 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,7 +44,7 @@ payload()
   uint64_t data;
 
   uint32_t status;
-  uint32_t fail_cnt = 0, test_skip = 0;
+  uint32_t fail_cnt = 0, test_skip = 0, warn_cnt = 0;
   uint32_t node_index;
   uint64_t mc_prox_domain;
   uint32_t err_rec_addrmode;
@@ -147,7 +147,10 @@ payload()
 
           /* Setup error in an implementation defined way */
           status = val_ras_setup_error(err_in_params, &err_out_params);
-          if (status) {
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            warn_cnt++;
+            break;
+          } else if (status) {
             val_print(ACS_PRINT_ERR, "\n       val_ras_setup_error failed, node %d", node_index);
             fail_cnt++;
             break;
@@ -155,7 +158,10 @@ payload()
 
           /* Inject error in an implementation defined way */
           status = val_ras_inject_error(err_in_params, &err_out_params);
-          if (status) {
+          if (status == ACS_STATUS_PAL_NOT_IMPLEMENTED) {
+            warn_cnt++;
+            break;
+          } else if (status) {
             val_print(ACS_PRINT_ERR, "\n       val_ras_inject_error failed, node %d", node_index);
             fail_cnt++;
             break;
@@ -278,15 +284,16 @@ payload()
       }
   }
 
-  if (fail_cnt) {
+  if (fail_cnt)
     val_set_status(index, RESULT_FAIL(TEST_NUM, 02));
-    return;
-  } else if (test_skip) {
+  else if (warn_cnt)
+    val_set_status(index, RESULT_WARN(TEST_NUM, 01));
+  else if (test_skip)
     val_set_status(index, RESULT_SKIP(TEST_NUM, 03));
-    return;
-  }
+  else
+    val_set_status(index, RESULT_PASS(TEST_NUM, 01));
 
-  val_set_status(index, RESULT_PASS(TEST_NUM, 01));
+  return;
 }
 
 uint32_t
