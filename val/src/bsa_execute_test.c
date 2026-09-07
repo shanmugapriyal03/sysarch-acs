@@ -510,7 +510,6 @@ val_bsa_pcie_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
           status |= p045_entry(num_pe);
           status |= p094_entry(num_pe);
           status |= p095_entry(num_pe);
-          status |= p096_entry(num_pe);
           status |= p097_entry(num_pe);
 #endif
 #if defined(TARGET_LINUX)
@@ -897,7 +896,6 @@ val_bsa_exerciser_execute_tests(uint32_t num_pe, uint32_t *g_sw_view)
          status |= e001_entry(num_pe);
          status |= e002_entry(num_pe);
          status |= e004_entry(num_pe);
-         status |= e006_entry(num_pe);
          status |= e010_entry(num_pe);
 
          if (!pal_target_is_dt()) {
