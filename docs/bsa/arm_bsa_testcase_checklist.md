@@ -1142,8 +1142,8 @@ The checklist provides information about:
       <td></td>
     </tr>
     <tr>
-      <td rowspan="84">L1</td>
-      <td rowspan="84">B_PER_08</td>
+      <td rowspan="79">L1</td>
+      <td rowspan="79">B_PER_08</td>
       <td>PCI_IN_01</td>
       <td>801</td>
       <td>Check ECAM Presence</td>
@@ -1798,26 +1798,6 @@ The checklist provides information about:
       <td></td>
     </tr>
     <tr>
-      <td>ITS_01</td>
-      <td>251</td>
-      <td>Check number of ITS blocks in a group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_02</td>
-      <td>252</td>
-      <td>Check ITS block association with group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
       <td>ITS_03</td>
       <td>1511</td>
       <td>MSI-capable device linked to ITS group</td>
@@ -1826,16 +1806,6 @@ The checklist provides information about:
       <td>No</td>
       <td>Exerciser VIP required</td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_04</td>
-      <td>1535</td>
-      <td>MSI-cap device can target any ITS blk</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_05</td>
@@ -1856,26 +1826,6 @@ The checklist provides information about:
       <td></td>
       <td></td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_07</td>
-      <td>Not Covered</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_08</td>
-      <td>1548</td>
-      <td>ITS blocks in group observe same DeviceID</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_DEV_1</td>
@@ -2244,8 +2194,8 @@ The checklist provides information about:
       <td></td>
     </tr>
     <tr>
-      <td rowspan="86">FR</td>
-      <td rowspan="86">B_REP_1</td>
+      <td rowspan="81">FR</td>
+      <td rowspan="81">B_REP_1</td>
       <td>RI_CRS_1</td>
       <td>Not Covered</td>
       <td></td>
@@ -2374,26 +2324,6 @@ The checklist provides information about:
       <td>pal_exerciser_set_param (DMA_ATTRIBUTES)<br>pal_exerciser_ops (PASID_TLP_START, START_DMA, PASID_TLP_STOP)</td>
     </tr>
     <tr>
-      <td>ITS_01</td>
-      <td>251</td>
-      <td>Check number of ITS blocks in a group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_02</td>
-      <td>252</td>
-      <td>Check ITS block association with group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
       <td>ITS_03</td>
       <td>1511</td>
       <td>MSI-capable device linked to ITS group</td>
@@ -2402,16 +2332,6 @@ The checklist provides information about:
       <td>No</td>
       <td>Exerciser VIP required</td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_04</td>
-      <td>1535</td>
-      <td>MSI-cap device can target any ITS blk</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_05</td>
@@ -2432,26 +2352,6 @@ The checklist provides information about:
       <td></td>
       <td></td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_07</td>
-      <td>Not Covered</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_08</td>
-      <td>1548</td>
-      <td>ITS blocks in group observe same DeviceID</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_DEV_1</td>
@@ -3104,8 +3004,8 @@ The checklist provides information about:
       <td></td>
     </tr>
     <tr>
-      <td rowspan="101">FR</td>
-      <td rowspan="101">B_IEP_1</td>
+      <td rowspan="96">FR</td>
+      <td rowspan="96">B_IEP_1</td>
       <td>RI_CRS_1</td>
       <td>Not Covered</td>
       <td></td>
@@ -3234,26 +3134,6 @@ The checklist provides information about:
       <td>pal_exerciser_set_param (DMA_ATTRIBUTES)<br>pal_exerciser_ops (PASID_TLP_START, START_DMA, PASID_TLP_STOP)</td>
     </tr>
     <tr>
-      <td>ITS_01</td>
-      <td>251</td>
-      <td>Check number of ITS blocks in a group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_02</td>
-      <td>252</td>
-      <td>Check ITS block association with group</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
       <td>ITS_03</td>
       <td>1511</td>
       <td>MSI-capable device linked to ITS group</td>
@@ -3262,16 +3142,6 @@ The checklist provides information about:
       <td>No</td>
       <td>Exerciser VIP required</td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_04</td>
-      <td>1535</td>
-      <td>MSI-cap device can target any ITS blk</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_05</td>
@@ -3292,26 +3162,6 @@ The checklist provides information about:
       <td></td>
       <td></td>
       <td></td>
-    </tr>
-    <tr>
-      <td>ITS_07</td>
-      <td>Not Covered</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>ITS_08</td>
-      <td>1548</td>
-      <td>ITS blocks in group observe same DeviceID</td>
-      <td>Yes</td>
-      <td>Yes</td>
-      <td>No</td>
-      <td>Exerciser VIP required</td>
-      <td>pal_exerciser_ops (GENERATE_MSI)</td>
     </tr>
     <tr>
       <td>ITS_DEV_1</td>
@@ -4151,6 +4001,7 @@ The checklist provides information about:
 </table>
 
 ## Latest Checklist Changes
+- Implemented BSA 1.3 Errata 1084: removed ITS_01, ITS_02, ITS_04, ITS_07, ITS_08.
 - Updated PCI_MM_01, PCI_MM_02, PCI_MM_03, PCI_MSI_2, and PCI_LI_02 UEFI coverage.
 - Updated B_MEM_02, B_MEM_03, and B_MEM_06 UEFI coverage.
 - Synced covered checklist descriptions with rule_metadata.c.
