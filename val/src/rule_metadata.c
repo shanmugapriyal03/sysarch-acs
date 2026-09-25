@@ -4490,7 +4490,7 @@ const RULE_ID_e bsa_l1_rule_list[] = {
 };
 
 /* B_WD_00 */
-const RULE_ID_e b_wd_00_rule_list[]     = {B_WD_01, B_WD_02, B_WD_03, B_WD_04, B_WD_05,
+const RULE_ID_e b_wd_00_rule_list[]     = {B_WD_01, B_WD_02, B_WD_03, B_WD_04,
                                      RULE_ID_SENTINEL};
 
 /* B_SMMU_21 */

@@ -543,6 +543,7 @@ The checklist provides information about:
       <td>Yes</td>
       <td>No</td>
       <td>Requires ACS SMC handler support in EL3 firmware</td>
+      <td></td>
     </tr>
     <tr>
       <td>223</td>
@@ -551,6 +552,7 @@ The checklist provides information about:
       <td>Yes</td>
       <td>No</td>
       <td>Requires ACS SMC handler support in EL3 firmware</td>
+      <td></td>
     </tr>
     <tr>
       <td>L1</td>
@@ -716,6 +718,7 @@ The checklist provides information about:
       <td>Yes</td>
       <td>No</td>
       <td>Requires ACS SMC handler support in EL3 firmware</td>
+      <td></td>
     </tr>
     <tr>
       <td>L1</td>
@@ -1006,8 +1009,8 @@ The checklist provides information about:
       <td></td>
     </tr>
     <tr>
-      <td rowspan="5">L1</td>
-      <td rowspan="5">B_WD_00</td>
+      <td rowspan="4">L1</td>
+      <td rowspan="4">B_WD_00</td>
       <td>B_WD_01</td>
       <td>701</td>
       <td>Non Secure Watchdog Access</td>
@@ -1039,16 +1042,6 @@ The checklist provides information about:
     </tr>
     <tr>
       <td>B_WD_04</td>
-      <td>Not Covered</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>B_WD_05</td>
       <td>Not Covered</td>
       <td></td>
       <td></td>
@@ -3903,7 +3896,7 @@ The checklist provides information about:
 - **RI_ Removed:** RI_RST_1
 - **PCI_ Removed:** PCI_LI_02
 - **IE_ Removed:** IE_ACS_1, IE_ACS_2
-- **B_ Removed:** B_SEC_02
+- **B_ Removed:** B_SEC_02, B_WD_05
 
 ### v26.03_BSA_1.2.1
 - **RI_ Added:** RI_PWR_1

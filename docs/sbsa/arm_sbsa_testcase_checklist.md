@@ -697,13 +697,14 @@ The checklist provides information about:
       <td></td>
       <td></td>
     </tr>
-    </tr>
-     <td>B_SMMU_04</td>
+    <tr>
+      <td>B_SMMU_04</td>
       <td>317</td>
       <td>Check TLB Range Invalidation</td>
       <td>Yes</td>
       <td>Yes</td>
       <td>No</td>
+      <td></td>
       <td></td>
     </tr>
     <tr>
@@ -3307,7 +3308,6 @@ The checklist provides information about:
       <td>No</td>
       <td></td>
       <td></td>
-      <td></td>
     </tr>
     <tr>
       <td>Version 8.0</td>
@@ -3355,6 +3355,7 @@ The checklist provides information about:
       <td>Yes</td>
       <td>No</td>
       <td>Requires ACS SMC handler support in EL3 firmware</td>
+      <td></td>
     </tr>
     <tr>
       <td>Version 8.0</td>
