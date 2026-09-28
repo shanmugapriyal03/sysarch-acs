@@ -29,8 +29,10 @@ void
 payload()
 {
 
-  uint64_t data_pa_range, data_oas;
+  uint64_t mmfr0, data_pa_range, data_oas;
+  uint64_t tgran4, tgran16, tgran64;
   uint32_t num_smmu, smmu_52bit = 1;
+  uint32_t pe_52bit_support = 0;
   uint32_t index;
   uint32_t memmap_addr_52bit;
 
@@ -47,8 +49,26 @@ payload()
   memmap_addr_52bit = val_memory_region_has_52bit_addr();
   val_print(DEBUG, "\n       uefi mem map has 52 bit addr: %d", memmap_addr_52bit);
 
-  data_pa_range = VAL_EXTRACT_BITS(val_pe_reg_read(ID_AA64MMFR0_EL1), 0, 3);
+  mmfr0 = val_pe_reg_read(ID_AA64MMFR0_EL1);
+
+  data_pa_range = VAL_EXTRACT_BITS(mmfr0, 0, 3);
+  tgran16       = VAL_EXTRACT_BITS(mmfr0, 20, 23);
+  tgran64       = VAL_EXTRACT_BITS(mmfr0, 24, 27);
+  tgran4        = VAL_EXTRACT_BITS(mmfr0, 28, 31);
+
   val_print(DEBUG, "\n       PE pa range value: %d", data_pa_range);
+  val_print(DEBUG, "\n       TGran64 value: %d", tgran64);
+  val_print(DEBUG, "\n       TGran4 value: %d", tgran4);
+  val_print(DEBUG, "\n       TGran16 value: %d", tgran16);
+
+  /*
+   * For 52-bit SPAS, PE must support FEAT_LPA with 52-bit PA
+   * (PARange = 0x6), and either 64KB granule (TGran64 = 0x0)
+   * or FEAT_LPA2 (TGran4 = 0x1 or TGran16 = 0x2).
+   */
+  if ((data_pa_range == 0x6) &&
+     ((tgran64 == 0x0) || (tgran4 == 0x1) || (tgran16 == 0x2)))
+        pe_52bit_support = 1;
 
   while (num_smmu--) {
       /* SMMUv2 does not support 52 bit OAS */
@@ -65,12 +85,12 @@ payload()
       }
   }
 
-  if (smmu_52bit && (data_pa_range == 0x6)) {
-      val_set_status(index, RESULT_PASS);
-      return;
+  if (smmu_52bit && pe_52bit_support) {
+     val_set_status(index, RESULT_PASS);
+     return;
   }
 
-  if (((smmu_52bit == 0) || (data_pa_range != 0x6)) && memmap_addr_52bit) {
+  if (((smmu_52bit == 0) || (pe_52bit_support == 0)) && memmap_addr_52bit) {
       val_print(ERROR, "\n       PE or SMMU doesn't support 52-bit, \
                                                          but uefi mem map has 52-bit addr");
       val_set_status(index, RESULT_FAIL(1));
