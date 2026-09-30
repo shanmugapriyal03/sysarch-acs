@@ -31,6 +31,11 @@
 #define ERR_FR_DFI_MASK  (0x3ull << 26)
 #define ERR_FR_CED_MASK  (0x1ull << 30)
 #define ERR_FR_RV_MASK   (0x1ull << 28)
+#define ERR_FR_FRX_MASK  (0x1ull << 31)
+#define ERR_FR_UEO_MASK  (0x1ull << 51)
+#define ERR_FR_UER_MASK  (0x1ull << 50)
+#define ERR_FR_UEU_MASK  (0x1ull << 49)
+#define ERR_FR_UC_MASK   (0x1ull << 48)
 
 #define ERR_STATUS_V_MASK   (0x1 << 30)
 #define ERR_STATUS_AV_MASK  (0x1 << 31)
